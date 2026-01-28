@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.system.mapper.ISysUserMapper" >
+
+    <sql id="selectAdminVo">
+        select admin_id, username, email, password, nickname, avatar, userType, last_login_time, last_login_ip, is_deleted, create_time, update_time, create_by, update_by from administrators
+    </sql>
+
+    <select id="selectUserByUserName" resultType="com.blog.common.core.domain.entity.Administrators">
+        <include refid="selectAdminVo"/>
+        where username = #{username} and is_deleted = 0
+    </select>
+</mapper>
