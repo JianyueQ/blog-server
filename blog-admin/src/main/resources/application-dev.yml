@@ -1,0 +1,17 @@
+blog:
+  datasource:
+    host: localhost
+    port: 3306
+    database: blog_system
+    username: root
+    password: 123456
+  redis:
+    database: 4
+    host: 192.168.31.68
+    port: 6379
+    password: 123456
+  rabbitmq:
+    host: 192.168.31.68
+    port: 5673
+    username: blog
+    password: blog
