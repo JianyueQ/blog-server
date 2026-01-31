@@ -1,6 +1,7 @@
 package com.blog.common.core.domain.entity;
 
 import com.blog.common.core.domain.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -14,6 +15,7 @@ public class Administrators extends BaseEntity {
     /**
      * 管理员id
      */
+    @JsonIgnore
     private Long adminId;
 
     /**
@@ -27,8 +29,9 @@ public class Administrators extends BaseEntity {
     private String email;
 
     /**
-     * 密码
+     * 密码 (不返回给前端)
      */
+    @JsonIgnore
     private String password;
 
     /**
@@ -45,6 +48,11 @@ public class Administrators extends BaseEntity {
      * 用户类型
      */
     private String userType;
+
+    /**
+     * 个人描述
+     */
+    private String description;
 
     /**
      * 最后登录时间
@@ -126,6 +134,14 @@ public class Administrators extends BaseEntity {
 
     public void setLastLoginIp(String lastLoginIp) {
         this.lastLoginIp = lastLoginIp;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

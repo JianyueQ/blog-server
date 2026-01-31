@@ -44,4 +44,14 @@ public class Constants {
      * JWT 用户名
      */
     public static final String JWT_USERNAME = "username";
+
+    /**
+     * 令牌前缀
+     */
+    public static final String TOKEN_PREFIX = "Bearer ";
+
+    /**
+     * 资源映射路径 前缀
+     */
+    public static final String RESOURCE_PREFIX = "/profile";
 }

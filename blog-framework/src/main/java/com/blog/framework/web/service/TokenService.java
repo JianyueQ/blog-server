@@ -8,12 +8,15 @@ import com.blog.common.core.redis.RedisCache;
 import com.blog.common.enums.UserType;
 import com.blog.common.exception.user.UserTypeNotExistsException;
 import com.blog.common.utils.ServletUtils;
+import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.http.UserAgentUtils;
 import com.blog.common.utils.ip.AddressUtils;
 import com.blog.common.utils.ip.IpUtils;
 import com.blog.common.utils.uuid.IdUtils;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,6 +96,7 @@ public class TokenService {
         }
     }
 
+
     /**
      * 创建令牌
      * @param claims 负载
@@ -157,5 +161,114 @@ public class TokenService {
     private String getTokenKey(String uuid)
     {
         return CacheConstants.LOGIN_TOKEN_KEY + uuid;
+    }
+
+    /**
+     * 获取用户身份信息
+     *
+     * @param request 请求对象
+     * @return 用户信息
+     */
+    public LoginUserOnUser getLoginUser(HttpServletRequest request) {
+        String token = getToken(request);
+        if (StringUtils.isNotEmpty(token)) {
+            try {
+                Claims claims = parseToken(token);
+                // 解析对应的权限以及用户信息
+                String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
+                String userKey = getTokenKey(uuid);
+                LoginUserOnUser user = redisCache.getCacheObject(userKey);
+                return user;
+            } catch (Exception e) {
+                log.error("获取用户信息异常'{}'", e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 从令牌中获取数据声明
+     *
+     * @param token 令牌
+     * @return 数据声明
+     */
+    private Claims parseToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    /**
+     * 从请求头中获取token
+     *
+     * @param request 请求对象
+     * @return token
+     */
+    private String getToken(HttpServletRequest request) {
+        String token = request.getHeader(header);
+        if (StringUtils.isNotEmpty(token) && token.startsWith(Constants.TOKEN_PREFIX)) {
+            token = token.replace(Constants.TOKEN_PREFIX, "");
+        }
+        return token;
+    }
+
+    /**
+     * 删除管理员用户信息
+     *
+     * @param token 管理员用户信息
+     */
+    public void delLoginUserOnAdmin(String token) {
+        if (StringUtils.isNotEmpty(token)) {
+            String userKey = getTokenKey(token);
+            redisCache.deleteObject(userKey);
+        }
+    }
+
+    /**
+     * 获取管理员用户信息
+     *
+     * @param request 请求对象
+     * @return 管理员用户信息
+     */
+    public LoginUserOnAdmin getLoginUserOnAdmin(HttpServletRequest request) {
+        String token = getToken(request);
+        if (StringUtils.isNotEmpty(token)) {
+            try {
+                Claims claims = parseToken(token);
+                // 解析对应的权限以及用户信息
+                String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
+                String userKey = getTokenKey(uuid);
+                LoginUserOnAdmin user = redisCache.getCacheObject(userKey);
+                return user;
+            } catch (Exception e) {
+                log.error("获取管理员用户信息异常'{}'", e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 验证令牌有效期，相差不足20分钟，自动刷新缓存
+     *
+     * @param loginUserOnAdmin 管理员用户信息
+     */
+    public void verifyToken(LoginUserOnAdmin loginUserOnAdmin) {
+        long expireTime = loginUserOnAdmin.getExpireTime();
+        long currentTime = System.currentTimeMillis();
+        if (expireTime - currentTime <= TWENTY_MINUTES) {
+            refreshTokenOnAdmin(loginUserOnAdmin);
+        }
+    }
+
+    /**
+     * 设置用户身份信息
+     */
+    public void setLoginUserOnAdmin(LoginUserOnAdmin loginUserOnAdmin)
+    {
+        if (StringUtils.isNotNull(loginUserOnAdmin) && StringUtils.isNotEmpty(loginUserOnAdmin.getToken()))
+        {
+            refreshTokenOnAdmin(loginUserOnAdmin);
+        }
     }
 }

@@ -1,5 +1,8 @@
 package com.blog.common.utils;
 
+import com.blog.common.constant.HttpStatus;
+import com.blog.common.core.domain.model.LoginUserOnAdmin;
+import com.blog.common.exception.ServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -51,5 +54,16 @@ public class SecurityUtils {
         return userId != null && 1L == userId;
     }
 
-
+    /**
+     * 获取登录的管理员用户信息
+     *
+     * @return 登录的管理员用户信息
+     */
+    public static LoginUserOnAdmin getLoginUserOnAdmin() {
+        try {
+            return (LoginUserOnAdmin) getAuthentication().getPrincipal();
+        } catch (Exception e) {
+            throw new ServiceException(HttpStatus.UNAUTHORIZED,"获取用户信息异常");
+        }
+    }
 }

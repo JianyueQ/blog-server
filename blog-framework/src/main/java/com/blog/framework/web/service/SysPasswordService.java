@@ -10,6 +10,7 @@ import com.blog.common.exception.user.UserTypeNotExistsException;
 import com.blog.common.utils.SecurityUtils;
 import com.blog.common.utils.StringUtils;
 import com.blog.framework.security.context.AuthenticationContextHolder;
+import com.blog.framework.security.token.MultiUserAuthenticationToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;

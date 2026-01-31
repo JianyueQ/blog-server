@@ -1,7 +1,8 @@
-package com.blog.framework.web.service;
+package com.blog.framework.security.provider;
 
-import com.blog.common.core.domain.model.LoginUserOnAdmin;
-import com.blog.common.core.domain.model.LoginUserOnUser;
+import com.blog.framework.security.token.MultiUserAuthenticationToken;
+import com.blog.framework.web.service.Impl.AdminDetailsServiceImpl;
+import com.blog.framework.web.service.Impl.UserDetailsServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
