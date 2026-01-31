@@ -3,6 +3,7 @@ package com.blog.framework.security.filter;
 import com.blog.common.core.domain.model.LoginUserOnAdmin;
 import com.blog.common.utils.SecurityUtils;
 import com.blog.common.utils.StringUtils;
+import com.blog.framework.security.token.MultiUserAuthenticationToken;
 import com.blog.framework.web.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,7 +37,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         if (StringUtils.isNotNull(loginUser) && StringUtils.isNull(SecurityUtils.getAuthentication()))
         {
             tokenService.verifyToken(loginUser);
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+//            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+            MultiUserAuthenticationToken authenticationToken = new MultiUserAuthenticationToken(loginUser, null, loginUser.getAuthorities(),loginUser.getAdministrators().getUserType());
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }

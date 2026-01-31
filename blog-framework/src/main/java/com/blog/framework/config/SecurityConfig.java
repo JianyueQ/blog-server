@@ -1,6 +1,8 @@
 package com.blog.framework.config;
 
+import com.blog.framework.config.properties.PermitAllUrlProperties;
 import com.blog.framework.security.filter.JwtAuthenticationTokenFilter;
+import com.blog.framework.security.handle.AuthenticationEntryPointImpl;
 import com.blog.framework.security.handle.LogoutSuccessHandlerImpl;
 import com.blog.framework.web.service.Impl.AdminDetailsServiceImpl;
 import com.blog.framework.web.service.Impl.UserDetailsServiceImpl;
@@ -9,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +22,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.filter.CorsFilter;
 
 /**
  * spring security配置
@@ -49,9 +54,27 @@ public class SecurityConfig {
      */
     private final JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
-    public SecurityConfig(LogoutSuccessHandlerImpl logoutSuccessHandler, JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter) {
+    /**
+     * 认证失败处理类
+     */
+    private final AuthenticationEntryPointImpl unauthorizedHandler;
+
+    /**
+     * 跨域过滤器
+     */
+    private final CorsFilter corsFilter;
+
+    /**
+     * 允许匿名访问的地址
+     */
+    private final PermitAllUrlProperties permitAllUrl;
+
+    public SecurityConfig(LogoutSuccessHandlerImpl logoutSuccessHandler, JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter, AuthenticationEntryPointImpl unauthorizedHandler, CorsFilter corsFilter, PermitAllUrlProperties permitAllUrl) {
         this.logoutSuccessHandler = logoutSuccessHandler;
         this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
+        this.unauthorizedHandler = unauthorizedHandler;
+        this.corsFilter = corsFilter;
+        this.permitAllUrl = permitAllUrl;
     }
 
 
@@ -79,12 +102,26 @@ public class SecurityConfig {
                 .headers((headersCustomizer) -> {
                     headersCustomizer.cacheControl(HeadersConfigurer.CacheControlConfig::disable).frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
                 })
+                // 认证失败处理类
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 // 基于token，所以不需要session
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 允许所有请求通过（开发环境配置）
-                .authorizeHttpRequests(authz -> authz.requestMatchers("/**").permitAll())
+//                .authorizeHttpRequests(authz -> authz.requestMatchers("/**").permitAll())
+                //注解标记允许匿名访问的url
+                .authorizeHttpRequests((request) -> {
+                    permitAllUrl.getUrls().forEach(url -> request.requestMatchers(url).permitAll());
+                    // 对于登录login 验证码captchaImage,以及前台接口 允许匿名访问
+                    request.requestMatchers("/login", "/captchaImage", "/blog/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/").permitAll()
+                            // 除上面外的所有请求全部需要鉴权认证
+                            .anyRequest().authenticated();
+                })
                 .logout(logout -> logout.logoutUrl("/logout").logoutSuccessHandler(logoutSuccessHandler))
                 .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                // 添加CORS filter
+                .addFilterBefore(corsFilter, JwtAuthenticationTokenFilter.class)
+                .addFilterBefore(corsFilter, LogoutFilter.class)
                 .build();
     }
 
