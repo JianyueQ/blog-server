@@ -1,15 +1,15 @@
 package com.blog.framework.config;
 
-import com.blog.framework.web.service.AdminDetailsServiceImpl;
-import com.blog.framework.web.service.MultiUserTypeAuthenticationProvider;
-import com.blog.framework.web.service.UserDetailsServiceImpl;
+import com.blog.framework.security.filter.JwtAuthenticationTokenFilter;
+import com.blog.framework.security.handle.LogoutSuccessHandlerImpl;
+import com.blog.framework.web.service.Impl.AdminDetailsServiceImpl;
+import com.blog.framework.web.service.Impl.UserDetailsServiceImpl;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * spring security配置
@@ -37,6 +38,21 @@ public class SecurityConfig {
     private UserDetailsServiceImpl userDetailsServiceImpl;
     @Resource(name = "adminDetailsServiceImpl")
     private AdminDetailsServiceImpl adminDetailsServiceImpl;
+
+    /**
+     * 退出处理类
+     */
+    private final LogoutSuccessHandlerImpl logoutSuccessHandler;
+
+    /**
+     * JWT认证过滤器
+     */
+    private final JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+
+    public SecurityConfig(LogoutSuccessHandlerImpl logoutSuccessHandler, JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter) {
+        this.logoutSuccessHandler = logoutSuccessHandler;
+        this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
+    }
 
 
     @Bean
@@ -67,6 +83,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 允许所有请求通过（开发环境配置）
                 .authorizeHttpRequests(authz -> authz.requestMatchers("/**").permitAll())
+                .logout(logout -> logout.logoutUrl("/logout").logoutSuccessHandler(logoutSuccessHandler))
+                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

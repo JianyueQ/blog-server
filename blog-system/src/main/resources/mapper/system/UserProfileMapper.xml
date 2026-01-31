@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.system.mapper.UserProfileMapper">
+
+    <resultMap id="getBlogOwnerProfile" type="com.blog.system.domain.vo.BlogOnerProfileVO">
+        <result property="adminId" column="admin_id"/>
+        <result property="email" column="email"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        <result property="description" column="description"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+    </resultMap>
+
+    <sql id="blogOwnerProfile">
+        select admin_id,email,nickname,avatar,description,last_login_time,last_login_ip from administrators
+    </sql>
+
+    <select id="getBlogOwnerProfile" resultMap="getBlogOwnerProfile">
+        <include refid="blogOwnerProfile"/>
+        where is_deleted = 0 and user_type = 'admin'
+    </select>
+</mapper>

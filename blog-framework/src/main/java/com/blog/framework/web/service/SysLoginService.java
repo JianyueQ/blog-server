@@ -2,16 +2,19 @@ package com.blog.framework.web.service;
 
 import com.blog.common.constant.CacheConstants;
 import com.blog.common.constant.UserConstants;
+import com.blog.common.core.domain.entity.Administrators;
 import com.blog.common.core.domain.model.LoginUserOnAdmin;
-import com.blog.common.core.domain.model.LoginUserOnUser;
 import com.blog.common.core.redis.RedisCache;
+import com.blog.common.domain.AjaxResult;
 import com.blog.common.exception.ServiceException;
 import com.blog.common.exception.user.CaptchaException;
 import com.blog.common.exception.user.CaptchaExpireException;
 import com.blog.common.exception.user.UserNotExistsException;
 import com.blog.common.exception.user.UserPasswordNotMatchException;
+import com.blog.common.utils.SecurityUtils;
 import com.blog.common.utils.StringUtils;
 import com.blog.framework.security.context.AuthenticationContextHolder;
+import com.blog.framework.security.token.MultiUserAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -118,5 +121,18 @@ public class SysLoginService {
 //            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.jcaptcha.error")));
             throw new CaptchaException();
         }
+    }
+
+    /**
+     * 获取管理员信息
+     * @return 管理员信息
+     */
+    public AjaxResult getAdminInfo() {
+        LoginUserOnAdmin loginUserOnAdmin = SecurityUtils.getLoginUserOnAdmin();
+        Administrators administrators = loginUserOnAdmin.getAdministrators();
+        tokenService.refreshTokenOnAdmin(loginUserOnAdmin);
+        AjaxResult ajax = AjaxResult.success();
+        ajax.put("user", administrators);
+        return ajax;
     }
 }

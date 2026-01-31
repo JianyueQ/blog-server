@@ -1,8 +1,7 @@
-package com.blog.framework.web.service;
+package com.blog.framework.security.token;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
 
 import java.io.Serial;
 import java.util.Collection;

@@ -56,9 +56,9 @@ spring:
   servlet:
     multipart:
       # 单个文件大小
-      max-file-size: 10MB
+      max-file-size: 50MB
       # 设置总上传的文件大小
-      max-request-size: 20MB
+      max-request-size: 100MB
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -134,7 +134,7 @@ spring:
     port: ${blog.rabbitmq.port}
     username: ${blog.rabbitmq.username}
     password: ${blog.rabbitmq.password}
-    virtual-host: /cm
+    virtual-host: /blog
     # 连接池配置
     connection-timeout: 15000
     # 开启发布确认
@@ -177,8 +177,7 @@ token:
 
 #minio 存储桶配置
 minio:
-  endpoint: http://192.168.31.68:9000       # MinIO服务地址
-  fileHost: http://192.168.31.68:9000       # 文件地址host
-  bucketName: blog-oss                      # 存储桶bucket名称
-  accessKey: jianyueadmin                   # 用户名
-  secretKey: jianyueadmin                   # 密码
+  endpoint: http://47.242.127.102:7200       # MinIO服务地址
+  bucketName: blog-oss                        # 存储桶bucket名称
+  accessKey: jianyueadmin                     # 用户名
+  secretKey: jianyueadmin                     # 密码

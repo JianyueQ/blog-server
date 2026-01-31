@@ -45,6 +45,12 @@ public class CaptchaController {
         this.blogConfig = blogConfig;
     }
 
+    /**
+     * 获取验证码图片
+     * @param response 响应对象
+     * @return 验证码图片
+     * @throws IOException IOE异常
+     */
     @GetMapping("/captchaImage")
     public AjaxResult getCode(HttpServletResponse response) throws IOException {
         AjaxResult ajax = AjaxResult.success();

@@ -1,4 +1,4 @@
-package com.blog.framework.web.service;
+package com.blog.framework.web.service.Impl;
 
 import com.blog.common.core.domain.entity.Administrators;
 
@@ -8,6 +8,7 @@ import com.blog.common.enums.UserStatus;
 import com.blog.common.exception.ServiceException;
 import com.blog.common.utils.MessageUtils;
 import com.blog.common.utils.StringUtils;
+import com.blog.framework.web.service.SysPasswordService;
 import com.blog.system.service.ISysUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

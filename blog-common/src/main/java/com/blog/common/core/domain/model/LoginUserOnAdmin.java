@@ -152,4 +152,5 @@ public class LoginUserOnAdmin implements UserDetails {
     public void setOs(String os) {
         this.os = os;
     }
+
 }
