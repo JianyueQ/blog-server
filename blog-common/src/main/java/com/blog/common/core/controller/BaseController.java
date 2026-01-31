@@ -45,6 +45,13 @@ public class BaseController {
         return SecurityUtils.getLoginUserOnAdmin();
     }
 
+    /**
+     * 返回成功
+     */
+    public AjaxResult success()
+    {
+        return AjaxResult.success();
+    }
 
     /**
      * 返回失败消息
