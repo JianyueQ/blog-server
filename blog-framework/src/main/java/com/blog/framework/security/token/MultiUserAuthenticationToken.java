@@ -108,6 +108,9 @@ public class MultiUserAuthenticationToken extends AbstractAuthenticationToken {
      */
     @Override
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-        super.setAuthenticated(false);
+        if(isAuthenticated && getAuthorities() == null) {
+            throw new IllegalArgumentException("无法设置为已认证，因为尚未设置权限");
+        }
+        super.setAuthenticated(isAuthenticated);
     }
 }
