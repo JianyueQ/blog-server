@@ -9,7 +9,7 @@
                password,
                nickname,
                avatar,
-               userType,
+               user_type,
                description,
                last_login_time,
                last_login_ip,

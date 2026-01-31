@@ -1,5 +1,8 @@
 package com.blog.system.service.serviceImpl;
 
+import com.blog.common.core.domain.entity.Administrators;
+import com.blog.system.domain.ChangePassword;
+import com.blog.system.domain.UpdateProfile;
 import com.blog.system.mapper.SysProfileMapper;
 import com.blog.system.service.SysProfileService;
 import org.springframework.stereotype.Service;
@@ -23,4 +26,21 @@ public class SysProfileServiceImpl implements SysProfileService {
     public boolean updateAvatarForAdmin(Long adminId, String url) {
         return sysProfileMapper.updateAvatarForAdmin(adminId, url) > 0;
     }
+
+    @Override
+    public int updateProfile(UpdateProfile updateProfile) {
+        return sysProfileMapper.updateProfile(updateProfile);
+    }
+
+    @Override
+    public Administrators selectUserInfoForAdminByAdminId(Long adminId) {
+        return sysProfileMapper.selectUserInfoForAdminByAdminId(adminId);
+    }
+
+    @Override
+    public int changePassword(Long adminId, String newPassword) {
+        return sysProfileMapper.changePassword(adminId, newPassword);
+    }
+
+
 }
