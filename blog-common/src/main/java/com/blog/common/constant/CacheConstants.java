@@ -24,4 +24,9 @@ public class CacheConstants {
      * 登录令牌缓存 redis key
      */
     public static final String LOGIN_TOKEN_KEY = "login_tokens:";
+
+    /**
+     * 博主信息缓存 redis key
+     */
+    public static final String CACHE_BLOG_OWNER_PROFILE = "cache_blog_owner_profile:";
 }

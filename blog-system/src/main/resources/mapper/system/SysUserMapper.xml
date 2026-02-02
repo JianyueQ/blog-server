@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.system.mapper.SysUserMapper" >
+
+    <resultMap id="AdministratorsMap" type="com.blog.common.core.domain.entity.Administrators">
+        <id property="adminId" column="admin_id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        <result property="userType" column="user_type"/>
+        <result property="description" column="description"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+    </resultMap>
+
+    <resultMap id="AdministratorsVoMap" type="com.blog.system.domain.vo.AdministratorsVO">
+        <id property="adminId" column="admin_id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        <result property="userType" column="user_type"/>
+        <result property="description" column="description"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+    </resultMap>
+
+    <sql id="selectAdminVo">
+        select admin_id,
+               username,
+               email,
+               password,
+               nickname,
+               avatar,
+               user_type,
+               description,
+               last_login_time,
+               last_login_ip,
+               create_time,
+               update_time,
+               create_by,
+               update_by
+        from administrators
+    </sql>
+
+    <insert id="addCollaborators">
+        insert into administrators
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="username != null and username != ''">username,</if>
+            <if test="email != null and email != ''">email,</if>
+            <if test="password != null and password != ''">password,</if>
+            <if test="nickname != null and nickname != ''">nickname,</if>
+            <if test="userType != null and userType != ''">user_type,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="username != null and username != ''">#{username},</if>
+            <if test="email != null and email != ''">#{email},</if>
+            <if test="password != null and password != ''">#{password},</if>
+            <if test="nickname != null and nickname != ''">#{nickname},</if>
+            <if test="userType != null and userType != ''">#{userType},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteCollaborators">
+        update administrators
+        set is_deleted = 1
+        where admin_id = #{adminId} and is_deleted = 0 limit 1
+    </delete>
+
+    <select id="selectUserByUserName" resultMap="AdministratorsMap">
+        <include refid="selectAdminVo"/>
+        where username = #{username} and is_deleted = 0
+    </select>
+
+    <select id="selectAdminList" resultMap="AdministratorsVoMap">
+        <include refid="selectAdminVo"/>
+        where is_deleted = 0
+    </select>
+
+    <select id="getCollaboratorsById" resultType="com.blog.system.domain.Collaborators">
+        select admin_id as adminId, username, nickname, email, description
+        from administrators
+        where admin_id = #{adminId}
+          and is_deleted = 0
+    </select>
+
+    <update id="updateAdminDetailed">
+        update administrators
+        <set>
+            <if test="loginTime != null"> last_login_time = #{loginTime}, </if>
+            <if test="ipaddr != null"> last_login_ip = #{ipaddr}, </if>
+        </set>
+        where admin_id = #{adminId}
+    </update>
+
+    <update id="updateCollaborators">
+        update administrators
+        <set>
+            <if test="email != null and email != ''">email = #{email},</if>
+            <if test="nickname != null and nickname != ''">nickname = #{nickname},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+        </set>
+        where admin_id = #{adminId} and is_deleted = 0 limit 1
+    </update>
+
+    <update id="resetPassword">
+        update administrators
+        set password = #{encryptPassword}
+        where admin_id = #{adminId}
+          and is_deleted = 0
+        limit 1
+    </update>
+</mapper>

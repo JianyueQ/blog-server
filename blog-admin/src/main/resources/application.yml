@@ -89,14 +89,6 @@ spring:
       testOnReturn: false
       webStatFilter:
         enabled: true
-#      statViewServlet:
-#        enabled: true
-#        # 设置白名单，不填则允许所有访问
-#        allow:
-#        url-pattern: /druid/*
-#        # 控制台管理用户名和密码
-#        login-username: jianyue
-#        login-password: jianyue
       filter:
         stat:
           enabled: true

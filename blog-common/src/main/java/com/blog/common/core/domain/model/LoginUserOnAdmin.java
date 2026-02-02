@@ -1,10 +1,12 @@
 package com.blog.common.core.domain.model;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.blog.common.core.domain.entity.Administrators;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,7 +15,7 @@ import java.util.List;
  *
  * @author 31373
  */
-public class LoginUserOnAdmin implements UserDetails {
+public class LoginUserOnAdmin implements UserDetails, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -71,6 +73,7 @@ public class LoginUserOnAdmin implements UserDetails {
         return List.of();
     }
 
+    @JSONField(serialize = false)
     @Override
     public String getPassword() {
         return administrators.getPassword();
@@ -79,6 +82,52 @@ public class LoginUserOnAdmin implements UserDetails {
     @Override
     public String getUsername() {
         return administrators.getUsername();
+    }
+
+    /**
+     * 账户是否未过期,过期无法验证
+     */
+    @JSONField(serialize = false)
+    @Override
+    public boolean isAccountNonExpired()
+    {
+        return true;
+    }
+
+    /**
+     * 指定用户是否解锁,锁定的用户无法进行身份验证
+     *
+     * @return
+     */
+    @JSONField(serialize = false)
+    @Override
+    public boolean isAccountNonLocked()
+    {
+        return true;
+    }
+
+    /**
+     * 指示是否已过期的用户的凭据(密码),过期的凭据防止认证
+     *
+     * @return
+     */
+    @JSONField(serialize = false)
+    @Override
+    public boolean isCredentialsNonExpired()
+    {
+        return true;
+    }
+
+    /**
+     * 是否可用 ,禁用的用户不能身份验证
+     *
+     * @return
+     */
+    @JSONField(serialize = false)
+    @Override
+    public boolean isEnabled()
+    {
+        return true;
     }
 
 

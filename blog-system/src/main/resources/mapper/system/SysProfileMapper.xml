@@ -71,7 +71,7 @@
     </update>
 
     <select id="selectUserInfoForAdminByAdminId" resultMap="SysUserResult">
-        <include refid="com.blog.system.mapper.ISysUserMapper.selectAdminVo"/>
+        <include refid="com.blog.system.mapper.SysUserMapper.selectAdminVo"/>
         where admin_id = #{adminId} and is_deleted = 0
     </select>
 </mapper>
