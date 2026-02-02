@@ -18,13 +18,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableCaching //设置缓存拦截器和相关的基础设施组件
 public class RedisConfig extends CachingConfigurationSelector {
 
-    /**
-     * CachingConfigurerSupport 是 Spring 提供的一个抽象类，实现了 CachingConfigurer 接口
-     * 提供默认实现：为缓存配置接口提供默认的空实现
-     * 允许自定义配置：可以选择性地重写特定方法来自定义缓存行为
-     * 简化配置：不需要实现接口的所有方法，只需重写需要自定义的部分
-     */
-
     private static final Logger log = LoggerFactory.getLogger(RedisConfig.class);
 
     @Bean

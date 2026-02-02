@@ -1,6 +1,7 @@
 package com.blog.common.utils;
 
 import com.blog.common.constant.Constants;
+import com.blog.common.text.Convert;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -50,5 +51,13 @@ public class ServletUtils {
     {
         RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
         return (ServletRequestAttributes) attributes;
+    }
+
+    public static String getParameter(String name) {
+        return getRequest().getParameter(name);
+    }
+
+    public static Boolean getParameterToBool(String name) {
+        return Convert.toBool(getRequest().getParameter(name));
     }
 }

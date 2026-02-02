@@ -1,9 +1,13 @@
 package com.blog.common.core.controller;
 
+import com.blog.common.constant.HttpStatus;
 import com.blog.common.core.domain.model.LoginUserOnAdmin;
+import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.domain.AjaxResult;
 import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.SecurityUtils;
+import com.blog.common.utils.page.PageUtils;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.WebDataBinder;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 
 import java.beans.PropertyEditorSupport;
 import java.util.Date;
+import java.util.List;
 
 /**
  * web层通用数据处理
@@ -53,11 +58,38 @@ public class BaseController {
         return AjaxResult.success();
     }
 
+    public AjaxResult success(boolean b) {
+        return AjaxResult.success();
+    }
+
     /**
      * 返回失败消息
      */
     public AjaxResult error(String message)
     {
         return AjaxResult.error(message);
+    }
+
+    /**
+     * 设置请求分页数据
+     */
+    protected void startPage()
+    {
+        PageUtils.startPage();
+    }
+
+
+    /**
+     * 响应请求分页数据
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected TableDataInfo getDataTable(List<?> list)
+    {
+        TableDataInfo rspData = new TableDataInfo();
+        rspData.setCode(HttpStatus.SUCCESS);
+        rspData.setMsg("查询成功");
+        rspData.setRows(list);
+        rspData.setTotal(new PageInfo(list).getTotal());
+        return rspData;
     }
 }

@@ -1,12 +1,8 @@
 package com.blog.system.rabbitmqListener;
 
 import com.blog.common.constant.CacheConstants;
-import com.blog.common.core.domain.model.LoginUserOnAdmin;
 import com.blog.common.core.redis.RedisCache;
-import com.blog.common.exception.ServiceException;
-import com.blog.common.utils.DateUtils;
-import com.blog.system.mapper.ISysUserMapper;
-import com.blog.system.service.ISysUserService;
+import com.blog.system.mapper.SysUserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -16,7 +12,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -28,11 +23,11 @@ import java.util.Map;
 public class AdminDetailedListener {
 
     private static final Logger log = LoggerFactory.getLogger(AdminDetailedListener.class);
-    private final ISysUserMapper sysUserMapper;
+    private final SysUserMapper sysUserMapper;
     private final RedisCache redisCache;
 
 
-    public AdminDetailedListener(ISysUserMapper sysUserMapper, RedisCache redisCache) {
+    public AdminDetailedListener(SysUserMapper sysUserMapper, RedisCache redisCache) {
         this.sysUserMapper = sysUserMapper;
         this.redisCache = redisCache;
     }

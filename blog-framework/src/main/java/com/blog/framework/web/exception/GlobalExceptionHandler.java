@@ -6,6 +6,8 @@ import com.blog.common.utils.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -52,5 +54,30 @@ public class GlobalExceptionHandler {
         log.error("请求地址'{}',发生系统异常.", uri,e);
         return AjaxResult.error(e.getMessage());
     }
+
+    /**
+     * 请求方式不支持
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public AjaxResult handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e,
+                                                          HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',不支持'{}'请求", requestURI, e.getMethod());
+        return AjaxResult.error(e.getMessage());
+    }
+
+    /**
+     * 请求路径中缺少必需的路径变量
+     */
+    @ExceptionHandler(MissingPathVariableException.class)
+    public AjaxResult handleMissingPathVariableException(MissingPathVariableException e, HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求路径中缺少必需的路径变量'{}',发生系统异常.", requestURI, e);
+        return AjaxResult.error(String.format("请求路径中缺少必需的路径变量[%s]", e.getVariableName()));
+    }
+
+
 
 }

@@ -1,15 +1,13 @@
 package com.blog.framework.web.service.Impl;
 
 import com.blog.common.core.domain.entity.Administrators;
-
-
 import com.blog.common.core.domain.model.LoginUserOnAdmin;
 import com.blog.common.enums.UserStatus;
 import com.blog.common.exception.ServiceException;
 import com.blog.common.utils.MessageUtils;
 import com.blog.common.utils.StringUtils;
 import com.blog.framework.web.service.SysPasswordService;
-import com.blog.system.service.ISysUserService;
+import com.blog.system.service.SysUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,10 +24,10 @@ import org.springframework.stereotype.Service;
 public class AdminDetailsServiceImpl implements UserDetailsService {
 
     private static final Logger log = LoggerFactory.getLogger(AdminDetailsServiceImpl.class);
-    private final ISysUserService userService;
+    private final SysUserService userService;
     private final SysPasswordService passwordService;
 
-    public AdminDetailsServiceImpl(ISysUserService userService, SysPasswordService passwordService) {
+    public AdminDetailsServiceImpl(SysUserService userService, SysPasswordService passwordService) {
         this.userService = userService;
         this.passwordService = passwordService;
     }
