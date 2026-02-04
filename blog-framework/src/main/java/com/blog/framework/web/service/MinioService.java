@@ -58,47 +58,14 @@ public class MinioService {
     }
 
     /**
-     * 上传文件到MinIO
+     * 上传图片
      *
-     * @param file 上传的文件
-     * @return 文件访问路径
-     */
-    public String uploadFile(MultipartFile file) throws Exception {
-        //校验上传的文件的后缀名
-        String extension = FileUploadUtils.getExtension(file);
-
-
-        // 生成唯一的文件名
-        String fileName = System.currentTimeMillis() + "_" + System.nanoTime() + "." + extension;
-
-        // 确保存储桶存在
-        if (!bucketExists(minioConfig.getBucketName())) {
-            makeBucket(minioConfig.getBucketName());
-        }
-
-        // 上传文件
-        minioClient.putObject(
-                PutObjectArgs.builder()
-                        .bucket(minioConfig.getBucketName())
-                        .object(fileName)
-                        .stream(file.getInputStream(), file.getSize(), -1)
-                        .contentType(file.getContentType())
-                        .build()
-        );
-        // 返回可访问的URL
-        return minioConfig.getEndpoint() + DEFAULT_DELIMITER + minioConfig.getBucketName() + DEFAULT_DELIMITER + fileName;
-
-    }
-
-    /**
-     * 上传头像
-     *
-     * @param file             头像文件
+     * @param file             图片文件
      * @param allowedExtension 允许的文件后缀
      * @param useCustomNaming  是否使用自定义命名
-     * @return 头像路径
+      * @return 图片路径
      */
-    public String uploadAvatar(MultipartFile file, String[] allowedExtension, boolean useCustomNaming) throws Exception {
+    public String uploadImage(MultipartFile file, String[] allowedExtension, boolean useCustomNaming) throws Exception {
         int fileNameLength = Objects.requireNonNull(file.getOriginalFilename()).length();
         if (fileNameLength > FileUploadUtils.DEFAULT_FILE_NAME_LENGTH) {
             throw new FileSizeLimitExceededException(FileUploadUtils.DEFAULT_FILE_NAME_LENGTH);

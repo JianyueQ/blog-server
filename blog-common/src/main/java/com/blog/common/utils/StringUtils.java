@@ -2,6 +2,8 @@ package com.blog.common.utils;
 
 import com.blog.common.text.StrFormatter;
 
+import java.util.Map;
+
 /**
  * 字符串工具类
  *
@@ -152,6 +154,17 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
      */
     public static boolean isEmpty(Object[] objects) {
         return isNull(objects) || (objects.length == 0);
+    }
+
+    /**
+     * * 判断一个Map是否为空
+     *
+     * @param map 要判断的Map
+     * @return true：为空 false：非空
+     */
+    public static boolean isEmpty(Map<?, ?> map)
+    {
+        return isNull(map) || map.isEmpty();
     }
 
     /**

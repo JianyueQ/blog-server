@@ -19,4 +19,13 @@
         <include refid="blogOwnerProfile"/>
         where is_deleted = 0 and admin_id = 1
     </select>
+
+    <select id="getBlogOwnerSocialInfo" resultType="com.blog.system.domain.vo.SocialLinkVo">
+        select name, icon, tip, url, sort_order as sortOrder from social_link where status = 1 and is_deleted = 0
+    </select>
+
+    <select id="getBlogOwnerAboutMe" resultType="com.blog.system.domain.vo.AboutMeVo">
+        select content as aboutMeContent from about_me where about_me_id = 1 and is_deleted = 0 limit 1
+    </select>
+
 </mapper>

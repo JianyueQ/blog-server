@@ -6,7 +6,6 @@ import com.blog.system.domain.vo.AdministratorsVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -28,7 +27,7 @@ public interface SysUserMapper {
      * @param loginTime 登录时间
      * @param ipaddr 登录ip
      */
-    void updateAdminDetailed(@Param("adminId") String adminId, @Param("loginTime") LocalDateTime loginTime, @Param("ipaddr") String ipaddr);
+    void updateAdminDetailed(@Param("adminId") String adminId, @Param("loginTime") String loginTime, @Param("ipaddr") String ipaddr);
 
     List<AdministratorsVO> selectAdminList();
 
