@@ -1,9 +1,11 @@
 package com.blog.web.controller.system;
 
+import com.blog.common.annotation.Log;
 import com.blog.common.core.controller.BaseController;
 import com.blog.common.core.domain.entity.Administrators;
 import com.blog.common.core.domain.model.LoginUserOnAdmin;
 import com.blog.common.domain.AjaxResult;
+import com.blog.common.enums.BusinessType;
 import com.blog.common.utils.SecurityUtils;
 import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.file.MimeTypeUtils;
@@ -44,7 +46,7 @@ public class SysProfileController extends BaseController {
             //获取登录的管理员用户缓存信息
             LoginUserOnAdmin loginUser = getLoginUserOnAdmin();
             //上传头像
-            String url = minioService.uploadAvatar(avatar, MimeTypeUtils.IMAGE_EXTENSION, true);
+            String url = minioService.uploadImage(avatar, MimeTypeUtils.IMAGE_EXTENSION, true);
 
             if (sysProfileService.updateAvatarForAdmin(loginUser.getAdminId(),url)){
                 String oldAvatar = loginUser.getAdministrators().getAvatar();
@@ -66,6 +68,7 @@ public class SysProfileController extends BaseController {
     /**
      * 基本资料修改
      */
+    @Log(title = "基本资料修改", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult updateProfile(@RequestBody UpdateProfile updateProfile) {
         if (StringUtils.isNotNull(updateProfile)) {
@@ -87,6 +90,7 @@ public class SysProfileController extends BaseController {
     /**
      * 修改密码
      */
+    @Log(title = "修改密码", businessType = BusinessType.UPDATE)
     @PutMapping("changePassword")
     public AjaxResult changePassword(@RequestBody ChangePassword changePassword) {
         if (StringUtils.isNotNull(changePassword)) {

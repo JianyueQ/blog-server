@@ -11,13 +11,20 @@ import com.blog.common.exception.user.CaptchaException;
 import com.blog.common.exception.user.CaptchaExpireException;
 import com.blog.common.exception.user.UserNotExistsException;
 import com.blog.common.exception.user.UserPasswordNotMatchException;
+import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.SecurityUtils;
+import com.blog.common.utils.ServletUtils;
 import com.blog.common.utils.StringUtils;
+import com.blog.common.utils.ip.IpUtils;
 import com.blog.framework.security.context.AuthenticationContextHolder;
 import com.blog.framework.security.token.MultiUserAuthenticationToken;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 系统登录服务实现类
@@ -31,13 +38,15 @@ public class SysLoginService {
     private final RedisCache redisCache;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final RabbitTemplate rabbitTemplate;
 
 
-    public SysLoginService(RedisCache redisCache, AuthenticationManager authenticationManager, TokenService tokenService) {
+    public SysLoginService(RedisCache redisCache, AuthenticationManager authenticationManager, TokenService tokenService, RabbitTemplate rabbitTemplate) {
 
         this.redisCache = redisCache;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public String login(String username, String password, String code, String uuid, String userType) {
@@ -64,7 +73,14 @@ public class SysLoginService {
     }
 
     public void recordLoginInfo(Authentication authentication) {
+        LoginUserOnAdmin loginUserOnAdmin = (LoginUserOnAdmin) authentication.getPrincipal();
+        String ip = IpUtils.getIpAddr();
         //todo 记录登录信息
+        Map<String, Object> updateUserInfoForAdmin = new HashMap<>();
+        updateUserInfoForAdmin.put("adminId", loginUserOnAdmin.getAdminId());
+        updateUserInfoForAdmin.put("loginTime", DateUtils.getTime());
+        updateUserInfoForAdmin.put("ipaddr", ip);
+        rabbitTemplate.convertAndSend("admin.details.exchange", "admin.logout", updateUserInfoForAdmin);
     }
 
     /**
@@ -130,7 +146,7 @@ public class SysLoginService {
     public AjaxResult getAdminInfo() {
         LoginUserOnAdmin loginUserOnAdmin = SecurityUtils.getLoginUserOnAdmin();
         Administrators administrators = loginUserOnAdmin.getAdministrators();
-        tokenService.refreshTokenOnAdmin(loginUserOnAdmin);
+//        tokenService.refreshTokenOnAdmin(loginUserOnAdmin);
         AjaxResult ajax = AjaxResult.success();
         ajax.put("user", administrators);
         return ajax;

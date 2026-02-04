@@ -12,6 +12,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -40,13 +41,13 @@ public class AdminDetailedListener {
     public void updateAdminDetailed(Map<String,Object> updateAdminDetailed) {
         try {
             String adminId = null;
-            LocalDateTime loginTime = null;
+            String loginTime = null;
             String ipaddr = null;
             if (updateAdminDetailed.containsKey("adminId")){
                 adminId = updateAdminDetailed.get("adminId").toString();
             }
             if (updateAdminDetailed.containsKey("loginTime")){
-                loginTime = (LocalDateTime) updateAdminDetailed.get("loginTime");
+                loginTime = (String) updateAdminDetailed.get("loginTime");
             }
             if (updateAdminDetailed.containsKey("ipaddr")){
                 ipaddr = (String) updateAdminDetailed.get("ipaddr");

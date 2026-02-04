@@ -2,6 +2,7 @@ package com.blog.common.utils;
 
 import com.blog.common.constant.Constants;
 import com.blog.common.text.Convert;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -11,8 +12,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
-
-import static org.springframework.web.context.request.RequestContextHolder.getRequestAttributes;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author 31373
@@ -59,5 +61,30 @@ public class ServletUtils {
 
     public static Boolean getParameterToBool(String name) {
         return Convert.toBool(getRequest().getParameter(name));
+    }
+
+    /**
+     * 获得所有请求参数
+     *
+     * @param request 请求对象{@link ServletRequest}
+     * @return Map
+     */
+    public static Map<String, String> getParamMap(ServletRequest request) {
+        Map<String, String> params = new HashMap<>();
+        for (Map.Entry<String, String[]> entry : getParams(request).entrySet()) {
+            params.put(entry.getKey(), StringUtils.join(entry.getValue(), ","));
+        }
+        return params;
+    }
+
+    /**
+     * 获得所有请求参数
+     *
+     * @param request 请求对象{@link ServletRequest}
+     * @return Map
+     */
+    public static Map<String, String[]> getParams(ServletRequest request) {
+        final Map<String, String[]> map = request.getParameterMap();
+        return Collections.unmodifiableMap(map);
     }
 }

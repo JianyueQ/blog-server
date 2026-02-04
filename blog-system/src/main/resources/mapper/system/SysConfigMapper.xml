@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.system.mapper.SysConfigMapper">
+    <insert id="addSocial">
+        insert into social_link
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null"> name, </if>
+            <if test="icon != null"> icon, </if>
+            <if test="tip != null"> tip, </if>
+            <if test="url != null"> url, </if>
+            <if test="sortOrder != null"> sort_order, </if>
+            <if test="status != null"> status, </if>
+            <if test="createTime != null"> create_time, </if>
+            <if test="createBy != null"> create_by, </if>
+            is_deleted,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null"> #{name}, </if>
+            <if test="icon != null"> #{icon}, </if>
+            <if test="tip != null"> #{tip}, </if>
+            <if test="url != null"> #{url}, </if>
+            <if test="sortOrder != null"> #{sortOrder}, </if>
+            <if test="status != null"> #{status}, </if>
+            <if test="createTime != null"> #{createTime}, </if>
+            <if test="createBy != null"> #{createBy}, </if>
+            0,
+        </trim>
+    </insert>
+
+    <update id="updateSocial">
+        update social_link
+        <set>
+            <if test="name != null"> name = #{name}, </if>
+            <if test="icon != null"> icon = #{icon}, </if>
+            <if test="tip != null"> tip = #{tip}, </if>
+            <if test="url != null"> url = #{url}, </if>
+            <if test="sortOrder != null"> sort_order = #{sortOrder}, </if>
+            <if test="status != null"> status = #{status}, </if>
+            <if test="updateTime != null"> update_time = #{updateTime}, </if>
+            <if test="updateBy != null"> update_by = #{updateBy}, </if>
+        </set>
+        where social_link_id = #{socialLinkId} and is_deleted = 0 limit 1;
+    </update>
+
+    <update id="deleteSocial">
+        update social_link
+        set is_deleted = 1
+        where social_link_id = #{id} and is_deleted = 0 limit 1;
+    </update>
+
+    <update id="updateSocialStatus">
+        update social_link
+        set status = #{status}
+        where social_link_id = #{socialLinkId} and is_deleted = 0 limit 1;
+    </update>
+
+
+
+    <select id="getSocialLink" resultType="com.blog.system.domain.vo.SocialLinkVo">
+        select social_link_id as socialLinkId,name, icon, tip, url, sort_order as sortOrder, status from social_link where is_deleted = 0
+    </select>
+
+    <select id="getAboutMeContent" resultType="com.blog.system.domain.vo.AboutMeVo">
+        select about_me_id as aboutMeId, content as aboutMeContent , update_time as updateTime from about_me where is_deleted = 0 limit 1;
+    </select>
+
+    <insert id="addAboutMeContent">
+        insert into about_me (content, create_time, create_by, is_deleted)
+        values (#{aboutMeContent}, #{createTime}, #{createBy}, 0);
+    </insert>
+
+    <update id="updateAboutMeContent">
+        update about_me
+        set content = #{aboutMeContent}, update_time = #{updateTime}, update_by = #{updateBy}
+        where about_me_id = #{aboutMeId} and is_deleted = 0 limit 1;
+    </update>
+</mapper>

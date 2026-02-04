@@ -1,8 +1,10 @@
 package com.blog.web.controller.system;
 
+import com.blog.common.annotation.Log;
 import com.blog.common.core.controller.BaseController;
 import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.domain.AjaxResult;
+import com.blog.common.enums.BusinessType;
 import com.blog.system.domain.Collaborators;
 import com.blog.system.domain.ResetPwd;
 import com.blog.system.domain.vo.AdministratorsVO;
@@ -41,6 +43,7 @@ public class SysUserController extends BaseController {
     /**
      * 新增后台管理协助者账号
      */
+    @Log(title = "新增后台管理协助者账号", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult addCollaborators(@RequestBody Collaborators collaborators) {
         return success(sysUserService.addCollaborators(collaborators) > 0);
@@ -49,6 +52,7 @@ public class SysUserController extends BaseController {
     /**
      * 修改后台管理协助者账号
      */
+    @Log(title = "修改后台管理协助者账号", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult updateCollaborators(@RequestBody Collaborators collaborators) {
         return success(sysUserService.updateCollaborators(collaborators) > 0);
@@ -57,6 +61,7 @@ public class SysUserController extends BaseController {
     /**
      * 删除后台管理协助者账号
      */
+    @Log(title = "删除后台管理协助者账号", businessType = BusinessType.DELETE)
     @DeleteMapping("{id}")
     public AjaxResult deleteCollaborators(@PathVariable("id") Long id) {
         return success(sysUserService.deleteCollaborators(id) > 0);
@@ -74,6 +79,7 @@ public class SysUserController extends BaseController {
     /**
      * 重置后台管理协助者账号的密码
      */
+    @Log(title = "重置后台管理协助者账号的密码", businessType = BusinessType.UPDATE)
     @PutMapping("resetPwd")
     public AjaxResult resetPassword(@RequestBody ResetPwd resetPwd) {
         Long adminId = resetPwd.getAdminId();

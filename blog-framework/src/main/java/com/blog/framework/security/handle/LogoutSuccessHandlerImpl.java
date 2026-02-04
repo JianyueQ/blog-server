@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.blog.common.core.domain.model.LoginUserOnAdmin;
 import com.blog.common.core.redis.RedisCache;
 import com.blog.common.domain.AjaxResult;
+import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.MessageUtils;
 import com.blog.common.utils.ServletUtils;
 import com.blog.common.utils.StringUtils;
@@ -52,7 +53,7 @@ public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
             String token = loginUserOnAdmin.getToken();
             Map<String, Object> updateUserInfoForAdmin = new HashMap<>();
             updateUserInfoForAdmin.put("adminId", loginUserOnAdmin.getAdminId());
-            updateUserInfoForAdmin.put("loginTime", LocalDateTime.now().toString());
+            updateUserInfoForAdmin.put("loginTime", DateUtils.getTime());
             updateUserInfoForAdmin.put("ipaddr", loginUserOnAdmin.getIpaddr());
             //todo 更新登录时间和登录的ip
             try {

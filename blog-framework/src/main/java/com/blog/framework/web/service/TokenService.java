@@ -256,7 +256,9 @@ public class TokenService {
     public void verifyToken(LoginUserOnAdmin loginUserOnAdmin) {
         long expireTime = loginUserOnAdmin.getExpireTime();
         long currentTime = System.currentTimeMillis();
-        if (expireTime - currentTime <= TWENTY_MINUTES) {
+        long remainingTime = expireTime - currentTime;
+        if (remainingTime <= TWENTY_MINUTES) {
+            log.debug("Token即将过期，剩余时间: {}分钟，开始刷新", remainingTime / 1000 / 60);
             refreshTokenOnAdmin(loginUserOnAdmin);
         }
     }

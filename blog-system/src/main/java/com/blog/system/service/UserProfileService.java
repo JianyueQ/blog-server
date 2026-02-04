@@ -1,6 +1,10 @@
 package com.blog.system.service;
 
+import com.blog.system.domain.vo.AboutMeVo;
 import com.blog.system.domain.vo.BlogOnerProfileVO;
+import com.blog.system.domain.vo.SocialLinkVo;
+
+import java.util.List;
 
 /**
  * 前台用户信息处理业务层
@@ -14,5 +18,9 @@ public interface UserProfileService {
      * @return 博主的个人信息
      */
     BlogOnerProfileVO getBlogOwnerProfile();
+
+    List<SocialLinkVo> getBlogOwnerSocialInfo();
+
+    AboutMeVo getBlogOwnerAboutMe();
 
 }
