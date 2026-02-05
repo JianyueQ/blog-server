@@ -1,7 +1,7 @@
 package com.blog.system.mapper;
 
 import com.blog.common.core.domain.entity.Administrators;
-import com.blog.system.domain.UpdateProfile;
+import com.blog.system.domain.dto.UpdateProfile;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

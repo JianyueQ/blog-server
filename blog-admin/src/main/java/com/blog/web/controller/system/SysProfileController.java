@@ -11,8 +11,8 @@ import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.file.MimeTypeUtils;
 import com.blog.framework.web.service.MinioService;
 import com.blog.framework.web.service.TokenService;
-import com.blog.system.domain.ChangePassword;
-import com.blog.system.domain.UpdateProfile;
+import com.blog.system.domain.dto.ChangePassword;
+import com.blog.system.domain.dto.UpdateProfile;
 import com.blog.system.service.SysProfileService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -68,7 +68,7 @@ public class SysProfileController extends BaseController {
     /**
      * 基本资料修改
      */
-    @Log(title = "基本资料修改", businessType = BusinessType.UPDATE)
+    @Log(title = "基本资料", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult updateProfile(@RequestBody UpdateProfile updateProfile) {
         if (StringUtils.isNotNull(updateProfile)) {

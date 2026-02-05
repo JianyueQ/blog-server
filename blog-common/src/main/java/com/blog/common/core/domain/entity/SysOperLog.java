@@ -3,6 +3,7 @@ package com.blog.common.core.domain.entity;
 import com.blog.common.core.domain.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serial;
 import java.util.Date;
 
 /**
@@ -12,6 +13,7 @@ import java.util.Date;
  */
 public class SysOperLog extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -99,6 +101,10 @@ public class SysOperLog extends BaseEntity {
      * 消耗时间
      */
     private Long costTime;
+
+    private String beginTime;
+
+    private String endTime;
 
     public Long getOperId() {
         return operId;
@@ -234,5 +240,21 @@ public class SysOperLog extends BaseEntity {
 
     public void setCostTime(Long costTime) {
         this.costTime = costTime;
+    }
+
+    public String getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(String beginTime) {
+        this.beginTime = beginTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 }

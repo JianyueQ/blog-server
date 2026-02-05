@@ -1,6 +1,6 @@
 package com.blog.system.service;
 
-import com.blog.system.domain.SocialLinkDto;
+import com.blog.system.domain.dto.SocialLinkDto;
 import com.blog.system.domain.vo.AboutMeVo;
 import com.blog.system.domain.vo.SocialLinkVo;
 

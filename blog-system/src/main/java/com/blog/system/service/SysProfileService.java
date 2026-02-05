@@ -1,8 +1,7 @@
 package com.blog.system.service;
 
 import com.blog.common.core.domain.entity.Administrators;
-import com.blog.system.domain.ChangePassword;
-import com.blog.system.domain.UpdateProfile;
+import com.blog.system.domain.dto.UpdateProfile;
 
 /**
  * 个人信息 业务层

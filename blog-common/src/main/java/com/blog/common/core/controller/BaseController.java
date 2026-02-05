@@ -29,8 +29,7 @@ public class BaseController {
      * 将前台传递过来的日期格式的字符串，自动转化为Date类型
      */
     @InitBinder
-    public void initBinder(WebDataBinder binder)
-    {
+    public void initBinder(WebDataBinder binder) {
         // Date 类型转换
         binder.registerCustomEditor(Date.class, new PropertyEditorSupport()
         {
@@ -45,16 +44,14 @@ public class BaseController {
     /**
      * 获取管理员用户缓存信息
      */
-    public LoginUserOnAdmin getLoginUserOnAdmin()
-    {
+    public LoginUserOnAdmin getLoginUserOnAdmin() {
         return SecurityUtils.getLoginUserOnAdmin();
     }
 
     /**
      * 返回成功
      */
-    public AjaxResult success()
-    {
+    public AjaxResult success() {
         return AjaxResult.success();
     }
 
@@ -65,16 +62,14 @@ public class BaseController {
     /**
      * 返回失败消息
      */
-    public AjaxResult error(String message)
-    {
+    public AjaxResult error(String message) {
         return AjaxResult.error(message);
     }
 
     /**
      * 设置请求分页数据
      */
-    protected void startPage()
-    {
+    protected void startPage() {
         PageUtils.startPage();
     }
 
@@ -83,13 +78,22 @@ public class BaseController {
      * 响应请求分页数据
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected TableDataInfo getDataTable(List<?> list)
-    {
+    protected TableDataInfo getDataTable(List<?> list) {
         TableDataInfo rspData = new TableDataInfo();
         rspData.setCode(HttpStatus.SUCCESS);
         rspData.setMsg("查询成功");
         rspData.setRows(list);
         rspData.setTotal(new PageInfo(list).getTotal());
         return rspData;
+    }
+
+    /**
+     * 响应返回结果
+     *
+     * @param rows 影响行数
+     * @return 操作结果
+     */
+    protected AjaxResult toAjax(int rows) {
+        return rows > 0 ? AjaxResult.success() : AjaxResult.error();
     }
 }

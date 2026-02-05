@@ -1,5 +1,9 @@
-package com.blog.system.domain;
+package com.blog.system.domain.dto;
 
+/**
+ * 关于我
+ * @author 31373
+ */
 public class AboutMeDto {
 
     private String aboutMeId;

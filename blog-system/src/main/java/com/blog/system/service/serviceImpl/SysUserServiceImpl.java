@@ -5,7 +5,7 @@ import com.blog.common.exception.ServiceException;
 import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.MessageUtils;
 import com.blog.common.utils.SecurityUtils;
-import com.blog.system.domain.Collaborators;
+import com.blog.system.domain.dto.Collaborators;
 import com.blog.system.domain.vo.AdministratorsVO;
 import com.blog.system.mapper.SysUserMapper;
 import com.blog.system.service.SysUserService;

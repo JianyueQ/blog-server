@@ -1,7 +1,7 @@
 package com.blog.system.service;
 
 import com.blog.common.core.domain.entity.Administrators;
-import com.blog.system.domain.Collaborators;
+import com.blog.system.domain.dto.Collaborators;
 import com.blog.system.domain.vo.AdministratorsVO;
 
 import java.util.List;

@@ -1,8 +1,7 @@
 package com.blog.system.service.serviceImpl;
 
 import com.blog.common.core.domain.entity.Administrators;
-import com.blog.system.domain.ChangePassword;
-import com.blog.system.domain.UpdateProfile;
+import com.blog.system.domain.dto.UpdateProfile;
 import com.blog.system.mapper.SysProfileMapper;
 import com.blog.system.service.SysProfileService;
 import org.springframework.stereotype.Service;

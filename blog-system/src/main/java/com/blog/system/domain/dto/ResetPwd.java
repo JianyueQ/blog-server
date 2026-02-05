@@ -1,4 +1,4 @@
-package com.blog.system.domain;
+package com.blog.system.domain.dto;
 
 /**
  * 重置密码
