@@ -107,16 +107,16 @@ public class SecurityConfig {
                 // 基于token，所以不需要session
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 允许所有请求通过（开发环境配置）
-//                .authorizeHttpRequests(authz -> authz.requestMatchers("/**").permitAll())
+                .authorizeHttpRequests(authz -> authz.requestMatchers("/**").permitAll())
                 //注解标记允许匿名访问的url
-                .authorizeHttpRequests((request) -> {
-                    permitAllUrl.getUrls().forEach(url -> request.requestMatchers(url).permitAll());
-                    // 对于登录login 验证码captchaImage,以及前台接口 允许匿名访问
-                    request.requestMatchers("/login", "/captchaImage", "/blog/**").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/").permitAll()
-                            // 除上面外的所有请求全部需要鉴权认证
-                            .anyRequest().authenticated();
-                })
+//                .authorizeHttpRequests((request) -> {
+//                    permitAllUrl.getUrls().forEach(url -> request.requestMatchers(url).permitAll());
+//                    // 对于登录login 验证码captchaImage,以及前台接口 允许匿名访问
+//                    request.requestMatchers("/login", "/captchaImage", "/blog/**").permitAll()
+//                            .requestMatchers(HttpMethod.GET, "/").permitAll()
+//                            // 除上面外的所有请求全部需要鉴权认证
+//                            .anyRequest().authenticated();
+//                })
                 .logout(logout -> logout.logoutUrl("/logout").logoutSuccessHandler(logoutSuccessHandler))
                 .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 // 添加CORS filter

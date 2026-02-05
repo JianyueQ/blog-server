@@ -89,7 +89,7 @@
         where is_deleted = 0
     </select>
 
-    <select id="getCollaboratorsById" resultType="com.blog.system.domain.Collaborators">
+    <select id="getCollaboratorsById" resultType="com.blog.system.domain.dto.Collaborators">
         select admin_id as adminId, username, nickname, email, description
         from administrators
         where admin_id = #{adminId}

@@ -2,12 +2,10 @@ package com.blog.web.controller.system;
 
 import com.blog.common.annotation.Log;
 import com.blog.common.core.controller.BaseController;
-import com.blog.common.core.domain.entity.AboutMe;
-import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.domain.AjaxResult;
 import com.blog.common.enums.BusinessType;
-import com.blog.system.domain.AboutMeDto;
-import com.blog.system.domain.SocialLinkDto;
+import com.blog.system.domain.dto.AboutMeDto;
+import com.blog.system.domain.dto.SocialLinkDto;
 import com.blog.system.domain.vo.AboutMeVo;
 import com.blog.system.domain.vo.SocialLinkVo;
 import com.blog.system.service.SysConfigService;

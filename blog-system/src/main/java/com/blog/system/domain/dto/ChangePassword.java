@@ -1,4 +1,4 @@
-package com.blog.system.domain;
+package com.blog.system.domain.dto;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;

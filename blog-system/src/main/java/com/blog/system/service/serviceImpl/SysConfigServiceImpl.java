@@ -5,7 +5,7 @@ import com.blog.common.core.domain.entity.SocialLink;
 import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.SecurityUtils;
 import com.blog.common.utils.StringUtils;
-import com.blog.system.domain.SocialLinkDto;
+import com.blog.system.domain.dto.SocialLinkDto;
 import com.blog.system.domain.vo.AboutMeVo;
 import com.blog.system.domain.vo.SocialLinkVo;
 import com.blog.system.mapper.SysConfigMapper;

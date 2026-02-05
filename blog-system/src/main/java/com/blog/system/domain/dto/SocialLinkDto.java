@@ -1,4 +1,4 @@
-package com.blog.system.domain;
+package com.blog.system.domain.dto;
 
 /**
  * 社交联系信息
