@@ -100,4 +100,9 @@ public class SysUserServiceImpl implements SysUserService {
         String encryptPassword = SecurityUtils.encryptPassword(password);
         return sysUserMapper.resetPassword(adminId, encryptPassword);
     }
+
+    @Override
+    public void updateAdminDetailed(String adminId, String loginTime, String ipaddr) {
+        sysUserMapper.updateAdminDetailed(adminId,loginTime,ipaddr);
+    }
 }

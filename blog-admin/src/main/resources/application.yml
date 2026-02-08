@@ -171,3 +171,19 @@ minio:
   bucketName: blog-oss                        # 存储桶bucket名称
   accessKey: jianyueadmin                     # 用户名
   secretKey: jianyueadmin                     # 密码
+
+# 防盗链配置
+referer:
+  # 防盗链开关
+  enabled: false
+  # 允许的域名列表
+  allowed-domains: localhost,127.0.0.1,ruoyi.vip,www.ruoyi.vip
+
+# 防止XSS攻击
+xss:
+  # 过滤开关
+  enabled: true
+  # 排除链接（多个用逗号分隔）
+  excludes: /system/notice
+  # 匹配链接
+  urlPatterns: /system/*,/monitor/*,/tool/*
