@@ -7,6 +7,7 @@ import java.io.File;
 /**
  * 文件类型工具类
  *
+ * @author 31373
  */
 public class FileTypeUtils {
     /**

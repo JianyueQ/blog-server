@@ -29,4 +29,9 @@ public class CacheConstants {
      * 博主信息缓存 redis key
      */
     public static final String CACHE_BLOG_OWNER_PROFILE = "cache_blog_owner_profile:";
+
+    /**
+     * 限流缓存 redis key
+     */
+    public static final String RATE_LIMIT_KEY = "rate_limit:";
 }

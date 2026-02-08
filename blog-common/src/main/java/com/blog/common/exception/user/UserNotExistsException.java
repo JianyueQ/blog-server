@@ -4,8 +4,8 @@ import java.io.Serial;
 
 /**
  * 用户不存在异常类
- * 
- * @author ruoyi
+ *
+ * @author 31373
  */
 public class UserNotExistsException extends UserException
 {

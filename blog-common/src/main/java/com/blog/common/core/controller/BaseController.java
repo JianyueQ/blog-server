@@ -96,4 +96,14 @@ public class BaseController {
     protected AjaxResult toAjax(int rows) {
         return rows > 0 ? AjaxResult.success() : AjaxResult.error();
     }
+
+    /**
+     * 响应返回结果
+     *
+     * @param b 逻辑值
+     * @return 操作结果
+     */
+    protected AjaxResult toAjax(boolean b) {
+        return b ? AjaxResult.success() : AjaxResult.error();
+    }
 }

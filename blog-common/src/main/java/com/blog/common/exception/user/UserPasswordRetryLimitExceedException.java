@@ -4,11 +4,9 @@ import java.io.Serial;
 
 /**
  * 用户错误最大次数异常类
- * 
- * @author ruoyi
+ * @author 31373
  */
-public class UserPasswordRetryLimitExceedException extends UserException
-{
+public class UserPasswordRetryLimitExceedException extends UserException {
     @Serial
     private static final long serialVersionUID = 1L;
 

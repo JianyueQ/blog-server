@@ -24,4 +24,6 @@ public interface SysUserService {
     Collaborators getCollaborators(Long id);
 
     int resetPassword(Long adminId, String password);
+
+    void updateAdminDetailed(String adminId, String loginTime, String ipaddr);
 }

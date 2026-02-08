@@ -158,7 +158,12 @@ public class TokenService {
         redisCache.setCacheObject(userKey, loginUserOnAdmin, expireTime, TimeUnit.MINUTES);
     }
 
-    private String getTokenKey(String uuid)
+    /**
+     * 获取TokenKey
+     * @param uuid uuid
+     * @return TokenKey
+     */
+    public String getTokenKey(String uuid)
     {
         return CacheConstants.LOGIN_TOKEN_KEY + uuid;
     }
@@ -192,7 +197,7 @@ public class TokenService {
      * @param token 令牌
      * @return 数据声明
      */
-    private Claims parseToken(String token) {
+    public Claims parseToken(String token) {
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
@@ -205,7 +210,7 @@ public class TokenService {
      * @param request 请求对象
      * @return token
      */
-    private String getToken(HttpServletRequest request) {
+    public String getToken(HttpServletRequest request) {
         String token = request.getHeader(header);
         if (StringUtils.isNotEmpty(token) && token.startsWith(Constants.TOKEN_PREFIX)) {
             token = token.replace(Constants.TOKEN_PREFIX, "");
