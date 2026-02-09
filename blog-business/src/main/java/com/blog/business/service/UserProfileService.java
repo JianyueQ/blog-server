@@ -1,0 +1,26 @@
+package com.blog.business.service;
+
+import com.blog.business.domain.vo.BlogAboutMeVo;
+import com.blog.business.domain.vo.BlogOnerProfileVO;
+import com.blog.business.domain.vo.BlogSocialLinkVo;
+
+import java.util.List;
+
+/**
+ * 前台用户信息处理业务层
+ *
+ * @author 31373
+ */
+public interface UserProfileService {
+
+    /**
+     * 获取博主的个人信息
+     * @return 博主的个人信息
+     */
+    BlogOnerProfileVO getBlogOwnerProfile();
+
+    List<BlogSocialLinkVo> getBlogOwnerSocialInfo();
+
+    BlogAboutMeVo getBlogOwnerAboutMe();
+
+}

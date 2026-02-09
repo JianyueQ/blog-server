@@ -1,9 +1,10 @@
-package com.blog.web.controller.front;
+package com.blog.business.controller.front;
 
+import com.blog.business.domain.vo.BlogAboutMeVo;
+import com.blog.business.domain.vo.BlogSocialLinkVo;
+import com.blog.business.service.UserProfileService;
+import com.blog.common.annotation.Anonymous;
 import com.blog.common.domain.AjaxResult;
-import com.blog.system.domain.vo.AboutMeVo;
-import com.blog.system.domain.vo.SocialLinkVo;
-import com.blog.system.service.UserProfileService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import java.util.List;
  *
  * @author 31373
  */
+@Anonymous
 @RestController
 @RequestMapping("/blog/user/profile")
 public class UserProfileController {
@@ -29,7 +31,7 @@ public class UserProfileController {
     /**
      * 获取博主的个人信息
      */
-    @GetMapping("getBlogOwnerProfile")
+    @GetMapping("/getBlogOwnerProfile")
     public AjaxResult getBlogOwnerProfile() {
         return AjaxResult.success(userProfileService.getBlogOwnerProfile());
     }
@@ -40,7 +42,7 @@ public class UserProfileController {
      */
     @GetMapping("/getBlogOwnerSocialInfo")
     public AjaxResult getBlogOwnerSocialInfo() {
-        List<SocialLinkVo> socialLinkVo = userProfileService.getBlogOwnerSocialInfo();
+        List<BlogSocialLinkVo> socialLinkVo = userProfileService.getBlogOwnerSocialInfo();
         return AjaxResult.success(socialLinkVo);
     }
 
@@ -49,7 +51,7 @@ public class UserProfileController {
      */
     @GetMapping("/getBlogOwnerAboutMe")
     public AjaxResult getBlogOwnerAboutMe() {
-        AboutMeVo aboutMeVo = userProfileService.getBlogOwnerAboutMe();
+        BlogAboutMeVo aboutMeVo = userProfileService.getBlogOwnerAboutMe();
         return AjaxResult.success(aboutMeVo);
     }
 }

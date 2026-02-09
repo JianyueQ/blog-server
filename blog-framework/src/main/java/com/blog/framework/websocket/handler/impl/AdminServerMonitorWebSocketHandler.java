@@ -234,7 +234,6 @@ public class AdminServerMonitorWebSocketHandler extends BaseWebSocketHandler {
                         )));
                         session.close(CloseStatus.GOING_AWAY.withReason("认证已过期"));
                     } else {
-                        log.debug("用户 {}(ID:{}) 认证有效,进行刷新令牌操作", username, adminId);
                         tokenService.verifyToken(user);
                     }
                 }

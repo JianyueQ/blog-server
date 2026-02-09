@@ -7,6 +7,7 @@ import com.blog.common.core.redis.RedisCache;
 import com.blog.common.domain.AjaxResult;
 import com.blog.common.utils.sign.Base64;
 import com.blog.common.utils.uuid.IdUtils;
+import com.blog.system.service.ConfigService;
 import com.google.code.kaptcha.Producer;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,10 +40,12 @@ public class CaptchaController {
 
     private final RedisCache redisCache;
     private final BlogConfig blogConfig;
+    private final ConfigService configService;
 
-    public CaptchaController(RedisCache redisCache, BlogConfig blogConfig) {
+    public CaptchaController(RedisCache redisCache, BlogConfig blogConfig, ConfigService configService) {
         this.redisCache = redisCache;
         this.blogConfig = blogConfig;
+        this.configService = configService;
     }
 
     /**
@@ -54,6 +57,12 @@ public class CaptchaController {
     @GetMapping("/captchaImage")
     public AjaxResult getCode(HttpServletResponse response) throws IOException {
         AjaxResult ajax = AjaxResult.success();
+        boolean captchaEnabled = configService.selectCaptchaEnabled();
+        ajax.put("captchaEnabled", captchaEnabled);
+        if (!captchaEnabled)
+        {
+            return ajax;
+        }
         //保存验证码信息
         String uuid = IdUtils.simpleUUID();
         String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + uuid;

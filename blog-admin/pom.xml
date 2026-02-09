@@ -19,6 +19,12 @@
             <artifactId>blog-framework</artifactId>
         </dependency>
 
+        <!-- 业务模块-->
+        <dependency>
+            <groupId>com.blog</groupId>
+            <artifactId>blog-business</artifactId>
+        </dependency>
+
         <!-- spring-boot-devtools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

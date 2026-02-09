@@ -1,15 +1,15 @@
-package com.blog.system.service.serviceImpl;
+package com.blog.business.service.serviceImpl;
 
+import com.blog.business.domain.vo.BlogAboutMeVo;
+import com.blog.business.domain.vo.BlogOnerProfileVO;
+import com.blog.business.domain.vo.BlogSocialLinkVo;
+import com.blog.business.mapper.UserProfileMapper;
+import com.blog.business.service.UserProfileService;
 import com.blog.common.constant.CacheConstants;
 import com.blog.common.core.redis.RedisCache;
 import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.ip.AddressUtils;
 import com.blog.common.utils.uuid.IdUtils;
-import com.blog.system.domain.vo.AboutMeVo;
-import com.blog.system.domain.vo.BlogOnerProfileVO;
-import com.blog.system.domain.vo.SocialLinkVo;
-import com.blog.system.mapper.UserProfileMapper;
-import com.blog.system.service.UserProfileService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -53,13 +53,13 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Cacheable(cacheNames = "social_link",key = "'front_user_social_info'")
     @Override
-    public List<SocialLinkVo> getBlogOwnerSocialInfo() {
+    public List<BlogSocialLinkVo> getBlogOwnerSocialInfo() {
         return userProfileMapper.getBlogOwnerSocialInfo();
     }
 
     @Cacheable(cacheNames = "about_me",key = "'front_user_about_me'")
     @Override
-    public AboutMeVo getBlogOwnerAboutMe() {
+    public BlogAboutMeVo getBlogOwnerAboutMe() {
         return userProfileMapper.getBlogOwnerAboutMe();
     }
 }

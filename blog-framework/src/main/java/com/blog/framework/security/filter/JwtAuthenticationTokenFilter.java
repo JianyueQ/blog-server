@@ -37,7 +37,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         if (StringUtils.isNotNull(loginUser) && StringUtils.isNull(SecurityUtils.getAuthentication()))
         {
             tokenService.verifyToken(loginUser);
-//            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
             MultiUserAuthenticationToken authenticationToken = new MultiUserAuthenticationToken(loginUser, null, loginUser.getAuthorities(),loginUser.getAdministrators().getUserType());
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);

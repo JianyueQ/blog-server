@@ -14,6 +14,7 @@
         <module>blog-common</module>
         <module>blog-framework</module>
         <module>blog-system</module>
+        <module>blog-business</module>
     </modules>
 
     <properties>
@@ -188,6 +189,13 @@
             <dependency>
                 <groupId>com.blog</groupId>
                 <artifactId>blog-system</artifactId>
+                <version>${blog.version}</version>
+            </dependency>
+
+            <!--业务模块-->
+            <dependency>
+                <groupId>com.blog</groupId>
+                <artifactId>blog-business</artifactId>
                 <version>${blog.version}</version>
             </dependency>
         </dependencies>

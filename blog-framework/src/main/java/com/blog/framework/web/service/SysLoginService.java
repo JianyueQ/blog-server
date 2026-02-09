@@ -8,16 +8,15 @@ import com.blog.common.core.domain.model.LoginUserOnAdmin;
 import com.blog.common.core.redis.RedisCache;
 import com.blog.common.domain.AjaxResult;
 import com.blog.common.exception.ServiceException;
-import com.blog.common.exception.user.CaptchaException;
-import com.blog.common.exception.user.CaptchaExpireException;
-import com.blog.common.exception.user.UserNotExistsException;
-import com.blog.common.exception.user.UserPasswordNotMatchException;
+import com.blog.common.exception.user.*;
 import com.blog.common.utils.MessageUtils;
 import com.blog.common.utils.SecurityUtils;
 import com.blog.common.utils.StringUtils;
+import com.blog.common.utils.ip.IpUtils;
 import com.blog.framework.rabbitmq.RabbitManager;
 import com.blog.framework.security.context.AuthenticationContextHolder;
 import com.blog.framework.security.token.MultiUserAuthenticationToken;
+import com.blog.system.service.ConfigService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -31,6 +30,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SysLoginService {
 
+    private final ConfigService configService;
 
     private final RedisCache redisCache;
     private final AuthenticationManager authenticationManager;
@@ -39,7 +39,8 @@ public class SysLoginService {
     private final RabbitManager rabbitManager;
 
 
-    public SysLoginService(RedisCache redisCache, AuthenticationManager authenticationManager, TokenService tokenService, RabbitManager rabbitManager) {
+    public SysLoginService(ConfigService configService, RedisCache redisCache, AuthenticationManager authenticationManager, TokenService tokenService, RabbitManager rabbitManager) {
+        this.configService = configService;
 
         this.redisCache = redisCache;
         this.authenticationManager = authenticationManager;
@@ -101,13 +102,13 @@ public class SysLoginService {
             rabbitManager.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.password.not.match"));
             throw new UserPasswordNotMatchException();
         }
-        //todo IP黑名单校验
-//        String blackStr = configService.selectConfigByKey("sys.login.blackIPList");
-//        if (IpUtils.isMatchedIp(blackStr, IpUtils.getIpAddr()))
-//        {
-//            AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("login.blocked")));
-//            throw new BlackListException();
-//        }
+        //IP黑名单校验
+        String blackStr = configService.selectConfigByKey("sys.login.blackIPList");
+        if (IpUtils.isMatchedIp(blackStr, IpUtils.getIpAddr()))
+        {
+            rabbitManager.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("login.blocked"));
+            throw new BlackListException();
+        }
     }
 
     /**
@@ -118,16 +119,19 @@ public class SysLoginService {
      * @param uuid     唯一标识
      */
     public void validateCaptcha(String username, String code, String uuid) {
-        String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");
-        String captcha = redisCache.getCacheObject(verifyKey);
-        if (captcha == null) {
-            rabbitManager.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.captcha.expire"));
-            throw new CaptchaExpireException();
-        }
-        redisCache.deleteObject(verifyKey);
-        if (!code.equalsIgnoreCase(captcha)) {
-            rabbitManager.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.captcha.error"));
-            throw new CaptchaException();
+        boolean captchaEnabled = configService.selectCaptchaEnabled();
+        if (captchaEnabled){
+            String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");
+            String captcha = redisCache.getCacheObject(verifyKey);
+            if (captcha == null) {
+                rabbitManager.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.captcha.expire"));
+                throw new CaptchaExpireException();
+            }
+            redisCache.deleteObject(verifyKey);
+            if (!code.equalsIgnoreCase(captcha)) {
+                rabbitManager.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.captcha.error"));
+                throw new CaptchaException();
+            }
         }
     }
 

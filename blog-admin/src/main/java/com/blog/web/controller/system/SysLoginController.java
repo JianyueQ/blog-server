@@ -1,15 +1,11 @@
 package com.blog.web.controller.system;
 
 import com.blog.common.constant.Constants;
-import com.blog.common.core.domain.entity.Administrators;
-import com.blog.common.core.domain.model.LoginUserOnAdmin;
-import com.blog.common.domain.AjaxResult;
-import com.blog.common.utils.SecurityUtils;
-import com.blog.framework.web.service.SysLoginService;
 import com.blog.common.core.domain.model.LoginBody;
+import com.blog.common.domain.AjaxResult;
+import com.blog.framework.web.service.SysLoginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

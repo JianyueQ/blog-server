@@ -2,7 +2,9 @@ package com.blog.framework.web.exception;
 
 import com.blog.common.domain.AjaxResult;
 import com.blog.common.exception.ServiceException;
+import com.blog.common.text.Convert;
 import com.blog.common.utils.StringUtils;
+import com.blog.common.utils.html.EscapeUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * @author 31373
@@ -76,6 +79,20 @@ public class GlobalExceptionHandler {
         String requestURI = request.getRequestURI();
         log.error("请求路径中缺少必需的路径变量'{}',发生系统异常.", requestURI, e);
         return AjaxResult.error(String.format("请求路径中缺少必需的路径变量[%s]", e.getVariableName()));
+    }
+
+    /**
+     * 请求参数类型不匹配
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public AjaxResult handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        String value = Convert.toStr(e.getValue());
+        if (StringUtils.isNotEmpty(value)) {
+            value = EscapeUtil.clean(value);
+        }
+        log.error("请求参数类型不匹配'{}',发生系统异常.", requestURI, e);
+        return AjaxResult.error(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), e.getRequiredType().getName(), value));
     }
 
 

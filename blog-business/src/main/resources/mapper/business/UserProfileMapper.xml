@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.blog.system.mapper.UserProfileMapper">
+<mapper namespace="com.blog.business.mapper.UserProfileMapper">
 
-    <resultMap id="getBlogOwnerProfile" type="com.blog.system.domain.vo.BlogOnerProfileVO">
+    <resultMap id="getBlogOwnerProfile" type="com.blog.business.domain.vo.BlogOnerProfileVO">
         <result property="email" column="email"/>
         <result property="nickname" column="nickname"/>
         <result property="avatar" column="avatar"/>
@@ -20,11 +20,11 @@
         where is_deleted = 0 and admin_id = 1
     </select>
 
-    <select id="getBlogOwnerSocialInfo" resultType="com.blog.system.domain.vo.SocialLinkVo">
+    <select id="getBlogOwnerSocialInfo" resultType="com.blog.business.domain.vo.BlogSocialLinkVo">
         select name, icon, tip, url, sort_order as sortOrder from social_link where status = 1 and is_deleted = 0
     </select>
 
-    <select id="getBlogOwnerAboutMe" resultType="com.blog.system.domain.vo.AboutMeVo">
+    <select id="getBlogOwnerAboutMe" resultType="com.blog.business.domain.vo.BlogAboutMeVo">
         select content as aboutMeContent from about_me where about_me_id = 1 and is_deleted = 0 limit 1
     </select>
 

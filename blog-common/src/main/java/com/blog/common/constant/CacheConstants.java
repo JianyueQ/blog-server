@@ -34,4 +34,9 @@ public class CacheConstants {
      * 限流缓存 redis key
      */
     public static final String RATE_LIMIT_KEY = "rate_limit:";
+
+    /**
+     * 系统配置缓存 redis key
+     */
+    public static final String SYS_CONFIG_KEY = "sys_config:";
 }

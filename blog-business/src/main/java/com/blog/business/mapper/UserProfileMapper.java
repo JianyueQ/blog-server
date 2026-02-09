@@ -1,8 +1,8 @@
-package com.blog.system.mapper;
+package com.blog.business.mapper;
 
-import com.blog.system.domain.vo.AboutMeVo;
-import com.blog.system.domain.vo.BlogOnerProfileVO;
-import com.blog.system.domain.vo.SocialLinkVo;
+import com.blog.business.domain.vo.BlogAboutMeVo;
+import com.blog.business.domain.vo.BlogOnerProfileVO;
+import com.blog.business.domain.vo.BlogSocialLinkVo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -21,8 +21,8 @@ public interface UserProfileMapper {
      */
     BlogOnerProfileVO getBlogOwnerProfile();
 
-    List<SocialLinkVo> getBlogOwnerSocialInfo();
+    List<BlogSocialLinkVo> getBlogOwnerSocialInfo();
 
-    AboutMeVo getBlogOwnerAboutMe();
+    BlogAboutMeVo getBlogOwnerAboutMe();
 
 }

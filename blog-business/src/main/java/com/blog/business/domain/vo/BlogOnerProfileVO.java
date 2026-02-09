@@ -1,6 +1,5 @@
-package com.blog.system.domain.vo;
+package com.blog.business.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 

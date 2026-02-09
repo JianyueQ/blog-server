@@ -1,5 +1,6 @@
 package com.blog.common.core.domain.model;
 
+import com.blog.common.xss.Xss;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
