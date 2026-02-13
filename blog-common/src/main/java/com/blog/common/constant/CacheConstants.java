@@ -39,4 +39,14 @@ public class CacheConstants {
      * 系统配置缓存 redis key
      */
     public static final String SYS_CONFIG_KEY = "sys_config:";
+
+    /**
+     * 访问者缓存 redis key
+     */
+    public static final String VISITOR_CACHE = "visitor_cache:";
+
+    /**
+     * 访问者记录黑名单
+     */
+    public static final String VISITOR_RECORD_BLACKLIST = "visitor_record_blacklist:";
 }

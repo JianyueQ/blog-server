@@ -1,5 +1,6 @@
 package com.blog.common.core.redis;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.HashOperations;
@@ -245,5 +246,19 @@ public class RedisCache {
      */
     public Collection<String> keys(final String pattern) {
         return redisTemplate.keys(pattern);
+    }
+
+    /**
+     * 缓存不可重复的值
+     *
+     * @param key     缓存的键值
+     * @param value   缓存的值
+     * @param timeout 过期时间
+     * @param unit    时间单位
+     * @return true=设置成功；false=设置失败
+     */
+    public boolean setCacheUniqueValue(final String key, final String value, final long timeout, final TimeUnit unit) {
+        Boolean result = redisTemplate.opsForValue().setIfAbsent(key, value, timeout, unit);
+        return result != null && result;
     }
 }

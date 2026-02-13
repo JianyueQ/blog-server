@@ -44,7 +44,7 @@ public class RedisConfig extends CachingConfigurationSelector {
         redisTemplate.setHashValueSerializer(fastJson2JsonRedisSerializer);
 
         redisTemplate.afterPropertiesSet();
-        log.info("redisTemplate 初始化完成");
+        log.debug("redisTemplate 初始化完成");
         return redisTemplate;
     }
 
@@ -53,7 +53,7 @@ public class RedisConfig extends CachingConfigurationSelector {
         DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
         redisScript.setScriptText(limitScriptText());
         redisScript.setResultType(Long.class);
-        log.info("DefaultRedisScript 初始化完成");
+        log.debug("DefaultRedisScript 初始化完成");
         return redisScript;
     }
 
@@ -83,7 +83,7 @@ public class RedisConfig extends CachingConfigurationSelector {
                 .entryTtl(Duration.ofHours(1))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(fastJson2JsonRedisSerializer));
-        log.info("RedisCacheManager 初始化完成");
+        log.debug("RedisCacheManager 初始化完成");
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(config)
                 .build();

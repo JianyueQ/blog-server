@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.business.mapper.VisitorRecordMapper">
+
+    <insert id="insertVisitorRecord" parameterType="visitorRecord">
+        insert into visitor_record(
+        <if test="ipaddr != null">ipaddr,</if>
+        <if test="location != null">location,</if>
+        <if test="browser != null">browser,</if>
+        <if test="os != null">os,</if>
+        <if test="visitTime != null">visit_time,</if>
+        <if test="userAgent != null">user_agent,</if>
+        <if test="abnormalFlag != null">abnormal_flag,</if>
+        <if test="abnormalType != null">abnormal_type,</if>
+        <if test="createBy != null">create_by,</if>
+        is_deleted,
+        create_time
+        )values (
+        <if test="ipaddr != null">#{ipaddr},</if>
+        <if test="location != null">#{location},</if>
+        <if test="browser != null">#{browser},</if>
+        <if test="os != null">#{os},</if>
+        <if test="visitTime != null">#{visitTime},</if>
+        <if test="userAgent != null">#{userAgent},</if>
+        <if test="abnormalFlag != null">#{abnormalFlag},</if>
+        <if test="abnormalType != null">#{abnormalType},</if>
+        <if test="createBy != null">#{createBy},</if>
+        0,
+        sysdate()
+        )
+    </insert>
+
+    <update id="cleanVisitorRecord">
+        truncate table visitor_record
+    </update>
+
+    <update id="updateBlacklist">
+        update visitor_record
+        <set>
+            blacklist = #{isBlacklist},
+            <if test="reason != null">reason = #{reason},</if>
+        </set>
+        where visitor_record_id = #{visitorRecordId}
+        and is_deleted = 0
+    </update>
+
+    <select id="getVisitorRecordList" resultType="com.blog.business.domain.vo.VisitorRecordVo" parameterType="visitorRecordDto">
+        select visitor_record_id,
+        ipaddr,
+        location,
+        visit_time
+        from visitor_record
+        <where>
+            <if test="startTime != null">and visit_time &gt;= #{startTime}</if>
+            <if test="endTime != null">and visit_time &lt;= #{endTime}</if>
+            <if test="ipaddr != null">and ipaddr like concat('%', #{ipaddr}, '%')</if>
+            <if test="location != null">and location like concat('%', #{location}, '%')</if>
+            and blacklist = #{blacklist}
+            and is_deleted = 0
+        </where>
+    </select>
+
+    <select id="getVisitorRecordDetail" resultType="com.blog.business.domain.vo.VisitorRecordDetailVo">
+        select visitor_record_id,
+               ipaddr,
+               location,
+               browser,
+               os,
+               visit_time,
+               user_agent,
+               abnormal_flag,
+               abnormal_type,
+               reason
+        from visitor_record where visitor_record_id = #{visitorRecordId} and is_deleted = 0
+    </select>
+
+
+</mapper>

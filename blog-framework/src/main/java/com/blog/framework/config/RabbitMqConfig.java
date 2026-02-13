@@ -50,7 +50,7 @@ public class RabbitMqConfig {
         rabbitTemplate.setReturnsCallback(returned -> {
             // 消息路由失败处理
         });
-        log.info("配置RabbitTemplate完成");
+        log.debug("配置RabbitTemplate完成");
         return rabbitTemplate;
     }
 

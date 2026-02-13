@@ -94,7 +94,7 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        log.info("配置安全拦截器链");
+        log.debug("配置安全拦截器链");
         return httpSecurity
                 // CSRF禁用，因为不使用session
                 .csrf(AbstractHttpConfigurer::disable)

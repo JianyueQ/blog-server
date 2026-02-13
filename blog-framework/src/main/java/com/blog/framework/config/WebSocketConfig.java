@@ -31,7 +31,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         registry.addHandler(adminServerMonitorWebSocketHandler(), "/ws/monitor/server")
                 .addInterceptors(authHandshakeInterceptor)
                 .setAllowedOrigins("*");
-        log.info("WebSocket配置完成 - 路径: /ws/monitor/server");
+        log.debug("WebSocket配置完成 - 路径: /ws/monitor/server");
     }
 
     @Bean

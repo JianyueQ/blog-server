@@ -32,7 +32,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(repeatSubmitInterceptor).addPathPatterns("/**");
-        log.info("注册拦截器：{}", RepeatSubmitInterceptor.class.getName());
+        log.debug("注册拦截器：{}", RepeatSubmitInterceptor.class.getName());
     }
 
     /**

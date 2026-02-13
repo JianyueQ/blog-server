@@ -33,4 +33,14 @@ public class UserConstants {
      * 是否为系统默认（否）
      */
     public static final String NO = "N";
+
+    /**
+     * 正常访问
+     */
+    public static final Integer NORMAL_ACCESS = 0;
+
+    /**
+     * 异常访问
+     */
+    public static final Integer EXCEPTION_ACCESS = 1;
 }

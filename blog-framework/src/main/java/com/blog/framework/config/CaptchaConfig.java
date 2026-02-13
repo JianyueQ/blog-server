@@ -43,7 +43,7 @@ public class CaptchaConfig {
         properties.setProperty(KAPTCHA_OBSCURIFICATOR_IMPL, "com.google.code.kaptcha.impl.ShadowGimpy");
         Config config = new Config(properties);
         defaultKaptcha.setConfig(config);
-        log.info("验证码类型{Char}配置初始化完成");
+        log.debug("验证码类型{Char}配置初始化完成");
         return defaultKaptcha;
     }
 
@@ -81,7 +81,7 @@ public class CaptchaConfig {
         properties.setProperty(KAPTCHA_OBSCURIFICATOR_IMPL, "com.google.code.kaptcha.impl.ShadowGimpy");
         Config config = new Config(properties);
         defaultKaptcha.setConfig(config);
-        log.info("验证码类型{Math}配置初始化完成");
+        log.debug("验证码类型{Math}配置初始化完成");
         return defaultKaptcha;
     }
 }

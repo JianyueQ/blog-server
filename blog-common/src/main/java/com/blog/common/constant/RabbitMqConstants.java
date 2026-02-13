@@ -30,4 +30,19 @@ public class RabbitMqConstants {
      * 管理员登录信息处理队列
      */
     public static final String ADMIN_LOGIN_QUEUE = "admin.login.queue";
+
+    /**
+     * 访客处理交换机
+     */
+    public static final String VISITOR_EXCHANGE = "visitor.exchange";
+
+    /**
+     * 访客处理队列
+     */
+    public static final String VISITOR_QUEUE = "visitor.queue";
+
+    /**
+     * 访客处理 routing key
+     */
+    public static final String VISITOR_KEY = "visitor";
 }

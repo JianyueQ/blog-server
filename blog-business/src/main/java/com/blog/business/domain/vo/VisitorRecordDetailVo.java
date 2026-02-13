@@ -1,55 +1,67 @@
-package com.blog.common.core.domain.entity;
+package com.blog.business.domain.vo;
 
-import com.blog.common.core.domain.BaseEntity;
-
-import java.io.Serial;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * 访问记录
- *
+ * 访客记录详情
  * @author 31373
  */
-public class VisitorRecord extends BaseEntity {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class VisitorRecordDetailVo {
 
     /**
-     * 记录id
+     * 访客记录id
      */
     private Long visitorRecordId;
     /**
      * ip地址
      */
     private String ipaddr;
+
     /**
      * ip所在地区
      */
     private String location;
+
     /**
      * 浏览器类型
      */
     private String browser;
+
     /**
      * 操作系统
      */
     private String os;
+
     /**
      * 访问时间
      */
     private String visitTime;
+
     /**
      * 用户代理字符串
      */
     private String userAgent;
+
     /**
      * 是否为异常访问(0:正常 1:异常)
      */
     private Integer abnormalFlag;
+
     /**
-     * 异常类型(SCRIPT:脚本访问, SPAM:垃圾请求, RATE_LIMIT:频率超限等)
+     * 异常类型
      */
     private String abnormalType;
+
+    /**
+     * blacklist
+     */
+    private String blacklist;
+
+    /**
+     * reason
+     */
+    private String reason;
 
     public Long getVisitorRecordId() {
         return visitorRecordId;
@@ -121,5 +133,38 @@ public class VisitorRecord extends BaseEntity {
 
     public void setAbnormalType(String abnormalType) {
         this.abnormalType = abnormalType;
+    }
+
+    public String getBlacklist() {
+        return blacklist;
+    }
+
+    public void setBlacklist(String blacklist) {
+        this.blacklist = blacklist;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(ToStringStyle.MULTI_LINE_STYLE)
+                .append("visitorRecordId", getVisitorRecordId())
+                .append("ipaddr", getIpaddr())
+                .append("location", getLocation())
+                .append("browser", getBrowser())
+                .append("os", getOs())
+                .append("visitTime", getVisitTime())
+                .append("userAgent", getUserAgent())
+                .append("abnormalFlag", getAbnormalFlag())
+                .append("abnormalType", getAbnormalType())
+                .append("blacklist", getBlacklist())
+                .append("reason", getReason())
+                .toString();
     }
 }
