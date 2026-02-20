@@ -1,9 +1,15 @@
 package com.blog.framework.config;
 
 import io.minio.MinioClient;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
 
 /**
  * Minio 对象存储配置类
@@ -41,7 +47,7 @@ public class MinioConfig {
      * 获取MinIO客户端
      */
     @Bean
-    public MinioClient minioClient() {
+    public MinioClient minioClient() throws Exception {
         return MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials(accessKey, secretKey)

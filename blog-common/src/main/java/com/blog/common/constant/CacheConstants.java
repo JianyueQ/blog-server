@@ -28,7 +28,7 @@ public class CacheConstants {
     /**
      * 博主信息缓存 redis key
      */
-    public static final String CACHE_BLOG_OWNER_PROFILE = "cache_blog_owner_profile:";
+    public static final String CACHE_BLOG_OWNER_PROFILE = "cache_blog_owner_profile";
 
     /**
      * 限流缓存 redis key
@@ -49,4 +49,8 @@ public class CacheConstants {
      * 访问者记录黑名单
      */
     public static final String VISITOR_RECORD_BLACKLIST = "visitor_record_blacklist:";
+    /**
+     * 上传图片缓存 redis key
+     */
+    public static final String UPLOAD_IMAGE_KEY = "upload_image_key:";
 }

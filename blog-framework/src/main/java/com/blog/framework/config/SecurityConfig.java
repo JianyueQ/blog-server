@@ -4,9 +4,6 @@ import com.blog.framework.config.properties.PermitAllUrlProperties;
 import com.blog.framework.security.filter.JwtAuthenticationTokenFilter;
 import com.blog.framework.security.handle.AuthenticationEntryPointImpl;
 import com.blog.framework.security.handle.LogoutSuccessHandlerImpl;
-import com.blog.framework.web.service.Impl.AdminDetailsServiceImpl;
-import com.blog.framework.web.service.Impl.UserDetailsServiceImpl;
-import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -39,10 +36,10 @@ public class SecurityConfig {
     /**
      * 自定义用户认证逻辑
      */
-    @Resource(name = "userDetailsServiceImpl")
-    private UserDetailsServiceImpl userDetailsServiceImpl;
-    @Resource(name = "adminDetailsServiceImpl")
-    private AdminDetailsServiceImpl adminDetailsServiceImpl;
+//    @Resource(name = "userDetailsServiceImpl")
+//    private UserDetailsServiceImpl userDetailsServiceImpl;
+//    @Resource(name = "adminDetailsServiceImpl")
+//    private AdminDetailsServiceImpl adminDetailsServiceImpl;
 
     /**
      * 退出处理类
@@ -111,8 +108,8 @@ public class SecurityConfig {
                 //注解标记允许匿名访问的url
                 .authorizeHttpRequests((request) -> {
                     permitAllUrl.getUrls().forEach(url -> request.requestMatchers(url).permitAll());
-                    // 对于登录login 验证码captchaImage,以及前台接口 允许匿名访问
-                    request.requestMatchers("/login", "/captchaImage").permitAll()
+                    // 对于登录login 验证码captchaImage,单个图片上传接口,以及前台接口 允许匿名访问
+                    request.requestMatchers("/login", "/captchaImage", "/common/uploadImage").permitAll()
                             .requestMatchers(HttpMethod.GET, "/").permitAll()
                             //排除所以websocket请求,将请求交给专门的拦截器处理
                             .requestMatchers("/ws/**").permitAll()

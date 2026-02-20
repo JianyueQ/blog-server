@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
+import java.util.zip.GZIPInputStream;
 
 /**
  * 通用http发送方法
@@ -59,11 +60,26 @@ public class HttpUtils {
             log.info("sendGet - {}", urlNameString);
             URL realUrl = new URL(urlNameString);
             URLConnection connection = realUrl.openConnection();
-            connection.setRequestProperty("accept", "*/*");
-            connection.setRequestProperty("connection", "Keep-Alive");
-            connection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+            connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
+            connection.setRequestProperty("Accept-Language", "zh-CN,zh;q=0.9");
+//            connection.setRequestProperty("Accept-Encoding", "gzip, deflate");
+            connection.setRequestProperty("Connection", "keep-alive");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            connection.setRequestProperty("Upgrade-Insecure-Requests", "1");
+            connection.setRequestProperty("Sec-Fetch-Dest", "document");
+            connection.setRequestProperty("Sec-Fetch-Mode", "navigate");
+            connection.setRequestProperty("Sec-Fetch-Site", "none");
+            connection.setRequestProperty("Cache-Control", "max-age=0");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
             connection.connect();
-            in = new BufferedReader(new InputStreamReader(connection.getInputStream(), contentType));
+            // 检查响应是否使用 Gzip 压缩
+            String encoding = connection.getContentEncoding();
+            InputStream inputStream = connection.getInputStream();
+            if ("gzip".equalsIgnoreCase(encoding)) {
+                inputStream = new GZIPInputStream(inputStream);
+            }
+            in = new BufferedReader(new InputStreamReader(inputStream, contentType));
             String line;
             while ((line = in.readLine()) != null) {
                 result.append(line);

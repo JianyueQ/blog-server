@@ -1,17 +1,12 @@
-package com.blog.business.domain.entity;
+package com.blog.business.domain.dto;
 
-import com.blog.common.core.domain.BaseEntity;
-
-import java.io.Serial;
+import com.blog.common.xss.Xss;
 
 /**
- * 友链表
+ * 友链参数
  * @author 31373
  */
-public class FriendLinks extends BaseEntity {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class FriendLinksDto {
 
     /**
      * 站点id
@@ -21,30 +16,32 @@ public class FriendLinks extends BaseEntity {
     /**
      * 站点名称
      */
+    @Xss(message = "站点名称包含非法字符")
     private String name;
 
     /**
      * 站点地址
      */
+    @Xss(message = "站点地址包含非法字符")
     private String url;
     /**
      * 站点logo
      */
+    @Xss(message = "站点logo包含非法字符")
     private String logo;
     /**
      * 站点描述
      */
+    @Xss(message = "站点描述包含非法字符")
     private String description;
+
     /**
      * 联系邮箱
      */
+    @Xss(message = "联系邮箱包含非法字符")
     private String email;
     /**
-     * 加入时间
-     */
-    private String joinTime;
-    /**
-     * 状态(0-隐藏, 1-显示,2-待同意)
+     * 状态(0-隐藏, 1-显示,2-待通过)
      */
     private Integer status;
 
@@ -102,13 +99,5 @@ public class FriendLinks extends BaseEntity {
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    public String getJoinTime() {
-        return joinTime;
-    }
-
-    public void setJoinTime(String joinTime) {
-        this.joinTime = joinTime;
     }
 }

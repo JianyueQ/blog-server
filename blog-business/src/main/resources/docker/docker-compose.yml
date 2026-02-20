@@ -1,0 +1,103 @@
+services:
+  blog-server:
+    build: .
+    image: blog-server
+    container_name: blog-server
+    ports:
+      - "8998:8998"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/blog_system?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - blog-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: blog-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: blog_system
+      TZ: Asia/Shanghai
+    command: --default-time-zone='+08:00'
+    volumes:
+      - /root/blog-v0.0.1/mysql/data:/var/lib/mysql
+      - /root/blog-v0.0.1/mysql/conf:/etc/mysql/conf.d
+      - /root/blog-v0.0.1/mysql/init:/docker-entrypoint-initdb.d
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - blog-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis/redis-stack:7.4.0-v8
+    container_name: blog-redis
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - /root/blog-v0.0.1/redis/data:/data
+      - /root/blog-v0.0.1/redis/conf:/usr/local/etc/redis
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "FT._LIST" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - blog-network
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+  rabbitmq:
+    image: rabbitmq-server:latest
+    container_name: blog-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: blog
+      RABBITMQ_DEFAULT_PASS: blog
+      RABBITMQ_DEFAULT_VHOST: /blog
+      TZ: Asia/Shanghai
+    volumes:
+      - /root/blog-v0.0.1/rabbitmq/data:/var/lib/rabbitmq
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - blog-network
+
+
+  nginx:
+    image: nginx:1.20.1
+    container_name: blog-nginx
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - /root/blog-v0.0.1/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - /root/blog-v0.0.1/nginx/html/blog:/usr/share/nginx/html/blog
+      - /root/blog-v0.0.1/nginx/ssl:/etc/nginx/ssl
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "18001:18001"
+    command: ["nginx", "-g", "daemon off;"]
+    depends_on:
+      - blog-server
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+    driver: bridge

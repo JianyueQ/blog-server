@@ -1,22 +1,13 @@
-package com.blog.business.domain.entity;
+package com.blog.business.domain.vo;
 
-import com.blog.common.core.domain.BaseEntity;
-
-import java.io.Serial;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * 友链表
+ * 友链列表展示信息
  * @author 31373
  */
-public class FriendLinks extends BaseEntity {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * 站点id
-     */
-    private Long friendLinksId;
+public class DisplayedFriendLinksListVo {
 
     /**
      * 站点名称
@@ -43,18 +34,6 @@ public class FriendLinks extends BaseEntity {
      * 加入时间
      */
     private String joinTime;
-    /**
-     * 状态(0-隐藏, 1-显示,2-待同意)
-     */
-    private Integer status;
-
-    public Long getFriendLinksId() {
-        return friendLinksId;
-    }
-
-    public void setFriendLinksId(Long friendLinksId) {
-        this.friendLinksId = friendLinksId;
-    }
 
     public String getName() {
         return name;
@@ -96,19 +75,23 @@ public class FriendLinks extends BaseEntity {
         this.email = email;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
     public String getJoinTime() {
         return joinTime;
     }
 
     public void setJoinTime(String joinTime) {
         this.joinTime = joinTime;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(ToStringStyle.MULTI_LINE_STYLE)
+                .append("name", getName())
+                .append("url", getUrl())
+                .append("logo", getLogo())
+                .append("description", getDescription())
+                .append("email", getEmail())
+                .append("joinTime", getJoinTime())
+                .toString();
     }
 }

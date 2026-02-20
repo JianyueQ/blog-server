@@ -1,7 +1,10 @@
 package com.blog.business.consumers;
 
 import com.alibaba.fastjson2.JSON;
+import com.blog.business.constant.BusinessRabbitMqConstant;
+import com.blog.business.domain.entity.FriendLinks;
 import com.blog.business.domain.entity.VisitorRecord;
+import com.blog.business.service.FriendLinksService;
 import com.blog.business.service.VisitorRecordService;
 import com.blog.common.constant.RabbitMqConstants;
 import com.blog.common.utils.SecurityUtils;
@@ -35,5 +38,18 @@ public class AdminRelatedConsumers {
     public void visitorRecord(String str) {
         VisitorRecord visitorRecord = JSON.parseObject(str, VisitorRecord.class);
         SpringUtils.getBean(VisitorRecordService.class).insertVisitorRecord(visitorRecord);
+    }
+
+    /**
+     * 插入友链申请信息
+     */
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(BusinessRabbitMqConstant.FRIEND_LINKS_QUEUE),
+            exchange = @Exchange(BusinessRabbitMqConstant.FRIEND_LINKS_EXCHANGE),
+            key = BusinessRabbitMqConstant.FRIEND_LINKS_KEY
+    ))
+    public void friendLinksRequest(String str) {
+        FriendLinks friendLinks = JSON.parseObject(str, FriendLinks.class);
+        SpringUtils.getBean(FriendLinksService.class).insertFriendLinksRequest(friendLinks);
     }
 }

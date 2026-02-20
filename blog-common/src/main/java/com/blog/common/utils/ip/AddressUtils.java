@@ -13,39 +13,53 @@ import org.slf4j.LoggerFactory;
  *
  * @author 31373
  */
-public class AddressUtils
-{
+public class AddressUtils {
     private static final Logger log = LoggerFactory.getLogger(AddressUtils.class);
 
-    // IP地址查询
-    public static final String IP_URL = "http://whois.pconline.com.cn/ipJson.jsp";
+    // IP地址查询 - 使用HTTPS
+    public static final String IP_URL = "https://whois.pconline.com.cn/ipJson.jsp";
 
     // 未知地址
     public static final String UNKNOWN = "XX XX";
 
-    public static String getRealAddressByIP(String ip)
-    {
+    public static String getRealAddressByIP(String ip) {
         // 内网不查询
-        if (IpUtils.internalIp(ip))
-        {
+        if (IpUtils.internalIp(ip)) {
             return "内网IP";
         }
-        try
-        {
-            String rspStr = HttpUtils.sendGet(IP_URL, "ip=" + ip + "&json=true", Constants.GBK);
+        try {
+            String rspStr = HttpUtils.sendGet(IP_URL, "json=true" + "&ip=" + ip, Constants.GBK);
             if (StringUtils.isEmpty(rspStr))
             {
-                log.error("获取地理位置异常 {}", ip);
+                log.error("获取地理位置异常，IP: {}", ip);
                 return UNKNOWN;
             }
+
+            // 处理JSONP格式，提取JSON部分
+            // 格式: IPCallBack({"ip":"x.x.x.x","pro":"xx",...})
+            if (rspStr.contains("IPCallBack")) {
+                int start = rspStr.indexOf("(");
+                int end = rspStr.lastIndexOf(")");
+                if (start > 0 && end > start) {
+                    rspStr = rspStr.substring(start + 1, end);
+                }
+            }
+
             JSONObject obj = JSON.parseObject(rspStr);
+
+
             String region = obj.getString("pro");
             String city = obj.getString("city");
+
+            // 如果省份和城市为空，返回 addr 字段
+            if (StringUtils.isEmpty(region) && StringUtils.isEmpty(city)) {
+                String addr = obj.getString("addr");
+                return StringUtils.isNotEmpty(addr) ? addr : UNKNOWN;
+            }
+
             return String.format("%s %s", region, city);
-        }
-        catch (Exception e)
-        {
-            log.error("获取地理位置异常 {}", ip);
+        } catch (Exception e) {
+            log.error("获取地理位置异常，IP: {}, 错误: {}", ip, e.getMessage());
         }
         return UNKNOWN;
     }

@@ -1,20 +1,21 @@
 package com.blog.business.controller.admin;
 
+import com.blog.business.domain.dto.FriendLinksDto;
+import com.blog.business.domain.vo.FriendLinksDetailVo;
 import com.blog.business.domain.vo.FriendLinksListVo;
 import com.blog.business.service.FriendLinksService;
 import com.blog.common.core.controller.BaseController;
 import com.blog.common.core.page.TableDataInfo;
+import com.blog.common.domain.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * @author 31373
  */
-@RestController
+@RestController("friendLinksAdminController")
 @RequestMapping("/system/friendLinks")
 public class FriendLinksController extends BaseController {
 
@@ -22,7 +23,7 @@ public class FriendLinksController extends BaseController {
     private FriendLinksService friendLinksService;
 
     /**
-     * 获取站点列表
+     * 获取友链列表
      */
     @GetMapping("/list")
     public TableDataInfo list() {
@@ -31,5 +32,56 @@ public class FriendLinksController extends BaseController {
         return getDataTable(friendLinksListVoList);
     }
 
+    /**
+     * 获取友链详情(修改操作调用)
+     */
+    @GetMapping("/detail")
+    public AjaxResult detail(@RequestParam("friendLinksId") Long friendLinksId) {
+        FriendLinksDetailVo friendLinksDetailVo = friendLinksService.getFriendLinksDetail(friendLinksId);
+        return AjaxResult.success(friendLinksDetailVo);
+    }
 
+    /**
+     * 获取通过前台申请的友链列表
+     */
+    @GetMapping("/approvedList")
+    public TableDataInfo approvedList() {
+        startPage();
+        List<FriendLinksListVo> friendLinksListVoList = friendLinksService.getApprovedFriendLinksList();
+        return getDataTable(friendLinksListVoList);
+    }
+
+    /**
+     * 新增友链
+     */
+    @PostMapping("/add")
+    public AjaxResult add(@RequestBody FriendLinksDto friendLinksDto) {
+        return toAjax(friendLinksService.addFriendLinks(friendLinksDto));
+    }
+
+    /**
+     * 修改友链
+     */
+    @PostMapping("/update")
+    public AjaxResult update(@RequestBody FriendLinksDto friendLinksDto) {
+        return toAjax(friendLinksService.updateFriendLinks(friendLinksDto));
+    }
+
+    /**
+     * 修改友链展示状态 状态(0-隐藏, 1-显示)
+     */
+    @PostMapping("/status")
+    public AjaxResult status(@RequestBody FriendLinksDto friendLinksDto) {
+        Long friendLinksId = friendLinksDto.getFriendLinksId();
+        Integer status = friendLinksDto.getStatus();
+        return toAjax(friendLinksService.updateFriendLinksStatus(friendLinksId, status));
+    }
+
+    /**
+     * 删除友链
+     */
+    @PostMapping("/delete/{friendLinksId}")
+    public AjaxResult delete(@PathVariable("friendLinksId") Long friendLinksId) {
+        return toAjax(friendLinksService.deleteFriendLinks(friendLinksId));
+    }
 }

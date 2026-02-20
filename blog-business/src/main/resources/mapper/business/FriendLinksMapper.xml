@@ -1,4 +1,62 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.business.mapper.FriendLinksMapper">
+
+    <sql id="friendLinksResult">
+        select friend_links_id, name, url, logo, description, email, status, join_time from friend_links
+    </sql>
+
+    <select id="getFriendLinksList" resultType="com.blog.business.domain.vo.FriendLinksListVo">
+        <include refid="friendLinksResult"/>
+        where status != 2 and is_deleted = 0
+    </select>
+
+    <select id="getFriendLinksDetail" resultType="com.blog.business.domain.vo.FriendLinksDetailVo">
+        <include refid="friendLinksResult"/>
+        where friend_links_id = #{friendLinksId} and is_deleted = 0
+    </select>
+
+    <select id="getApprovedFriendLinksList" resultType="com.blog.business.domain.vo.FriendLinksListVo">
+        <include refid="friendLinksResult"/>
+        where status = 2 and is_deleted = 0
+    </select>
+    <select id="getDisplayedFriendLinksList"
+            resultType="com.blog.business.domain.vo.DisplayedFriendLinksListVo">
+        <include refid="friendLinksResult"/>
+        where status = 1 and is_deleted = 0
+    </select>
+
+    <insert id="addFriendLinks" parameterType="friendLinks">
+        insert into friend_links (name, url, logo, description, email, status, join_time,create_time,create_by,is_deleted)
+        values (#{name}, #{url}, #{logo}, #{description}, #{email}, #{status}, #{joinTime},#{createTime},#{createBy},0)
+    </insert>
+
+    <update id="updateFriendLinks" parameterType="friendLinks">
+        update friend_links
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="logo != null">logo = #{logo},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="joinTime != null">join_time = #{joinTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </set>
+        where friend_links_id = #{friendLinksId} and is_deleted = 0 and status != 2
+    </update>
+
+    <update id="updateFriendLinksStatus">
+        update friend_links
+        <set>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        where friend_links_id = #{friendLinksId} and is_deleted = 0
+    </update>
+
+    <update id="deleteFriendLinks">
+        update friend_links set is_deleted = 1 where friend_links_id = #{friendLinksId}
+    </update>
+
+
 </mapper>

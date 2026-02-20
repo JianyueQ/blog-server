@@ -1,8 +1,13 @@
 package com.blog.web.controller.common;
 
+import com.blog.common.annotation.Log;
+import com.blog.common.annotation.RateLimiter;
+import com.blog.common.constant.CacheConstants;
 import com.blog.common.core.controller.BaseController;
 import com.blog.common.core.domain.model.LoginUserOnAdmin;
 import com.blog.common.domain.AjaxResult;
+import com.blog.common.enums.BusinessType;
+import com.blog.common.enums.LimitType;
 import com.blog.common.exception.file.FileUploadException;
 import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.file.MimeTypeUtils;
@@ -34,10 +39,11 @@ public class CommonController extends BaseController {
     /**
      * 通用图片上传-单个
      */
+    @RateLimiter(key = CacheConstants.UPLOAD_IMAGE_KEY, count = 10,limitType = LimitType.IP)
+    @Log(title = "通用图片上传-单个", businessType = BusinessType.OTHER)
     @PostMapping("/uploadImage")
     public AjaxResult uploadImage(@RequestParam("image") MultipartFile image) throws Exception {
         if (!image.isEmpty()) {
-            //上传头像
             String url = minioService.uploadImage(image, MimeTypeUtils.IMAGE_EXTENSION, true);
             AjaxResult ajax = AjaxResult.success();
             ajax.put("imgUrl", url);
