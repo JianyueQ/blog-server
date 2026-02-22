@@ -1,5 +1,7 @@
 package com.blog.business.CacheKeyGenerator;
 
+import com.blog.common.core.page.PageDomain;
+import com.blog.common.core.page.TableSupport;
 import com.blog.common.utils.StringUtils;
 import io.lettuce.core.dynamic.support.ReflectionUtils;
 import org.slf4j.Logger;
@@ -54,26 +56,27 @@ public class CacheKeyGenerator implements KeyGenerator {
      */
     @Override
     public Object generate(Object target, Method method, Object... params) {
-        if (params.length == 0) {
+        // 使用 StringJoiner 动态拼接缓存键
+        StringJoiner keyJoiner = new StringJoiner(UNDERSCORE);
+        // 添加分页参数到缓存键
+        String paginationKey = extractPaginationParams();
+        if (StringUtils.isNotEmpty(paginationKey)) {
+            keyJoiner.add(paginationKey);
+        }
+        if (keyJoiner.length() != 0) {
+            for (Object param : params) {
+                // 提取参数的缓存键
+                String paramKey = extractParamKey(param, 0);
+                // 如果参数缓存键不为空，则添加到缓存键中
+                if (StringUtils.isNotEmpty(paramKey)) {
+                    keyJoiner.add(paramKey);
+                }
+            }
+        }else {
             log.debug("生成缓存键: {} (无参数)", DEFAULT_KEY);
             return DEFAULT_KEY;
         }
-        // 使用 StringJoiner 动态拼接缓存键
-        StringJoiner keyJoiner = new StringJoiner(UNDERSCORE);
-        for (Object param : params) {
-            // 提取参数的缓存键
-            String paramKey = extractParamKey(param, 0);
-            // 如果参数缓存键不为空，则添加到缓存键中
-            if (StringUtils.isNotEmpty(paramKey)) {
-                keyJoiner.add(paramKey);
-            }
-        }
         String cacheKey = keyJoiner.toString();
-        // 如果拼接后为空，返回默认值
-        if (StringUtils.isEmpty(cacheKey)) {
-            cacheKey = DEFAULT_KEY;
-        }
-
         log.debug("生成缓存键: {}", cacheKey);
         return cacheKey;
     }
@@ -163,5 +166,47 @@ public class CacheKeyGenerator implements KeyGenerator {
      */
     private boolean isPunctuation(char c) {
         return PUNCTUATION.indexOf(c) >= 0;
+    }
+
+    /**
+     * 提取分页参数作为缓存键的一部分
+     */
+    private String extractPaginationParams() {
+        try {
+            // 获取当前请求的分页参数
+            PageDomain pageDomain = TableSupport.buildPageRequest();
+
+            // 添加 null 检查
+            if (pageDomain == null) {
+                return "";
+            }
+
+            StringJoiner paginationJoiner = new StringJoiner("_");
+
+            // 添加页码和每页大小
+            if (StringUtils.isNotNull(pageDomain.getPageNum())) {
+                paginationJoiner.add(String.valueOf(pageDomain.getPageNum()));
+            }
+            if (StringUtils.isNotNull(pageDomain.getPageSize())) {
+                paginationJoiner.add(String.valueOf(pageDomain.getPageSize()));
+            }
+
+            // 添加排序信息
+            String orderByColumn = pageDomain.getOrderByColumn();
+            if (StringUtils.isNotEmpty(orderByColumn)) {
+                paginationJoiner.add(orderByColumn);
+            }
+
+            String isAsc = pageDomain.getIsAsc();
+            if (StringUtils.isNotEmpty(isAsc)) {
+                paginationJoiner.add(isAsc);
+            }
+
+            return paginationJoiner.toString();
+        } catch (Exception e) {
+            // 如果获取分页参数失败，返回空字符串，不影响正常功能
+            log.warn("获取分页参数失败: {}", e.getMessage());
+            return "";
+        }
     }
 }

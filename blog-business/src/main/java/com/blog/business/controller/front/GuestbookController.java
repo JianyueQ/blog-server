@@ -1,5 +1,6 @@
 package com.blog.business.controller.front;
 
+import com.blog.business.constant.BusinessCacheConstants;
 import com.blog.business.domain.dto.GuestbookDto;
 import com.blog.business.domain.vo.FrontGuestbookListVo;
 import com.blog.business.service.GuestbookService;
@@ -8,6 +9,7 @@ import com.blog.common.core.controller.BaseController;
 import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.domain.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +30,7 @@ public class GuestbookController extends BaseController {
     /**
      * 获取可以展示的留言列表
      */
+    @Cacheable(cacheNames = BusinessCacheConstants.FRONT_GUESTBOOK_LIST_CACHE, keyGenerator = "CacheKeyGenerator")
     @GetMapping("/list")
     public TableDataInfo getGuestbookList() {
         startPage();

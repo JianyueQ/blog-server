@@ -34,7 +34,7 @@ public class GuestbookServiceImpl implements GuestbookService {
     @Autowired
     private GuestbookMapper guestbookMapper;
 
-    @Cacheable(cacheNames = BusinessCacheConstants.GUESTBOOK_LIST_CACHE, keyGenerator = "CacheKeyGenerator")
+
     @Override
     public List<GuestbookListVo> getGuestbookList(GuestbookListDto guestbookListDto) {
         List<GuestbookListVo> guestbookListVoList = guestbookMapper.getGuestbookList(guestbookListDto);
@@ -113,28 +113,8 @@ public class GuestbookServiceImpl implements GuestbookService {
     @Override
     public List<FrontGuestbookListVo> getFrontGuestbookList() {
         List<FrontGuestbookListVo> guestbookListVoList = guestbookMapper.getFrontGuestbookList();
-        //分离根留言和非根留言
-        List<FrontGuestbookListVo> rootGuestbookListVoList = guestbookListVoList.stream()
-                //筛选出根留言
-                .filter(item -> item.getIsRoot() != null && GuestbookConstants.IS_ROOT.equals(item.getIsRoot()))
-                //初始化回复列表
-                .peek(item -> item.setReplyList(new ArrayList<>()))
-                .toList();
-        guestbookListVoList.stream()
-                .filter(item -> item.getIsRoot() != null && GuestbookConstants.NOT_ROOT.equals(item.getIsRoot()))
-                //按时间正序排序，旧的留言在前，新的留言在后
-                .sorted(Comparator.comparing(FrontGuestbookListVo::getMessageTime))
-                .forEach(reply -> {
-                    rootGuestbookListVoList.stream()
-                            .filter(rootItem -> rootItem.getGuestbookId().equals(reply.getRootId()))
-                            .findFirst()
-                            .ifPresent(rootItem -> {
-                                if (rootItem.getReplyList() == null) {
-                                    rootItem.setReplyList(new ArrayList<>());
-                                }
-                                rootItem.getReplyList().add(reply);
-                            });
-                });
-        return rootGuestbookListVoList;
+        //对子留言进行排序
+        guestbookListVoList.forEach(item -> item.getReplyList().sort(Comparator.comparing(FrontGuestbookListVo::getMessageTime)));
+        return guestbookListVoList;
     }
 }

@@ -5,5 +5,12 @@ package com.blog.business.constant;
  * @author 31373
  */
 public class BusinessCacheConstants {
+    /**
+     * 留言板列表缓存
+     */
     public static final String GUESTBOOK_LIST_CACHE = "guestbook_list_cache";
+    /**
+     * 前台留言列表缓存
+     */
+    public static final String FRONT_GUESTBOOK_LIST_CACHE = "front_guestbook_list_cache";
 }

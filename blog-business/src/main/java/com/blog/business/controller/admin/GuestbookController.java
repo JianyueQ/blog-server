@@ -1,5 +1,6 @@
 package com.blog.business.controller.admin;
 
+import com.blog.business.constant.BusinessCacheConstants;
 import com.blog.business.domain.dto.GuestbookDto;
 import com.blog.business.domain.dto.GuestbookListDto;
 import com.blog.business.domain.dto.GuestbookStatusDto;
@@ -11,6 +12,7 @@ import com.blog.common.domain.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +33,7 @@ public class GuestbookController extends BaseController {
     /**
      * 获取留言列表
      */
+    @Cacheable(cacheNames = BusinessCacheConstants.GUESTBOOK_LIST_CACHE, keyGenerator = "CacheKeyGenerator")
     @GetMapping("/list")
     public TableDataInfo getGuestbookList(GuestbookListDto guestbookListDto){
         startPage();
