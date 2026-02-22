@@ -5,6 +5,7 @@ import com.blog.business.constant.BusinessRabbitMqConstant;
 import com.blog.business.constant.FriendLinksConstant;
 import com.blog.business.domain.dto.FriendLinksDto;
 import com.blog.business.domain.entity.FriendLinks;
+import com.blog.business.domain.entity.Guestbook;
 import com.blog.business.domain.entity.VisitorRecord;
 import com.blog.common.constant.RabbitMqConstants;
 import com.blog.common.utils.DateUtils;
@@ -48,5 +49,9 @@ public class RabbitManager {
         String json = JSON.toJSONString(friendLinks);
         rabbitTemplate.convertAndSend(BusinessRabbitMqConstant.FRIEND_LINKS_EXCHANGE, BusinessRabbitMqConstant.FRIEND_LINKS_KEY, json);
         return 1;
+    }
+
+    public void sendAddGuestbookMessageRequest(Guestbook guestbook) {
+        rabbitTemplate.convertAndSend(BusinessRabbitMqConstant.GUESTBOOK_MESSAGE_EXCHANGE, BusinessRabbitMqConstant.GUESTBOOK_MESSAGE_KEY, JSON.toJSONString(guestbook));
     }
 }

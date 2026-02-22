@@ -67,17 +67,17 @@
 
     <select id="getFrontGuestbookList" resultMap="FrontGuestbookListVoResult">
         <include refid="GuestbookListResult"/>
-        where `status` = 1 and is_deleted = 0
+        where `status` = 1 and is_deleted = 0 and is_root = 1
     </select>
 
     <select id="getGuestbookMessageById" resultMap="GuestbookResult">
         <include refid="GuestbookListResult"/>
-        where guestbook_id = #{guestbookId} and is_deleted = 0
+        where guestbook_id = #{guestbookId} and is_deleted = 0 and `status` = 1
     </select>
 
     <select id="getGuestbookListByRootId" resultType="com.blog.business.domain.entity.Guestbook">
         <include refid="GuestbookListResult"/>
-        where root_id = #{guestbookId} and is_deleted = 0
+        where root_id = #{guestbookId} and is_deleted = 0 and `status` = 1
     </select>
 
     <select id="getGuestbookListVoByRootId" resultType="com.blog.business.domain.vo.GuestbookListVo">

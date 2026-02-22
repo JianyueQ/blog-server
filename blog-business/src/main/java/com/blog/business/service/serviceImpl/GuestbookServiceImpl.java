@@ -9,6 +9,7 @@ import com.blog.business.domain.entity.Guestbook;
 import com.blog.business.domain.vo.FrontGuestbookListVo;
 import com.blog.business.domain.vo.GuestbookListVo;
 import com.blog.business.mapper.GuestbookMapper;
+import com.blog.business.rabbitmq.RabbitManager;
 import com.blog.business.service.GuestbookService;
 import com.blog.common.core.domain.entity.Administrators;
 import com.blog.common.utils.DateUtils;
@@ -33,6 +34,8 @@ public class GuestbookServiceImpl implements GuestbookService {
 
     @Autowired
     private GuestbookMapper guestbookMapper;
+    @Autowired
+    private RabbitManager rabbitManager;
 
 
     @Override
@@ -43,7 +46,7 @@ public class GuestbookServiceImpl implements GuestbookService {
         return guestbookListVoList;
     }
 
-    @CacheEvict(cacheNames = BusinessCacheConstants.GUESTBOOK_LIST_CACHE, allEntries = true)
+    @CacheEvict(cacheNames = {BusinessCacheConstants.GUESTBOOK_LIST_CACHE, BusinessCacheConstants.GUESTBOOK_LIST_FRONT_CACHE}, allEntries = true)
     @Override
     public int addMessage(GuestbookDto guestbookDto) {
         Guestbook guestbook = new Guestbook();
@@ -65,10 +68,11 @@ public class GuestbookServiceImpl implements GuestbookService {
         String ipAddr = IpUtils.getIpAddr();
         guestbook.setCreateBy(ipAddr);
         guestbook.setLocation(AddressUtils.getRealAddressByIP(ipAddr));
-        return guestbookMapper.addMessage(guestbook);
+        rabbitManager.sendAddGuestbookMessageRequest(guestbook);
+        return 1;
     }
 
-    @CacheEvict(cacheNames = BusinessCacheConstants.GUESTBOOK_LIST_CACHE, allEntries = true)
+    @CacheEvict(cacheNames = {BusinessCacheConstants.GUESTBOOK_LIST_CACHE, BusinessCacheConstants.GUESTBOOK_LIST_FRONT_CACHE}, allEntries = true)
     @Override
     public int adminReplyMessage(GuestbookDto guestbookDto) {
         Guestbook guestbook = new Guestbook();
@@ -86,13 +90,13 @@ public class GuestbookServiceImpl implements GuestbookService {
         return guestbookMapper.addMessage(guestbook);
     }
 
-    @CacheEvict(cacheNames = BusinessCacheConstants.GUESTBOOK_LIST_CACHE, allEntries = true)
+    @CacheEvict(cacheNames = {BusinessCacheConstants.GUESTBOOK_LIST_CACHE, BusinessCacheConstants.GUESTBOOK_LIST_FRONT_CACHE}, allEntries = true)
     @Override
     public int updateGuestbookMessageStatus(GuestbookStatusDto guestbookStatusDto) {
         return guestbookMapper.updateGuestbookMessageStatus(guestbookStatusDto);
     }
 
-    @CacheEvict(cacheNames = BusinessCacheConstants.GUESTBOOK_LIST_CACHE, allEntries = true)
+    @CacheEvict(cacheNames = {BusinessCacheConstants.GUESTBOOK_LIST_CACHE, BusinessCacheConstants.GUESTBOOK_LIST_FRONT_CACHE}, allEntries = true)
     @Override
     public int deleteGuestbookMessage(Long id) {
         //查询留言信息以及子留言信息
