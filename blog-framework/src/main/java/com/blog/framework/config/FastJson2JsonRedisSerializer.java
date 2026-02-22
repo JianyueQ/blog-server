@@ -37,15 +37,15 @@ public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T> {
     /**
      * 序列化
      *
-     * @param value 待序列化对象
+     * @param t 待序列化对象
      * @throws SerializationException 序列化异常
      */
     @Override
-    public byte[] serialize(T value) throws SerializationException {
-        if (value == null) {
+    public byte[] serialize(T t) throws SerializationException {
+        if (t == null) {
             return new byte[0];
         }
-        return JSON.toJSONString(value, JSONWriter.Feature.WriteClassName).getBytes(DEFAULT_CHARSET);
+        return JSON.toJSONString(t, JSONWriter.Feature.WriteClassName,JSONWriter.Feature.WriteLongAsString).getBytes(DEFAULT_CHARSET);
     }
 
     /**

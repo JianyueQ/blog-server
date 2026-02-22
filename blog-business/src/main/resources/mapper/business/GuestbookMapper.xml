@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.business.mapper.GuestbookMapper">
+    <sql id="GuestbookListResult">
+        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id, is_root, status, create_time as messageTime from guestbook
+    </sql>
+
+    <resultMap id="GuestbookResult" type="com.blog.business.domain.entity.Guestbook">
+        <id property="guestbookId" column="guestbook_id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="email" column="email"/>
+        <result property="content" column="content"/>
+        <result property="avatar" column="avatar"/>
+        <result property="location" column="location"/>
+        <result property="rootId" column="root_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="isRoot" column="is_root"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="messageTime"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <!--根据根留言id查询留言列表-->
+        <collection property="replyList" ofType="com.blog.business.domain.entity.Guestbook" column="guestbook_id" select="getGuestbookListByRootId"/>
+    </resultMap>
+
+    <resultMap id="GuestbookListVoResult" type="com.blog.business.domain.vo.GuestbookListVo">
+        <id property="guestbookId" column="guestbook_id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="email" column="email"/>
+        <result property="content" column="content"/>
+        <result property="avatar" column="avatar"/>
+        <result property="location" column="location"/>
+        <result property="rootId" column="root_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="isRoot" column="is_root"/>
+        <result property="status" column="status"/>
+        <result property="messageTime" column="messageTime"/>
+        <!--根据留言id查询子留言列表-->
+        <collection property="replyList" ofType="com.blog.business.domain.vo.GuestbookListVo" column="guestbook_id" select="getGuestbookListVoByRootId"/>
+    </resultMap>
+
+    <select id="getGuestbookList" resultMap="GuestbookListVoResult" parameterType="guestbookListDto">
+        <include refid="GuestbookListResult"/>
+        <where>
+            <if test="startTime != null and startTime != ''">and create_time &gt;= #{startTime} </if>
+            <if test="endTime != null and endTime != ''">and create_time &lt;= #{endTime} </if>
+            and is_root = 1 and `status` != 2 and is_deleted = 0
+        </where>
+    </select>
+
+    <select id="getFrontGuestbookList" resultType="com.blog.business.domain.vo.FrontGuestbookListVo">
+        <include refid="GuestbookListResult"/>
+        where `status` = 1 and is_deleted = 0
+    </select>
+
+    <select id="getGuestbookMessageById" resultMap="GuestbookResult">
+        <include refid="GuestbookListResult"/>
+        where guestbook_id = #{guestbookId} and is_deleted = 0
+    </select>
+
+    <select id="getGuestbookListByRootId" resultType="com.blog.business.domain.entity.Guestbook">
+        <include refid="GuestbookListResult"/>
+        where root_id = #{guestbookId} and is_deleted = 0
+    </select>
+
+    <select id="getGuestbookListVoByRootId" resultType="com.blog.business.domain.vo.GuestbookListVo">
+        <include refid="GuestbookListResult"/>
+        where root_id = #{guestbookId} and is_deleted = 0
+    </select>
+
+    <insert id="addMessage" parameterType="guestbook">
+        insert into guestbook
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="nickname != null">nickname,</if>
+            <if test="email != null">email,</if>
+            <if test="content != null">content,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="location != null">location,</if>
+            <if test="rootId != null">root_id,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="isRoot != null">is_root,</if>
+            <if test="status != null">status,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="updateBy != null and updateBy != ''">update_by,</if>
+            is_deleted,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="nickname != null">#{nickname},</if>
+            <if test="email != null">#{email},</if>
+            <if test="content != null">#{content},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="location != null">#{location},</if>
+            <if test="rootId != null">#{rootId},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="isRoot != null">#{isRoot},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
+            0,
+        </trim>
+    </insert>
+
+    <update id="updateGuestbookMessageStatus">
+        update guestbook set status = #{status} where guestbook_id = #{guestbookId} and is_deleted = 0
+    </update>
+
+    <update id="deleteGuestbookMessage">
+        update guestbook set is_deleted = 1 where guestbook_id = #{guestbookId} and is_deleted = 0
+    </update>
+
+    <update id="deleteGuestbookMessageByIds">
+        update guestbook set is_deleted = 1 where guestbook_id in
+        <foreach item="id" collection="ids" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and is_deleted = 0
+    </update>
+</mapper>

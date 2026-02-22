@@ -39,7 +39,7 @@ public class FriendLinksController extends BaseController {
      * 通过前台申请添加友链信息(异步操作)
      */
     @PostMapping("/requestToAdd")
-    public AjaxResult requestToAdd(FriendLinksDto friendLinksDto) {
+    public AjaxResult requestToAdd(@RequestBody FriendLinksDto friendLinksDto) {
         return toAjax(friendLinksService.requestToAddFriendLinks(friendLinksDto));
     }
 

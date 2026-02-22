@@ -1,25 +1,17 @@
 package com.blog.web.controller.common;
 
-import com.blog.common.annotation.Log;
 import com.blog.common.annotation.RateLimiter;
 import com.blog.common.constant.CacheConstants;
 import com.blog.common.core.controller.BaseController;
-import com.blog.common.core.domain.model.LoginUserOnAdmin;
 import com.blog.common.domain.AjaxResult;
-import com.blog.common.enums.BusinessType;
 import com.blog.common.enums.LimitType;
-import com.blog.common.exception.file.FileUploadException;
-import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.file.MimeTypeUtils;
 import com.blog.framework.web.service.MinioService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
-
-import static com.blog.common.utils.SecurityUtils.getLoginUserOnAdmin;
 
 /**
  * 通用请求处理
@@ -40,10 +32,13 @@ public class CommonController extends BaseController {
      * 通用图片上传-单个
      */
     @RateLimiter(key = CacheConstants.UPLOAD_IMAGE_KEY, count = 10,limitType = LimitType.IP)
-    @Log(title = "通用图片上传-单个", businessType = BusinessType.OTHER)
     @PostMapping("/uploadImage")
     public AjaxResult uploadImage(@RequestParam("image") MultipartFile image) throws Exception {
         if (!image.isEmpty()) {
+            // 检查文件大小 100MB
+            if (image.getSize() > 100 * 1024 * 1024) {
+                return error("文件大小超过限制，请上传小于100MB的图片");
+            }
             String url = minioService.uploadImage(image, MimeTypeUtils.IMAGE_EXTENSION, true);
             AjaxResult ajax = AjaxResult.success();
             ajax.put("imgUrl", url);
