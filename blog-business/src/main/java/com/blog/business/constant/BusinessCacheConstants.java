@@ -12,5 +12,5 @@ public class BusinessCacheConstants {
     /**
      * 前台留言列表缓存
      */
-    public static final String FRONT_GUESTBOOK_LIST_CACHE = "front_guestbook_list_cache";
+    public static final String GUESTBOOK_LIST_FRONT_CACHE = "guestbook_list_cache:front";
 }

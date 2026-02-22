@@ -30,7 +30,7 @@ public class GuestbookController extends BaseController {
     /**
      * 获取可以展示的留言列表
      */
-    @Cacheable(cacheNames = BusinessCacheConstants.FRONT_GUESTBOOK_LIST_CACHE, keyGenerator = "CacheKeyGenerator")
+    @Cacheable(cacheNames = BusinessCacheConstants.GUESTBOOK_LIST_FRONT_CACHE, keyGenerator = "CacheKeyGenerator")
     @GetMapping("/list")
     public TableDataInfo getGuestbookList() {
         startPage();
