@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.business.mapper.AnnouncementMapper" >
+    <update id="updateAnnouncement">
+        update announcement set content = #{content},update_time = #{updateTime} where announcement_id = 1
+    </update>
+    <select id="getAnnouncement" resultType="com.blog.business.domain.vo.AnnouncementVo">
+        select content, update_time from announcement where announcement_id = 1
+    </select>
+</mapper>
