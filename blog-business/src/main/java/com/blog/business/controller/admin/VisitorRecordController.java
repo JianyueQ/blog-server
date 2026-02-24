@@ -5,9 +5,11 @@ import com.blog.business.domain.dto.VisitorRecordListDto;
 import com.blog.business.domain.vo.VisitorRecordDetailVo;
 import com.blog.business.domain.vo.VisitorRecordVo;
 import com.blog.business.service.VisitorRecordService;
+import com.blog.common.annotation.Log;
 import com.blog.common.core.controller.BaseController;
 import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.domain.AjaxResult;
+import com.blog.common.enums.BusinessType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,6 +51,7 @@ public class VisitorRecordController extends BaseController {
      *
      * @return 结果
      */
+    @Log(title = "访客记录", businessType = BusinessType.UPDATE)
     @PostMapping("/update/blacklist")
     public AjaxResult updateBlacklist(@RequestBody VisitorRecordDto visitorRecordDto) {
         return toAjax(visitorRecordService.updateBlacklist(visitorRecordDto));
@@ -57,6 +60,7 @@ public class VisitorRecordController extends BaseController {
     /**
      * 清空访客记录
      */
+    @Log(title = "访客记录", businessType = BusinessType.CLEAN)
     @PostMapping("/clean")
     public AjaxResult clean() {
         visitorRecordService.cleanVisitorRecord();

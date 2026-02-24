@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.business.mapper.MessageRecordMapper">
+
+    <insert id="insertMessageRecord" parameterType="messageRecord" keyProperty="messageId" useGeneratedKeys="true">
+        insert into message_record (admin_id, message_title, message_content, message_type,is_read,create_time,is_deleted)
+        values (#{adminId}, #{messageTitle}, #{messageContent}, #{messageType},#{isRead},#{createTime},0)
+    </insert>
+
+    <update id="updateMessageReadStatus" parameterType="messageRecord">
+        update message_record
+        set is_read     = #{isRead},
+            read_time   = #{readTime},
+            update_time = #{updateTime}
+        where message_id = #{messageId}
+          and is_read = 0
+          and is_deleted = 0
+    </update>
+
+    <select id="getMessageRecordList" resultType="com.blog.business.domain.vo.MessageRecordVo">
+        select message_id, admin_id, message_title, message_content, message_type, is_read, read_time, create_time from message_record
+        where admin_id = #{adminId} and is_deleted = 0
+    </select>
+
+    <select id="getMessageRecordListUnread" resultType="com.blog.business.domain.vo.MessageRecordVo">
+        select message_id, admin_id, message_title, message_content, message_type, is_read, read_time, create_time from message_record
+        where admin_id = #{adminId} and is_deleted = 0 and is_read = 0
+    </select>
+
+    <select id="getMessageRecordListRead" resultType="com.blog.business.domain.vo.MessageRecordVo">
+        select message_id, admin_id, message_title, message_content, message_type, is_read, read_time, create_time from message_record
+        where admin_id = #{adminId} and is_deleted = 0 and is_read = 1
+    </select>
+
+    <delete id="deleteMessageRecordByIds">
+        delete from message_record where message_id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <update id="cleanMessageRecord">
+        truncate table message_record
+    </update>
+
+</mapper>

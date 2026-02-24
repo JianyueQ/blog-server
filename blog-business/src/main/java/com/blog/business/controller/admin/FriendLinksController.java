@@ -4,9 +4,11 @@ import com.blog.business.domain.dto.FriendLinksDto;
 import com.blog.business.domain.vo.FriendLinksDetailVo;
 import com.blog.business.domain.vo.FriendLinksListVo;
 import com.blog.business.service.FriendLinksService;
+import com.blog.common.annotation.Log;
 import com.blog.common.core.controller.BaseController;
 import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.domain.AjaxResult;
+import com.blog.common.enums.BusinessType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,6 +56,7 @@ public class FriendLinksController extends BaseController {
     /**
      * 新增友链
      */
+    @Log(title = "友链管理", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     public AjaxResult add(@RequestBody FriendLinksDto friendLinksDto) {
         return toAjax(friendLinksService.addFriendLinks(friendLinksDto));
@@ -62,6 +65,7 @@ public class FriendLinksController extends BaseController {
     /**
      * 修改友链
      */
+    @Log(title = "友链管理", businessType = BusinessType.UPDATE)
     @PostMapping("/update")
     public AjaxResult update(@RequestBody FriendLinksDto friendLinksDto) {
         return toAjax(friendLinksService.updateFriendLinks(friendLinksDto));
@@ -70,6 +74,7 @@ public class FriendLinksController extends BaseController {
     /**
      * 修改友链展示状态 状态(0-隐藏, 1-显示)
      */
+    @Log(title = "友链管理", businessType = BusinessType.UPDATE)
     @PostMapping("/status")
     public AjaxResult status(@RequestBody FriendLinksDto friendLinksDto) {
         Long friendLinksId = friendLinksDto.getFriendLinksId();
@@ -80,6 +85,7 @@ public class FriendLinksController extends BaseController {
     /**
      * 删除友链
      */
+    @Log(title = "友链管理", businessType = BusinessType.DELETE)
     @PostMapping("/delete/{friendLinksId}")
     public AjaxResult delete(@PathVariable("friendLinksId") Long friendLinksId) {
         return toAjax(friendLinksService.deleteFriendLinks(friendLinksId));

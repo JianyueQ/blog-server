@@ -6,14 +6,12 @@ import com.blog.business.constant.FriendLinksConstant;
 import com.blog.business.domain.dto.FriendLinksDto;
 import com.blog.business.domain.entity.FriendLinks;
 import com.blog.business.domain.entity.Guestbook;
+import com.blog.business.domain.entity.MessageRecord;
 import com.blog.business.domain.entity.VisitorRecord;
 import com.blog.common.constant.RabbitMqConstants;
-import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.ip.IpUtils;
-import com.blog.common.utils.uuid.IdUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -53,5 +51,10 @@ public class RabbitManager {
 
     public void sendAddGuestbookMessageRequest(Guestbook guestbook) {
         rabbitTemplate.convertAndSend(BusinessRabbitMqConstant.GUESTBOOK_MESSAGE_EXCHANGE, BusinessRabbitMqConstant.GUESTBOOK_MESSAGE_KEY, JSON.toJSONString(guestbook));
+    }
+
+    public void sendMessageRecord(MessageRecord messageRecord) {
+        String str = JSON.toJSONString(messageRecord);
+        rabbitTemplate.convertAndSend(BusinessRabbitMqConstant.MESSAGE_RECORD_EXCHANGE, BusinessRabbitMqConstant.MESSAGE_RECORD_KEY, str);
     }
 }

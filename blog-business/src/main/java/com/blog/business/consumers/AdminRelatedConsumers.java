@@ -1,13 +1,14 @@
 package com.blog.business.consumers;
 
 import com.alibaba.fastjson2.JSON;
+import com.blog.business.annotation.SendMessage;
 import com.blog.business.constant.BusinessRabbitMqConstant;
 import com.blog.business.domain.entity.FriendLinks;
 import com.blog.business.domain.entity.VisitorRecord;
+import com.blog.business.enums.MessageRecordType;
 import com.blog.business.service.FriendLinksService;
 import com.blog.business.service.VisitorRecordService;
 import com.blog.common.constant.RabbitMqConstants;
-import com.blog.common.utils.SecurityUtils;
 import com.blog.common.utils.spring.SpringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class AdminRelatedConsumers {
     /**
      * 访客记录信息
      */
+    @SendMessage(messageTitle = "访客记录", messageContent = "有访客来访!",messageType = MessageRecordType.OTHER)
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(RabbitMqConstants.VISITOR_QUEUE),
             exchange = @Exchange(RabbitMqConstants.VISITOR_EXCHANGE),
@@ -43,6 +45,7 @@ public class AdminRelatedConsumers {
     /**
      * 插入友链申请信息
      */
+    @SendMessage(messageTitle = "友链申请", messageContent = "您有一条友链申请需要审核!", messageType = MessageRecordType.FRIEND_LINKS)
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(BusinessRabbitMqConstant.FRIEND_LINKS_QUEUE),
             exchange = @Exchange(BusinessRabbitMqConstant.FRIEND_LINKS_EXCHANGE),

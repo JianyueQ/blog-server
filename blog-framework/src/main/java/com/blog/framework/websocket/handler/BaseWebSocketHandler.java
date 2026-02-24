@@ -216,27 +216,39 @@ public abstract class BaseWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * 连接建立时的业务逻辑
+     * 连接建立时的初始化工作
+     * @param session WebSocket会话
+     * @throws Exception 异常
      */
     protected abstract void onConnectionEstablished(WebSocketSession session) throws Exception;
 
     /**
      * 处理自定义业务消息
+     * @param session WebSocket会话
+     * @param message 消息
+     * @throws Exception 异常
      */
     protected abstract void handleCustomMessage(WebSocketSession session, String message) throws Exception;
 
     /**
      * 连接关闭时的清理工作
+     * @param session WebSocket会话
+     * @param status 状态
+     * @throws Exception 异常
      */
     protected abstract void onConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception;
 
     /**
      * 传输错误处理
+     * @param session WebSocket会话
+     * @param exception 异常
+     * @throws Exception 异常
      */
     protected abstract void onTransportError(WebSocketSession session, Throwable exception) throws Exception;
 
     /**
      * 销毁时的清理工作
+     * @throws Exception 异常
      */
     protected abstract void onDestroy();
 
@@ -336,7 +348,7 @@ public abstract class BaseWebSocketHandler extends TextWebSocketHandler {
      */
     protected void sendMessage(WebSocketSession session, String message) throws IOException {
         if (session.isOpen()) {
-            synchronized (session) {
+            synchronized (this) {
                 session.sendMessage(new TextMessage(message));
             }
         }
