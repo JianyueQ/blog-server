@@ -1,6 +1,8 @@
 package com.blog.business.controller.front;
 
 import com.blog.common.annotation.Anonymous;
+import com.blog.common.core.controller.BaseController;
+import com.blog.common.domain.AjaxResult;
 import com.blog.common.utils.SystemUptimeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,14 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 @Anonymous
 @RestController("FrontSystemUptimeController")
 @RequestMapping("/blog/monitor/uptime")
-public class SystemUptimeController {
+public class SystemUptimeController extends BaseController {
     /**
      * 获取格式化的累计运行时长
      * 
      * @return 格式化的累计运行时长
      */
     @GetMapping("/formatted")
-    public String getFormattedTotalUptime() {
-        return SystemUptimeUtils.formatDuration(SystemUptimeUtils.getTotalUptime());
+    public AjaxResult getFormattedTotalUptime() {
+        Object string = SystemUptimeUtils.formatDuration(SystemUptimeUtils.getTotalUptime());
+        return AjaxResult.success(string);
     }
 }
