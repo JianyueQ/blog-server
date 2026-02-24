@@ -35,7 +35,7 @@ public class AnnouncementController extends BaseController {
      * 修改公告计划
      */
     @Log(title = "公告计划", businessType = BusinessType.UPDATE)
-    @PutMapping()
+    @PostMapping()
     public AjaxResult updateAnnouncement(@RequestBody AnnouncementDto announcementDto) {
         return toAjax(announcementService.updateAnnouncement(announcementDto));
     }
