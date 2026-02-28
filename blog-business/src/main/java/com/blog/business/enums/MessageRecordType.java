@@ -23,6 +23,10 @@ public enum MessageRecordType {
      */
     COMMENT,
     /**
+     * 访客
+     */
+    VISITORS,
+    /**
      * 其他消息
      */
     OTHER,

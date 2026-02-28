@@ -31,7 +31,7 @@ public class AdminRelatedConsumers {
     /**
      * 访客记录信息
      */
-    @SendMessage(messageTitle = "访客记录", messageContent = "有访客来访!",messageType = MessageRecordType.OTHER)
+    @SendMessage(messageTitle = "访客记录", messageContent = "有访客来访!",messageType = MessageRecordType.VISITORS)
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(RabbitMqConstants.VISITOR_QUEUE),
             exchange = @Exchange(RabbitMqConstants.VISITOR_EXCHANGE),

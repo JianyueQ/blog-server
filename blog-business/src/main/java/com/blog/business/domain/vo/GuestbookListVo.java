@@ -59,15 +59,14 @@ public class GuestbookListVo implements Serializable {
      */
     private Integer status;
     /**
+     * 子评论数量
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer replyCount;
+    /**
      * 留言时间
      */
     private String messageTime;
-
-    /**
-     * 回复列表
-     */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<GuestbookListVo> replyList;
 
     public Long getGuestbookId() {
         return guestbookId;
@@ -157,12 +156,12 @@ public class GuestbookListVo implements Serializable {
         this.messageTime = messageTime;
     }
 
-    public List<GuestbookListVo> getReplyList() {
-        return replyList;
+    public Integer getReplyCount() {
+        return replyCount;
     }
 
-    public void setReplyList(List<GuestbookListVo> replyList) {
-        this.replyList = replyList;
+    public void setReplyCount(Integer replyCount) {
+        this.replyCount = replyCount;
     }
 
     @Override
@@ -178,8 +177,8 @@ public class GuestbookListVo implements Serializable {
                 .append("parentId", getParentId())
                 .append("isRoot", getIsRoot())
                 .append("status", getStatus())
+                .append("replyCount", getReplyCount())
                 .append("messageTime", getMessageTime())
-                .append("replyList", getReplyList())
                 .toString();
     }
 }

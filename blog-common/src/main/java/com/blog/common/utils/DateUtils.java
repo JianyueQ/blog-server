@@ -24,6 +24,10 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     public static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
+    public static String YYYY_MM_DD_HH_MM_SS_SSS = "yyyy-MM-dd HH:mm:ss.SSS";
+
+    public static String YYYY_MM_DD_HH_MM_SS_SSS_SSS = "yyyy-MM-dd HH:mm:ss.SSSSSS";
+
     private static String[] parsePatterns = {
             "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM",
             "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
@@ -165,5 +169,117 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         LocalDateTime localDateTime = LocalDateTime.of(temporalAccessor, LocalTime.of(0, 0, 0));
         ZonedDateTime zdt = localDateTime.atZone(ZoneId.systemDefault());
         return Date.from(zdt.toInstant());
+    }
+
+    /**
+     * 获取当前时间的毫秒级时间戳
+     * 用于ZSet排序，保证时间精度不丢失
+     * @return 毫秒级时间戳
+     */
+    public static long getCurrentTimeMillis() {
+        return System.currentTimeMillis();
+    }
+
+    /**
+     * 获取当前时间的微秒级时间戳（纳秒/1000）
+     * 提供更高精度的时间戳，适用于高并发场景
+     * @return 微秒级时间戳
+     */
+    public static long getCurrentTimeMicros() {
+        return System.nanoTime() / 1000;
+    }
+
+    /**
+     * 获取当前时间的纳秒级时间戳
+     * 最高精度，适用于极高并发场景
+     * @return 纳秒级时间戳
+     */
+    public static long getCurrentTimeNanos() {
+        return System.nanoTime();
+    }
+
+    /**
+     * 将Date转换为毫秒级时间戳
+     * 如果date为null，返回当前时间戳
+     * @param date 日期对象
+     * @return 毫秒级时间戳
+     */
+    public static long toTimeMillis(Date date) {
+        if (date == null) {
+            return getCurrentTimeMillis();
+        }
+        return date.getTime();
+    }
+
+    /**
+     * 将毫秒级时间戳转换为Date对象
+     * @param timestamp 毫秒级时间戳
+     * @return Date对象
+     */
+    public static Date fromTimeMillis(long timestamp) {
+        return new Date(timestamp);
+    }
+
+    /**
+     * 获取当前时间的毫秒级字符串（包含毫秒）
+     * 格式：yyyy-MM-dd HH:mm:ss.SSS
+     * @return 毫秒级时间字符串
+     */
+    public static String getCurrentTimeWithMillis() {
+        return parseDateToStr(YYYY_MM_DD_HH_MM_SS_SSS, new Date());
+    }
+
+    /**
+     * 获取当前时间的微秒级字符串
+     * 格式：yyyy-MM-dd HH:mm:ss.SSSSSS
+     * @return 微秒级时间字符串
+     */
+    public static String getCurrentTimeWithMicros() {
+        return parseDateToStr(YYYY_MM_DD_HH_MM_SS_SSS_SSS, new Date());
+    }
+
+    /**
+     * 将时间戳转换为指定格式的字符串
+     * @param timestamp 毫秒级时间戳
+     * @param format 格式字符串
+     * @return 格式化的时间字符串
+     */
+    public static String formatTimestamp(long timestamp, String format) {
+        return parseDateToStr(format, new Date(timestamp));
+    }
+
+    /**
+     * 生成适用于ZSet排序的分数（毫秒级时间戳 + 序列号）
+     * 解决同一毫秒内多条数据排序问题
+     * @param timestamp 基础时间戳
+     * @param sequence 序列号（0-999）
+     * @return ZSet排序分数
+     */
+    public static double generateZSetScore(long timestamp, int sequence) {
+        if (sequence < 0 || sequence > 999) {
+            sequence = sequence % 1000;
+        }
+        // 时间戳在前，序列号在后，保证时间排序
+        return timestamp * 1000L + sequence;
+    }
+
+    /**
+     * 生成适用于ZSet排序的分数（当前时间戳 + 随机序列号）
+     * 自动处理序列号，适用于单机环境
+     * @return ZSet排序分数
+     */
+    public static double generateZSetScore() {
+        long timestamp = getCurrentTimeMillis();
+        int sequence = (int)(System.nanoTime() % 1000);
+        return generateZSetScore(timestamp, sequence);
+    }
+
+    /**
+     * 从ZSet分数中提取时间戳
+     * @param score ZSet分数
+     * @return 毫秒级时间戳
+     */
+    public static long extractTimestampFromScore(double score) {
+        return (long)(score / 1000);
     }
 }

@@ -1,10 +1,13 @@
 package com.blog.business.service;
 
+import com.blog.business.domain.dto.FrontGuestbookListDto;
 import com.blog.business.domain.dto.GuestbookDto;
 import com.blog.business.domain.dto.GuestbookListDto;
 import com.blog.business.domain.dto.GuestbookStatusDto;
 import com.blog.business.domain.vo.FrontGuestbookListVo;
 import com.blog.business.domain.vo.GuestbookListVo;
+import com.blog.common.core.page.TableDataInfo;
+import com.blog.common.domain.AjaxResult;
 
 import java.util.List;
 
@@ -12,7 +15,6 @@ import java.util.List;
  * @author 31373
  */
 public interface GuestbookService {
-    List<GuestbookListVo> getGuestbookList(GuestbookListDto guestbookListDto);
 
     int addMessage(GuestbookDto guestbookDto);
 
@@ -22,6 +24,21 @@ public interface GuestbookService {
 
     int deleteGuestbookMessage(Long id);
 
-    List<FrontGuestbookListVo> getFrontGuestbookList();
+    AjaxResult getFrontChildGuestbookList(FrontGuestbookListDto frontGuestbookListDto);
 
+    /**
+     * 缓存全部前台子评论
+     */
+    void cacheAllFrontChildGuestbookList(FrontGuestbookListDto frontGuestbookListDto);
+
+    /**
+     * 缓存全部子评论
+     */
+    void cacheAllChildGuestbookList(GuestbookListDto guestbookListDto);
+
+    AjaxResult getFrontRootGuestbookList(FrontGuestbookListDto frontGuestbookListDto);
+
+    TableDataInfo getRootGuestbookList(GuestbookListDto guestbookListDto);
+
+    TableDataInfo getChildGuestbookList(GuestbookListDto guestbookListDto);
 }

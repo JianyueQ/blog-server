@@ -1,9 +1,11 @@
 package com.blog.business.domain.dto;
 
 /**
+ * 前台留言列表条件
+ *
  * @author 31373
  */
-public class GuestbookListDto {
+public class FrontGuestbookListDto{
 
     /**
      * 留言id
@@ -13,16 +15,6 @@ public class GuestbookListDto {
      * 是否为根留言：0-否，1-是
      */
     private Integer isRoot;
-
-    /**
-     * 开始时间
-     */
-    private String startTime;
-
-    /**
-     * 结束时间
-     */
-    private String endTime;
 
     public Long getGuestbookId() {
         return guestbookId;
@@ -38,21 +30,5 @@ public class GuestbookListDto {
 
     public void setIsRoot(Integer isRoot) {
         this.isRoot = isRoot;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
     }
 }

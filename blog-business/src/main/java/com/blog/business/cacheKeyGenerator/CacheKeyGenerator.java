@@ -1,4 +1,4 @@
-package com.blog.business.CacheKeyGenerator;
+package com.blog.business.cacheKeyGenerator;
 
 import com.blog.common.core.page.PageDomain;
 import com.blog.common.core.page.TableSupport;

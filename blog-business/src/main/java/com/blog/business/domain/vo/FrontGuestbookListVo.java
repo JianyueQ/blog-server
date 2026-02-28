@@ -52,17 +52,15 @@ public class FrontGuestbookListVo implements Serializable {
      * 是否为根留言：0-否，1-是
      */
     private Integer isRoot;
-
+    /**
+     * 子评论数量
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer replyCount;
     /**
      * 留言时间
      */
     private String messageTime;
-
-    /**
-     * 回复列表
-     */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<FrontGuestbookListVo> replyList;
 
     public Long getGuestbookId() {
         return guestbookId;
@@ -144,12 +142,12 @@ public class FrontGuestbookListVo implements Serializable {
         this.messageTime = messageTime;
     }
 
-    public List<FrontGuestbookListVo> getReplyList() {
-        return replyList;
+    public Integer getReplyCount() {
+        return replyCount;
     }
 
-    public void setReplyList(List<FrontGuestbookListVo> replyList) {
-        this.replyList = replyList;
+    public void setReplyCount(Integer replyCount) {
+        this.replyCount = replyCount;
     }
 
     @Override
@@ -164,9 +162,8 @@ public class FrontGuestbookListVo implements Serializable {
                 .append("rootId", getRootId())
                 .append("parentId", getParentId())
                 .append("isRoot", getIsRoot())
+                .append("replyCount", getReplyCount())
                 .append("messageTime", getMessageTime())
-                .append("replyList", getReplyList())
                 .toString();
     }
-
 }

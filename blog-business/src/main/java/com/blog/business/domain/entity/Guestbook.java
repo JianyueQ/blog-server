@@ -2,6 +2,8 @@ package com.blog.business.domain.entity;
 
 import com.blog.business.domain.vo.GuestbookListVo;
 import com.blog.common.core.domain.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
@@ -49,9 +51,27 @@ public class Guestbook extends BaseEntity {
     /**
      * 状态：0-隐藏，1-显示,2-审核中
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer status;
+    /**
+     * 留言时间
+     */
+    private String messageTime;
+    /**
+     * 时间戳
+     */
+    private Long timestamp;
+    /**
+     * 父级昵称
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String parentNickname;
 
-    private List<Guestbook> replyList;
+    /**
+     * 回复数量
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer replyCount;
 
     public Long getGuestbookId() {
         return guestbookId;
@@ -133,11 +153,35 @@ public class Guestbook extends BaseEntity {
         this.status = status;
     }
 
-    public List<Guestbook> getReplyList() {
-        return replyList;
+    public Integer getReplyCount() {
+        return replyCount;
     }
 
-    public void setReplyList(List<Guestbook> replyList) {
-        this.replyList = replyList;
+    public void setReplyCount(Integer replyCount) {
+        this.replyCount = replyCount;
+    }
+
+    public String getMessageTime() {
+        return messageTime;
+    }
+
+    public void setMessageTime(String messageTime) {
+        this.messageTime = messageTime;
+    }
+
+    public String getParentNickname() {
+        return parentNickname;
+    }
+
+    public void setParentNickname(String parentNickname) {
+        this.parentNickname = parentNickname;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 }

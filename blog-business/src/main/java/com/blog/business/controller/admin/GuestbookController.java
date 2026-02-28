@@ -1,9 +1,11 @@
 package com.blog.business.controller.admin;
 
 import com.blog.business.constant.BusinessCacheConstants;
+import com.blog.business.domain.dto.FrontGuestbookListDto;
 import com.blog.business.domain.dto.GuestbookDto;
 import com.blog.business.domain.dto.GuestbookListDto;
 import com.blog.business.domain.dto.GuestbookStatusDto;
+import com.blog.business.domain.vo.FrontGuestbookListVo;
 import com.blog.business.domain.vo.GuestbookListVo;
 import com.blog.business.service.GuestbookService;
 import com.blog.common.annotation.Log;
@@ -30,17 +32,20 @@ public class GuestbookController extends BaseController {
     @Autowired
     private GuestbookService guestbookService;
 
-    private static final Logger log = LoggerFactory.getLogger(GuestbookController.class);
+    /**
+     * 获取可以展示的根留言列表
+     */
+    @GetMapping("/list/isRoot")
+    public TableDataInfo getGuestbookList(GuestbookListDto guestbookListDto) {
+        return guestbookService.getRootGuestbookList(guestbookListDto);
+    }
 
     /**
-     * 获取留言列表
+     * 获取可以展示的子留言列表
      */
-    @Cacheable(cacheNames = BusinessCacheConstants.GUESTBOOK_LIST_CACHE, keyGenerator = "CacheKeyGenerator")
-    @GetMapping("/list")
-    public TableDataInfo getGuestbookList(GuestbookListDto guestbookListDto){
-        startPage();
-        List<GuestbookListVo> guestbookListVoList = guestbookService.getGuestbookList(guestbookListDto);
-        return getDataTable(guestbookListVoList);
+    @GetMapping("/list/child")
+    public TableDataInfo getChildGuestbookList(GuestbookListDto guestbookListDto) {
+        return guestbookService.getChildGuestbookList(guestbookListDto);
     }
 
     /**

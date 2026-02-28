@@ -1,29 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.blog.business.mapper.GuestbookMapper">
-    <sql id="GuestbookListResult">
-        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id, is_root, status, create_time as messageTime from guestbook
-    </sql>
-
-    <resultMap id="GuestbookResult" type="com.blog.business.domain.entity.Guestbook">
-        <id property="guestbookId" column="guestbook_id"/>
-        <result property="nickname" column="nickname"/>
-        <result property="email" column="email"/>
-        <result property="content" column="content"/>
-        <result property="avatar" column="avatar"/>
-        <result property="location" column="location"/>
-        <result property="rootId" column="root_id"/>
-        <result property="parentId" column="parent_id"/>
-        <result property="isRoot" column="is_root"/>
-        <result property="status" column="status"/>
-        <result property="createTime" column="messageTime"/>
-        <result property="updateTime" column="update_time"/>
-        <result property="createBy" column="create_by"/>
-        <result property="updateBy" column="update_by"/>
-        <result property="isDeleted" column="is_deleted"/>
-        <!--根据根留言id查询留言列表-->
-        <collection property="replyList" ofType="com.blog.business.domain.entity.Guestbook" column="guestbook_id" select="getGuestbookListByRootId"/>
-    </resultMap>
 
     <resultMap id="GuestbookListVoResult" type="com.blog.business.domain.vo.GuestbookListVo">
         <id property="guestbookId" column="guestbook_id"/>
@@ -36,12 +13,13 @@
         <result property="parentId" column="parent_id"/>
         <result property="isRoot" column="is_root"/>
         <result property="status" column="status"/>
-        <result property="messageTime" column="messageTime"/>
-        <!--根据留言id查询子留言列表-->
-        <collection property="replyList" ofType="com.blog.business.domain.vo.GuestbookListVo" column="guestbook_id" select="getGuestbookListVoByRootId"/>
+        <result property="messageTime" column="create_time"/>
+        <result property="replyCount" column="replyCount"/>
+<!--        <result property="timestamp" column="timestamp"/>-->
+
     </resultMap>
 
-    <resultMap id="FrontGuestbookListVoResult" type="com.blog.business.domain.vo.FrontGuestbookListVo">
+    <resultMap id="FrontGuestbookListVoResult" type="com.blog.business.domain.entity.Guestbook">
         <id property="guestbookId" column="guestbook_id"/>
         <result property="nickname" column="nickname"/>
         <result property="email" column="email"/>
@@ -51,48 +29,15 @@
         <result property="rootId" column="root_id"/>
         <result property="parentId" column="parent_id"/>
         <result property="isRoot" column="is_root"/>
-        <result property="messageTime" column="messageTime"/>
-        <!--根据留言id查询子留言列表-->
-        <collection property="replyList" ofType="com.blog.business.domain.vo.FrontGuestbookListVo" column="guestbook_id" select="getFrontGuestbookListVoByRootId"/>
+        <result property="messageTime" column="create_time"/>
+        <result property="replyCount" column="reply_count"/>
+        <result property="timestamp" column="timestamp"/>
     </resultMap>
 
-    <select id="getGuestbookList" resultMap="GuestbookListVoResult" parameterType="guestbookListDto">
-        <include refid="GuestbookListResult"/>
-        <where>
-            <if test="startTime != null and startTime != ''">and create_time &gt;= #{startTime} </if>
-            <if test="endTime != null and endTime != ''">and create_time &lt;= #{endTime} </if>
-            and is_root = 1 and `status` != 2 and is_deleted = 0
-        </where>
-    </select>
-
-    <select id="getFrontGuestbookList" resultMap="FrontGuestbookListVoResult">
-        <include refid="GuestbookListResult"/>
-        where `status` = 1 and is_deleted = 0 and is_root = 1
-    </select>
-
-    <select id="getGuestbookMessageById" resultMap="GuestbookResult">
-        <include refid="GuestbookListResult"/>
-        where guestbook_id = #{guestbookId} and is_deleted = 0
-    </select>
-
-    <select id="getGuestbookListByRootId" resultType="com.blog.business.domain.entity.Guestbook">
-        <include refid="GuestbookListResult"/>
-        where root_id = #{guestbookId} and is_deleted = 0 and `status` = 1
-    </select>
-
-    <select id="getGuestbookListVoByRootId" resultType="com.blog.business.domain.vo.GuestbookListVo">
-        <include refid="GuestbookListResult"/>
-        where root_id = #{guestbookId} and is_deleted = 0
-    </select>
-
-    <select id="getFrontGuestbookListVoByRootId" resultType="com.blog.business.domain.vo.FrontGuestbookListVo">
-        <include refid="GuestbookListResult"/>
-        where root_id = #{guestbookId} and is_deleted = 0
-    </select>
-
-    <insert id="addMessage" parameterType="guestbook">
+    <insert id="addMessage" parameterType="guestbook" useGeneratedKeys="true" keyProperty="guestbookId">
         insert into guestbook
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="guestbookId != null">guestbook_id,</if>
             <if test="nickname != null">nickname,</if>
             <if test="email != null">email,</if>
             <if test="content != null">content,</if>
@@ -102,13 +47,14 @@
             <if test="parentId != null">parent_id,</if>
             <if test="isRoot != null">is_root,</if>
             <if test="status != null">status,</if>
+            <if test="replyCount != null">reply_count,</if>
+            <if test="timestamp != null">timestamp,</if>
             <if test="createTime != null">create_time,</if>
-            <if test="updateTime != null">update_time,</if>
             <if test="createBy != null and createBy != ''">create_by,</if>
-            <if test="updateBy != null and updateBy != ''">update_by,</if>
             is_deleted,
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="guestbookId != null">#{guestbookId},</if>
             <if test="nickname != null">#{nickname},</if>
             <if test="email != null">#{email},</if>
             <if test="content != null">#{content},</if>
@@ -118,10 +64,10 @@
             <if test="parentId != null">#{parentId},</if>
             <if test="isRoot != null">#{isRoot},</if>
             <if test="status != null">#{status},</if>
+            <if test="replyCount != null">#{replyCount},</if>
+            <if test="timestamp != null">#{timestamp},</if>
             <if test="createTime != null">#{createTime},</if>
-            <if test="updateTime != null">#{updateTime},</if>
             <if test="createBy != null and createBy != ''">#{createBy},</if>
-            <if test="updateBy != null and updateBy != ''">#{updateBy},</if>
             0,
         </trim>
     </insert>
@@ -136,9 +82,84 @@
 
     <update id="deleteGuestbookMessageByIds">
         update guestbook set is_deleted = 1 where guestbook_id in
-        <foreach item="id" collection="ids" separator="," open="(" close=")">
-            #{id}
+        <foreach item="item" collection="guestbookList" separator="," open="(" close=")">
+            #{item.guestbookId}
         </foreach>
         and is_deleted = 0
     </update>
+
+    <update id="updateReplyCount">
+        <!-- 给根评论增加回复数 -->
+        update guestbook set reply_count = reply_count + 1 where guestbook_id = #{rootId} and is_deleted = 0;
+    </update>
+
+    <select id="getGuestbookMessageById" resultType="com.blog.business.domain.entity.Guestbook">
+        select guestbook_id,is_root,root_id,create_time,reply_count from guestbook where is_deleted = 0 and guestbook_id = #{guestbookId}
+    </select>
+
+    <select id="getChildGuestbookMessageIdsById" resultType="com.blog.business.domain.entity.Guestbook">
+        select guestbook_id,create_time,is_root from guestbook where is_root = 0 and root_id = #{guestbookId}
+    </select>
+
+    <select id="getFrontRootGuestbookList" resultMap="FrontGuestbookListVoResult">
+        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id, is_root,create_time,reply_count from guestbook where is_root = 1 and is_deleted = 0
+    </select>
+
+    <select id="getFrontChildGuestbookList" resultMap="FrontGuestbookListVoResult">
+        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id, is_root,create_time,reply_count, timestamp from guestbook where  is_root = 0 and root_id = #{guestbookId} and is_deleted = 0
+    </select>
+
+    <select id="getFrontRootGuestbookListCount" resultType="java.lang.Integer">
+        select count(*) from guestbook where status = 1 and is_deleted = 0
+    </select>
+
+
+    <select id="getRootGuestbookList" resultMap="GuestbookListVoResult">
+        select
+            g.guestbook_id,
+            g.nickname,
+            g.email,
+            g.content,
+            g.avatar,
+            g.location,
+            g.root_id,
+            g.parent_id,
+            g.is_root,
+            g.status,
+            g.create_time,
+            count(c.guestbook_id) as replyCount
+        from guestbook g
+                 left join guestbook c on c.root_id = g.guestbook_id and c.is_root = 0
+        <where>
+            <if test="startTime != null">and g.create_time &gt;= #{startTime}</if>
+            <if test="endTime != null">and g.create_time &lt;= #{endTime}</if>
+           and g.is_root = 1 and g.is_deleted = 0
+        </where>
+        group by
+            g.guestbook_id, g.nickname, g.email, g.content,
+            g.avatar, g.location, g.root_id, g.parent_id,
+            g.is_root, g.status, g.create_time
+    </select>
+
+    <select id="getChildGuestbookList" resultMap="GuestbookListVoResult">
+        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id, is_root,status,create_time from guestbook where  is_root = 0 and root_id = #{guestbookId} and is_deleted = 0
+    </select>
+
+    <!-- 批量获取根留言的回复数量 -->
+    <select id="getReplyCountsByRootIds" resultType="com.blog.business.domain.vo.FrontGuestbookListVo">
+        select root_id , count(*) as replyCount
+        from guestbook
+        <where>
+            <if test="rootIds != null and rootIds.size() > 0">
+                root_id in
+                <foreach item="id" collection="rootIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            and is_root = 0 and is_deleted = 0
+        </where>
+        group by root_id
+    </select>
+
+
 </mapper>

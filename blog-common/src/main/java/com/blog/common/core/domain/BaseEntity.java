@@ -2,6 +2,7 @@ package com.blog.common.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,22 +21,26 @@ public class BaseEntity implements Serializable {
     /**
      * 创建者
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String createBy;
 
     /**
      * 创建时间
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     /**
      * 更新者
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String updateBy;
 
     /**
      * 更新时间
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 

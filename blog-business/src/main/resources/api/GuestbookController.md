@@ -13,7 +13,7 @@
 
 ### URL
 ```
-GET /system/guestbook/list
+GET /system/guestbook/list/isRoot
 ```
 
 ### 请求参数
@@ -35,32 +35,18 @@ GET /system/guestbook/list
   "total": 1,
   "rows": [
     {
-      "guestbookId": 1,
-      "nickname": "jianyue",
-      "email": "3137390381@qq.com",
-      "content": "12312323",
-      "avatar": "nnn",
-      "location": "nn",
-      "rootId": 0,
-      "parentId": 0,
+      "guestbookId": "262",
+      "nickname": "3123",
+      "email": "",
+      "content": "123321132",
+      "avatar": "",
+      "location": "内网IP",
+      "rootId": "0",
+      "parentId": "0",
       "isRoot": 1,
       "status": 1,
-      "messageTime": "2026-02-21 22:40:51",
-      "replyList": [
-        {
-          "guestbookId": 2,
-          "nickname": "JianyueQ",
-          "email": "3137390381@qq.com",
-          "content": "12312323",
-          "avatar": "https://oss.jianyue.cloud/blog-oss/2026/02/20/e026483f648640f88c820e5730fd8f9a.png",
-          "location": "内网IP",
-          "rootId": 1,
-          "parentId": 0,
-          "isRoot": 0,
-          "status": 1,
-          "messageTime": "2026-02-21 22:46:29"
-        }
-      ]
+      "replyCount": 0,
+      "messageTime": "2026-02-26 02:35:16"
     }
   ]
 }
@@ -84,9 +70,68 @@ GET /system/guestbook/list
 | isRoot | Integer | 是否为根留言：0-否，1-是 |
 | status | Integer | 状态：0-隐藏，1-显示，2-审核中 |
 | messageTime | String | 留言时间 |
-| replyList | Array | 回复列表（仅根留言有该字段） |
+| replyCount | Integer | 回复数量（仅根留言有该字段） |
 
-## 2. 后台回复留言
+## 2. 获取子留言列表
+
+### URL
+```
+GET /system/guestbook/list/child
+```
+
+### 请求参数
+| 参数名 | 类型 |必填 | 说明 |
+|--------|------|------|------|
+| guestbookId | Long | 是 |根留言ID |
+| pageNum | Integer | 否 | 页码，默认1 |
+| pageSize | Integer | 否 |每条数页条数，默认10 |
+| orderByColumn | String |否 |排序列，如：create_time |
+| isAsc | String | 否 |排序方向，asc-升序，desc-降序，默认asc |
+| reasonable | Boolean |否 | 分页参数合理化，true-合理化处理，false-不进行合理化处理，默认true |
+
+###响应参数
+```json
+{
+  "code": 200,
+  "msg": "查询成功",
+  "rows": [
+    {
+      "guestbookId": 2,
+      "nickname": "JianyueQ",
+      "email": "3137390381@qq.com",
+      "content": "12312323",
+      "avatar": "https://oss.jianyue.cloud/blog-oss/2026/02/20/e026483f648640f88c820e5730fd8f9a.png",
+      "location": "内网IP",
+      "rootId": 1,
+      "parentId": 0,
+      "isRoot": 0,
+      "status": 1,
+      "messageTime": "2026-02-21 22:46:29"
+    }
+  ]
+}
+```
+
+### 响应字段说明
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| code | Integer |状态码，200表示成功 |
+| msg | String |响应消息 |
+| total | Long |总记录数 |
+| rows | Array |留列表 |
+| guestbookId | Long |留ID |
+| nickname | String |昵称 |
+| email | String | |
+| content | String |留内容内容 |
+| avatar | String | 头像地址 |
+| location | String | IP所在地区 |
+| rootId | Long |根留言ID，0表示根留言 |
+| parentId | Long |回复留言ID，0表示直接回复根留言 |
+| isRoot | Integer | 是否为根留言：0-否，1-是 |
+| status | Integer | 状态：0-隐藏，1-显示，2-审核中 |
+| messageTime | String |时间时间 |
+
+## 3. 后台回复留言
 
 ### URL
 ```
@@ -117,7 +162,7 @@ POST /system/guestbook/adminReplyMessage
 | code | Integer | 状态码，200表示成功 |
 | msg | String | 响应消息 |
 
-## 3. 修改留言状态
+## 4. 修改留言状态
 
 ### URL
 ```
@@ -142,9 +187,9 @@ POST /system/guestbook/updateStatus
 | 字段名 | 类型 | 说明 |
 |--------|------|------|
 | code | Integer | 状态码，200表示成功 |
-| msg | String | 响应消息 |
+| msg | String |响应消息 |
 
-## 4. 删除留言
+## 5. 删除留言
 
 ### URL
 ```
@@ -179,11 +224,11 @@ POST /system/guestbook/delete/{id}
 /blog/user/guestbook
 ```
 
-## 1. 获取前台展示留言列表
+## 1. 获取前台根留言列表
 
 ### URL
 ```
-GET /blog/user/guestbook/list
+GET /blog/user/guestbook/list/isRoot
 ```
 
 ### 请求参数
@@ -203,30 +248,17 @@ GET /blog/user/guestbook/list
   "total": 1,
   "rows": [
     {
-      "guestbookId": 1,
-      "nickname": "jianyue",
-      "email": "3137390381@qq.com",
-      "content": "12312323",
-      "avatar": "nnn",
-      "location": "nn",
-      "rootId": 0,
-      "parentId": 0,
+      "guestbookId": "262",
+      "nickname": "3123",
+      "email": "",
+      "content": "123321132",
+      "avatar": "",
+      "location": "内网IP",
+      "rootId": "0",
+      "parentId": "0",
       "isRoot": 1,
-      "messageTime": "2026-02-21 22:40:51",
-      "replyList": [
-        {
-          "guestbookId": 2,
-          "nickname": "JianyueQ",
-          "email": "3137390381@qq.com",
-          "content": "12312323",
-          "avatar": "https://oss.jianyue.cloud/blog-oss/2026/02/20/e026483f648640f88c820e5730fd8f9a.png",
-          "location": "内网IP",
-          "rootId": 1,
-          "parentId": 0,
-          "isRoot": 0,
-          "messageTime": "2026-02-21 22:46:29"
-        }
-      ]
+      "replyCount": 0,
+      "messageTime": "2026-02-26 02:35:16"
     }
   ]
 }
@@ -249,9 +281,67 @@ GET /blog/user/guestbook/list
 | parentId | Long | 回复留言ID，0表示直接回复根留言 |
 | isRoot | Integer | 是否为根留言：0-否，1-是 |
 | messageTime | String | 留言时间 |
-| replyList | Array | 回复列表（仅根留言有该字段） |
+| replyCount | Integer | 回复数量（仅根留言有该字段） |
 
-## 2. 前台留言或回复
+## 2. 获取前台子留言列表
+
+### URL
+```
+GET /blog/user/guestbook/list/child
+```
+
+### 请求参数
+| 参数名 | 类型 |必填 | 说明 |
+|--------|------|------|------|
+| guestbookId | Long | 是 |根留言ID |
+| pageNum | Integer |否 页码，默认1 |
+| pageSize | Integer |否每页条数，默认10 |
+| orderByColumn | String |否排序列，如：create_time |
+| isAsc | String |否排序方向，asc-升序，desc-降序，默认asc |
+| reasonable | Boolean |否 分页参数合理化，true-合理化处理，false-不进行合理化处理，默认true |
+
+### 响应参数
+```json
+{
+  "code": 200,
+  "msg": "查询成功",
+  "total": 1,
+  "rows": [
+    {
+      "guestbookId": 2,
+      "nickname": "JianyueQ",
+      "email": "3137390381@qq.com",
+      "content": "12312323",
+      "avatar": "https://oss.jianyue.cloud/blog-oss/2026/02/20/e026483f648640f88c820e5730fd8f9a.png",
+      "location": "内网IP",
+      "rootId": 1,
+      "parentId": 0,
+      "isRoot": 0,
+      "messageTime": "2026-02-21 22:46:29"
+    }
+  ]
+}
+```
+
+### 响应字段说明
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| code | Integer | 状态码，200表示成功 |
+| msg | String |响应消息 |
+| total | Long |总记录数 |
+| rows | Array |留列表 |
+| guestbookId | Long |留IDID |
+| nickname | String | 昵称 |
+| email | String | |
+| content | String |留内容 |
+| avatar | String |头像地址 |
+| location | String | IP所在地区 |
+| rootId | Long |根留言ID，0表示根留言 |
+| parentId | Long |回复留言ID，0表示直接回复根留言 |
+| isRoot | Integer | 是否为根留言：0-否，1-是 |
+| messageTime | String |留时间 |
+
+## 3. 前台留言或回复
 
 ### URL
 ```

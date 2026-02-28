@@ -1,6 +1,5 @@
 package com.blog.common.core.redis;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.HashOperations;
@@ -260,5 +259,243 @@ public class RedisCache {
     public boolean setCacheUniqueValue(final String key, final String value, final long timeout, final TimeUnit unit) {
         Boolean result = redisTemplate.opsForValue().setIfAbsent(key, value, timeout, unit);
         return result != null && result;
+    }
+
+    /**
+     * 缓存元素到有序集合中
+     *
+     * @param key     缓存的键值
+     * @param value   缓存的值
+     * @param score   分数
+     * @param timeout 过期时间
+     * @param unit    时间单位
+     * @return true=设置成功；false=设置失败
+     */
+    public boolean setCacheZSetValue(final String key, final Object value, final double score, final long timeout, final TimeUnit unit) {
+        Boolean result = setCacheZSetValue(key, value, score);
+        if (result != null && result) {
+            expire(key, timeout, unit);
+        }
+        return result != null && result;
+    }
+
+    /**
+     * 缓存元素到有序集合中
+     * @param key 缓存的键值
+     * @param newValue 新元素值
+     * @param newScore 新分数
+     * @return 是否更新成功
+     */
+    public Boolean setCacheZSetValue(final String key, final Object newValue, final double newScore) {
+        return redisTemplate.opsForZSet().add(key, newValue, newScore);
+    }
+
+    /**
+     * 按照分数获取有序集合中元素
+     * @param key 缓存的键值
+     * @param start 开始位置
+     * @param end   结束位置
+     * @return 有序集合
+     * @param <T> 对象类型
+     */
+    public <T> Set<T> getCacheZSetValue(final String key, final long start, final long end) {
+        return redisTemplate.opsForZSet().range(key, start, end);
+    }
+
+    /**
+     * 获取有序集合中所有的元素（倒序）
+     * @param key 缓存的键值
+     * @param start 开始位置
+     * @param end 结束位置
+     * @return 有序集合
+     * @param <T> 对象类型
+     */
+    public <T> Set<T> getCacheZSetReverseValue(final String key, final long start, final long end) {
+        return redisTemplate.opsForZSet().reverseRange(key, start, end);
+    }
+
+    /**
+     * 获取有序集合中所有的元素
+     * @param key 缓存的键值
+     * @return 有序集合
+     * @param <T> 对象类型
+     */
+    public <T> Set<T> getCacheZSetValue(final String key) {
+        return getCacheZSetValue(key, 0, -1);
+    }
+
+    /**
+     * 获取有序集合中所有的元素（倒序）
+     * @param key 缓存的键值
+     * @return 有序集合
+     * @param <T> 对象类型
+     */
+    public <T> Set<T> getCacheZSetReverseValue(final String key) {
+        return getCacheZSetReverseValue(key, 0, -1);
+    }
+
+    /**
+     * 删除有序集合中的某个元素
+     * @param key   缓存的键值
+     * @param value 缓存的元素值
+     * @return 删除结果
+     */
+    public <T> Long deleteCacheZSetValue(final String key, final T value) {
+        return redisTemplate.opsForZSet().remove(key, value);
+    }
+
+    /**
+     * 根据分数范围删除有序集合中的元素
+     *
+     * @param key      缓存的键值
+     * @param minScore 最小分数
+     * @param maxScore 最大分数
+     */
+    public void deleteZSetRangeByScore(final String key, final double minScore, final double maxScore) {
+        redisTemplate.opsForZSet().removeRangeByScore(key, minScore, maxScore);
+    }
+
+    /**
+     * 根据分数精确删除指定元素
+     *
+     * @param key   缓存的键值
+     * @param score 精确分数
+     */
+    public void deleteZSetByScore(final String key, final double score) {
+        deleteZSetRangeByScore(key, score, score);
+    }
+
+    /**
+     * 递增字符串数字值
+     * @param key Redis键
+     * @param delta 递增幅度
+     * @return 递增后的值
+     */
+    public Long increment(final String key, final long delta) {
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+
+    /**
+     * 递增字符串数字值（默认递增1）
+     *
+     * @param key Redis键
+     */
+    public Long increment(final String key) {
+        return increment(key, 1);
+    }
+
+    /**
+     * 递增字符串数字值（带过期时间）
+     * @param key Redis键
+     * @param delta 递增幅度
+     * @param timeout 过期时间
+     * @param timeUnit 时间单位
+     * @return 递增后的值
+     */
+    public Long increment(final String key, final long delta, final long timeout, final TimeUnit timeUnit) {
+        Long result = increment(key, delta);
+        if (result != null) {
+            expire(key, timeout, timeUnit);
+        }
+        return result;
+    }
+
+    /**
+     * 递增字符串数字值（默认递增1）（带过期时间）
+     * @param key Redis键
+     * @param timeout 过期时间
+     * @param timeUnit 时间单位
+     * @return 递增后的值
+     */
+    public Long increment(final String key,final long timeout, final TimeUnit timeUnit) {
+        Long result = increment(key);
+        if (result != null) {
+            expire(key, timeout, timeUnit);
+        }
+        return result;
+    }
+
+    /**
+     * 递增Hash字段的数值
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @param delta 递增幅度
+     * @return 递增后的值
+     */
+    public Long hashIncrement(final String key, final String hashKey, final long delta) {
+        return redisTemplate.opsForHash().increment(key, hashKey, delta);
+    }
+
+    /**
+     * 递增Hash字段的数值（默认递增1）
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @return 递增后的值
+     */
+    public Long hashIncrement(final String key, final String hashKey) {
+        return hashIncrement(key, hashKey, 1);
+    }
+
+    /**
+     * 递增Hash字段的数值（带过期时间）
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @param delta 递增幅度
+     * @param timeout 过期时间
+     * @param timeUnit 时间单位
+     * @return 递增后的值
+     */
+    public Long hashIncrement(final String key, final String hashKey, final long delta, final long timeout, final TimeUnit timeUnit) {
+        Long result = hashIncrement(key, hashKey, delta);
+        if (result != null) {
+            expire(key, timeout, timeUnit);
+        }
+        return result;
+    }
+
+    /**
+     * 当key存在时递增字符串数字值
+     * @param key Redis键
+     * @param delta 递增幅度
+     * @return 递增后的值，如果key不存在则返回null
+     */
+    public Long incrementIfPresent(final String key, final long delta) {
+        if (!hasKey(key)) {
+            return null;
+        }
+        return increment(key, delta);
+    }
+
+    /**
+     * 当key存在时递增字符串数字值（默认递增1）
+     * @param key Redis键
+     * @return 递增后的值，如果key不存在则返回null
+     */
+    public Long incrementIfPresent(final String key) {
+        return incrementIfPresent(key, 1);
+    }
+
+    /**
+     * 当Hash字段存在时递增数值
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @param delta 递增幅度
+     * @return 递增后的值，如果Hash字段不存在则返回null
+     */
+    public Long hashIncrementIfPresent(final String key, final String hashKey, final long delta) {
+        if (!redisTemplate.opsForHash().hasKey(key, hashKey)) {
+            return null;
+        }
+        return hashIncrement(key, hashKey, delta);
+    }
+
+    /**
+     * 当Hash字段存在时递增数值（默认递增1）
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @return 递增后的值，如果Hash字段不存在则返回null
+     */
+    public Long hashIncrementIfPresent(final String key, final String hashKey) {
+        return hashIncrementIfPresent(key, hashKey, 1);
     }
 }

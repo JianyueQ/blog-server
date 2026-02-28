@@ -84,4 +84,8 @@ public class Constants {
      * 通用失败标识
      */
     public static final String FAIL = "1";
+    /**
+     * 缓存过期时间 1天
+     */
+    public static final Integer CACHE_EXPIRE_ONE_DAY = 1;
 }
