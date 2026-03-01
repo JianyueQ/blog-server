@@ -248,6 +248,30 @@ POST /system/messageRecord/clean
 | code | Integer | 状态码，200表示成功 |
 | msg | String | 响应消息 |
 
+## 7. 全部已读
+
+### URL
+```
+POST /system/messageRecord/allRead
+```
+
+### 请求参数
+无
+
+### 响应参数
+```json
+{
+  "code": 200,
+  "msg": "操作成功"
+}
+```
+
+### 响应字段说明
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| code | Integer | 状态码，200表示成功 |
+| msg | String | 响应消息 |
+
 ---
 
 # 二、WebSocket接口
