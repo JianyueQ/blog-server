@@ -24,7 +24,7 @@ public class SystemUptimeController {
      * @return 格式化的累计运行时长
      */
     @GetMapping("/formatted")
-    public String getFormattedTotalUptime() {
-        return SystemUptimeUtils.formatDuration(SystemUptimeUtils.getTotalUptime());
+    public AjaxResult getFormattedTotalUptime() {
+        return AjaxResult.success(SystemUptimeUtils.getTotalUptime());
     }
 }

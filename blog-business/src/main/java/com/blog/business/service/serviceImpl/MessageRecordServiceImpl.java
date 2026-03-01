@@ -93,5 +93,16 @@ public class MessageRecordServiceImpl implements MessageRecordService {
         messageRecordMapper.cleanMessageRecord();
     }
 
+    @CacheEvict(cacheNames = {
+            BusinessCacheConstants.MESSAGE_RECORD_LIST_CACHE,
+            BusinessCacheConstants.MESSAGE_RECORD_LIST_UNREAD_CACHE,
+            BusinessCacheConstants.MESSAGE_RECORD_LIST_READ_CACHE
+    }, allEntries = true)
+    @Override
+    public int allMessageRead() {
+        Long adminId = SecurityUtils.getLoginUserOnAdmin().getAdminId();
+        return messageRecordMapper.allMessageRead(adminId, DateUtils.getNowDate());
+    }
+
 
 }

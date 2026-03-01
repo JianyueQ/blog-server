@@ -4,9 +4,7 @@ import com.blog.business.domain.dto.FrontGuestbookListDto;
 import com.blog.business.domain.dto.GuestbookDto;
 import com.blog.business.service.GuestbookService;
 import com.blog.common.annotation.Anonymous;
-import com.blog.common.constant.HttpStatus;
 import com.blog.common.core.controller.BaseController;
-import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.domain.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +44,7 @@ public class GuestbookController extends BaseController {
     @PostMapping("/add")
     public AjaxResult add(@RequestBody GuestbookDto guestbookDto) {
 
-        return toAjax(guestbookService.addMessage(guestbookDto));
+        return AjaxResult.success(guestbookService.addMessage(guestbookDto));
     }
 
 }

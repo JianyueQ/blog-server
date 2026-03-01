@@ -27,7 +27,7 @@ public interface GuestbookMapper {
 
     Guestbook getGuestbookMessageById(@Param("guestbookId") Long id);
 
-    int deleteGuestbookMessageByIds(List<Guestbook> guestbookList);
+    int deleteGuestbookMessageByIds(@Param("guestbookList") List<Guestbook> guestbookList);
 
     List<Guestbook> getChildGuestbookMessageIdsById(@Param("guestbookId") Long guestbookId);
 
@@ -45,4 +45,5 @@ public interface GuestbookMapper {
 
     void updateReplyCount(@Param("rootId") Long rootId);
 
+    void decreaseReplyCount(@Param("rootId") Long rootId);
 }

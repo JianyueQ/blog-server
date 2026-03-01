@@ -5,6 +5,7 @@ import com.blog.business.domain.vo.MessageRecordVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,4 +29,5 @@ public interface MessageRecordMapper {
 
     void cleanMessageRecord();
 
+    int allMessageRead(@Param("adminId") Long adminId, @Param("readTime")Date readTime);
 }

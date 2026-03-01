@@ -2,159 +2,116 @@ package com.blog.common.utils;
 
 import com.blog.common.constant.CacheConstants;
 import com.blog.common.core.redis.RedisCache;
-import com.blog.common.utils.spring.SpringUtils;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
-import java.lang.management.ManagementFactory;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  *系统累计运行时长统计工具类
  *基于JVM启动时间计算累计运行时长
- * 
+ *
  * @author 31373
  */
 @Component
 public class SystemUptimeUtils {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(SystemUptimeUtils.class);
+
     @Autowired
     private RedisCache redisCache;
-    
+
     // Redis中存储累计运行时长的key
     private static final String TOTAL_UPTIME_KEY = CacheConstants.SYS_CONFIG_KEY + "total_uptime";
-    
-    //应用启动时间
-    private static Date applicationStartTime;
-    
+
     //累运行时长（毫秒）
     private static Long totalUptime = 0L;
-    
+
     /**
-     *应用启动时初始化
-     * 从Redis恢复历史累计运行时长
+     * 获取累计运行时长
+     * @return 累计运行时长
      */
-    @PostConstruct
-    public void init() {
-        // 获取当前应用启动时间（基于JVM启动时间）
-        applicationStartTime = new Date(ManagementFactory.getRuntimeMXBean().getStartTime());
-        
-        // 从Redis获取历史累计运行时长
-        Object cachedTotalUptime = redisCache.getCacheObject(TOTAL_UPTIME_KEY);
-        if (cachedTotalUptime != null) {
-            try {
-                if (cachedTotalUptime instanceof Long) {
-                    totalUptime = (Long) cachedTotalUptime;
-                } else if (cachedTotalUptime instanceof String) {
-                    totalUptime = Long.parseLong((String) cachedTotalUptime);
-                } else if (cachedTotalUptime instanceof Number) {
-                    totalUptime = ((Number) cachedTotalUptime).longValue();
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Redis中存储的累计运行时长数据格式错误: " + cachedTotalUptime);
-                totalUptime = 0L;
-            }
-        }
-        
-        System.out.println("系统累计运行时长统计初始化完成");
-        System.out.println("应用启动时间: " + DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD_HH_MM_SS, applicationStartTime));
+    public static String getTotalUptime() {
+        //获取系统当前运行时长(毫秒)
+        long runTime = getRunTime();
+        //计算累计运行时长 历史运行时长 + 系统当前运行时长 (毫秒)
+        long uptime = totalUptime + runTime;
+        //将运行时长转换为字符串并返回
+        return formatTime(uptime);
     }
-    
+
     /**
-     * 获取当前会话运行时长（自本次启动以来）
-     * 
-     * @return 运行时间（毫秒）
+     * JDK运行时间
      */
-    public static long getCurrentSessionUptime() {
-        if (applicationStartTime == null) {
-            return 0L;
-        }
-        return System.currentTimeMillis() - applicationStartTime.getTime();
+    public static long getRunTime() {
+        return timeDistance(DateUtils.getNowDate(), DateUtils.getServerStartDate());
     }
-    
+
     /**
-     * 获取系统累计运行时长（包含历史运行时间）
-     * 
-     * @return 总运行时间（毫秒）
+     * 计算时间差
+     *
+     * @param endDate   最后时间
+     * @param startTime 开始时间
+     * @return 时间差（天/小时/分钟）
      */
-    public static synchronized long getTotalUptime() {
-        return totalUptime + getCurrentSessionUptime();
+    public static long timeDistance(Date endDate, Date startTime) {
+        // 获得两个时间的毫秒时间差异
+        return endDate.getTime() - startTime.getTime();
     }
-    
+
+    /**
+     * 将毫秒转换成天/小时/分钟
+     */
+    public static String formatTime(long millis) {
+        long nd = 1000 * 24 * 60 * 60;
+        long nh = 1000 * 60 * 60;
+        long nm = 1000 * 60;
+        // 计算差多少天
+        long day = millis / nd;
+        // 计算差多少小时
+        long hour = millis % nd / nh;
+        // 计算差多少分钟
+        long min = millis % nd % nh / nm;
+        // 计算差多少秒//输出结果
+        // long sec = diff % nd % nh % nm / ns;
+        return day + "天" + hour + "小时" + min + "分钟";
+    }
+
+    /**
+     * 重置累计运行时长（谨慎使用）
+     */
+    public synchronized void resetTotalUptime() {
+        totalUptime = 0L;
+        redisCache.deleteObject(TOTAL_UPTIME_KEY);
+        log.warn("累计运行时长已重置为0");
+    }
+
     /**
      * 更新并保存累计运行时长到Redis
      * 通常在系统关闭时调用
      */
-    public static synchronized void updateAndSaveTotalUptime() {
-        long currentSessionUptime = getCurrentSessionUptime();
-        totalUptime += currentSessionUptime;
+    public synchronized void updateAndSaveTotalUptime() {
+        totalUptime = totalUptime + getRunTime();
+        redisCache.setCacheObject(TOTAL_UPTIME_KEY, totalUptime);
+    }
 
-        // 保存到Redis
-        RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
-        if (redisCache != null) {
-            redisCache.setCacheObject(TOTAL_UPTIME_KEY, totalUptime);
-        }
-
-        System.out.println("系统累计运行时长已保存: " + formatDuration(totalUptime));
-    }
-    
     /**
-     *格化时间间隔
-     * 
-     * @param milliseconds 毫秒数
-     * @return 格式化的时间字符串（如：1天2小时3分钟4秒）
+     * 应用启动时初始化
+     * 从Redis恢复历史累计运行时长
      */
-    public static String formatDuration(long milliseconds) {
-        if (milliseconds <= 0) {
-            return "0秒";
+    @PostConstruct
+    public void init() {
+        //从redis中获取存储的累计运行时长
+        Long savedUptime = redisCache.getCacheObject(TOTAL_UPTIME_KEY);
+        if (StringUtils.isNotNull(savedUptime)) {
+            totalUptime = savedUptime;
+            log.debug("从Redis恢复历史累计运行时长: {}毫秒", totalUptime);
+        } else {
+            totalUptime = 0L;
+            log.debug("Redis中无历史累计运行时长数据，初始化为0");
         }
-        
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds);
-        long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
-        long days = TimeUnit.MILLISECONDS.toDays(milliseconds);
-        
-        seconds = seconds % 60;
-        minutes = minutes % 60;
-        hours = hours % 24;
-        
-        StringBuilder sb = new StringBuilder();
-        if (days > 0) {
-            sb.append(days).append("天");
-        }
-        if (hours > 0) {
-            sb.append(hours).append("小时");
-        }
-        if (minutes > 0) {
-            sb.append(minutes).append("分钟");
-        }
-        if (seconds > 0 || sb.length() == 0) {
-            sb.append(seconds).append("秒");
-        }
-        
-        return sb.toString();
-    }
-    
-    /**
-     * 获取系统启动时间
-     * 
-     * @return 系统启动时间
-     */
-    public static Date getApplicationStartTime() {
-        return applicationStartTime;
-    }
-    
-    /**
-     * 重置累计运行时长（谨慎使用）
-     */
-    public static synchronized void resetTotalUptime() {
-        totalUptime = 0L;
-        RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
-        if (redisCache != null) {
-            redisCache.deleteObject(TOTAL_UPTIME_KEY);
-        }
-        System.out.println("系统累计运行时长已重置");
     }
 }

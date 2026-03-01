@@ -37,7 +37,9 @@ public class GuestbookController extends BaseController {
      */
     @GetMapping("/list/isRoot")
     public TableDataInfo getGuestbookList(GuestbookListDto guestbookListDto) {
-        return guestbookService.getRootGuestbookList(guestbookListDto);
+        startPage();
+        List<GuestbookListVo> guestbookList = guestbookService.getRootGuestbookList(guestbookListDto);
+        return getDataTable(guestbookList);
     }
 
     /**
@@ -45,7 +47,9 @@ public class GuestbookController extends BaseController {
      */
     @GetMapping("/list/child")
     public TableDataInfo getChildGuestbookList(GuestbookListDto guestbookListDto) {
-        return guestbookService.getChildGuestbookList(guestbookListDto);
+        startPage();
+        List<GuestbookListVo> guestbookList = guestbookService.getChildGuestbookList(guestbookListDto);
+        return getDataTable(guestbookList);
     }
 
     /**
@@ -54,7 +58,7 @@ public class GuestbookController extends BaseController {
     @Log(title = "后台用户回复留言", businessType = BusinessType.UPDATE)
     @PostMapping("/adminReplyMessage")
     public AjaxResult adminReplyMessage(@RequestBody GuestbookDto guestbookDto){
-        return toAjax(guestbookService.adminReplyMessage(guestbookDto));
+        return AjaxResult.success(guestbookService.adminReplyMessage(guestbookDto));
     }
 
     /**

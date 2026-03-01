@@ -22,4 +22,11 @@ public class GuestbookConstants {
      * 父留言ID 0表示直接回复根留言
      */
     public static final Long PARENT_ID = 0L;
+
+    /**
+     * 状态：0-隐藏，1-显示,2-审核中
+     */
+    public static final Integer STATUS_SHOW = 1;
+    public static final Integer STATUS_HIDDEN = 0;
+    public static final Integer STATUS_AUDITING = 2;
 }

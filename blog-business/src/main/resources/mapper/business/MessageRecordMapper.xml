@@ -43,4 +43,8 @@
         truncate table message_record
     </update>
 
+    <update id="allMessageRead">
+        update message_record set is_read = 1, read_time = #{readTime} where is_read = 0 and admin_id = #{adminId} and is_deleted = 0
+    </update>
+
 </mapper>

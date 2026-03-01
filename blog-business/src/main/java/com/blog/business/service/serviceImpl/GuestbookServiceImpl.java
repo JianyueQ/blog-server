@@ -1,5 +1,6 @@
 package com.blog.business.service.serviceImpl;
 
+import com.alibaba.fastjson2.JSON;
 import com.blog.business.constant.BusinessCacheConstants;
 import com.blog.business.constant.GuestbookConstants;
 import com.blog.business.domain.dto.FrontGuestbookListDto;
@@ -17,7 +18,6 @@ import com.blog.common.constant.Constants;
 import com.blog.common.constant.HttpStatus;
 import com.blog.common.core.domain.entity.Administrators;
 import com.blog.common.core.page.PageDomain;
-import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.core.page.TableSupport;
 import com.blog.common.core.redis.RedisCache;
 import com.blog.common.domain.AjaxResult;
@@ -28,6 +28,7 @@ import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.ip.AddressUtils;
 import com.blog.common.utils.ip.IpUtils;
 import com.blog.common.utils.page.PageUtils;
+import com.blog.common.utils.spring.SpringUtils;
 import com.blog.framework.manager.AsyncManager;
 import com.github.pagehelper.PageInfo;
 import jakarta.validation.constraints.NotNull;
@@ -37,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -56,7 +56,7 @@ public class GuestbookServiceImpl implements GuestbookService {
     private RedisCache redisCache;
 
     @Override
-    public int addMessage(GuestbookDto guestbookDto) {
+    public Guestbook addMessage(GuestbookDto guestbookDto) {
         Guestbook guestbook = new Guestbook();
         Long rootId = guestbookDto.getRootId();
         String ipAddr = IpUtils.getIpAddr();
@@ -112,19 +112,28 @@ public class GuestbookServiceImpl implements GuestbookService {
                 //如果索引不存在,则查询数据库并添加到索引中
                 selectFrontChildGuestbookList(frontGuestbookListDto, false);
             }
+            //根据父评论id查询hash结构的redis中是否有该评论的信息,如果有则获取昵称并set到guestbook对象中
+            Guestbook parentGuestbook = redisCache.getCacheMapValue(frontChildListCacheKey, guestbook.getParentId().toString());
+            if (StringUtils.isNotNull(parentGuestbook)){
+                guestbook.setParentNickname(parentGuestbook.getNickname());
+            }
             //按照时间戳排序子评论的索引,索引过期时间设置为一天
             redisCache.setCacheZSetValue(frontChildIndexCacheKey, guestbookIdToString, guestbook.getTimestamp(), BusinessCacheConstants.CACHE_EXPIRE_TIME_ONE, TimeUnit.DAYS);
             //添加子评论数据,数据过期的时间设置为两天
             redisCache.setCacheMapValue(frontChildListCacheKey, guestbookIdToString, guestbook);
             redisCache.expire(frontChildListCacheKey, BusinessCacheConstants.CACHE_EXPIRE_TIME_TWO, TimeUnit.DAYS);
         }
-        return 1;
+        return guestbook;
     }
 
     @Override
-    public int adminReplyMessage(GuestbookDto guestbookDto) {
+    public Guestbook adminReplyMessage(GuestbookDto guestbookDto) {
         Guestbook guestbook = new Guestbook();
         Administrators administrators = SecurityUtils.getLoginUserOnAdmin().getAdministrators();
+        Long rootId = guestbookDto.getRootId();
+        //生成雪花id
+        long guestbookId = SnowflakeUtils.generateId();
+        guestbook.setGuestbookId(guestbookId);
         guestbook.setNickname(administrators.getNickname());
         guestbook.setEmail(administrators.getEmail());
         guestbook.setAvatar(administrators.getAvatar());
@@ -132,27 +141,43 @@ public class GuestbookServiceImpl implements GuestbookService {
         guestbook.setRootId(guestbookDto.getRootId());
         guestbook.setIsRoot(GuestbookConstants.NOT_ROOT);
         guestbook.setParentId(guestbookDto.getParentId());
+        guestbook.setMessageTime(DateUtils.getTime());
+        guestbook.setTimestamp(System.currentTimeMillis());
         guestbook.setCreateTime(DateUtils.getNowDate());
-        //转换成时间戳
-        long timestamp = guestbook.getCreateTime().getTime();
         guestbook.setCreateBy(String.valueOf(administrators.getAdminId()));
         guestbook.setLocation(AddressUtils.getRealAddressByIP(IpUtils.getIpAddr()));
-        //生成临时的留言id
-        int random = ThreadLocalRandom.current().nextInt(10000);
-        long guestbookId = timestamp * 10000 + random;
-        guestbook.setGuestbookId(guestbookId);
-        // 异步操作
-        rabbitManager.sendAddGuestbookMessageRequest(guestbook);
-        //添加到redis中,后续异步操作在将临时的留言id进行更换
-        redisCache.setCacheZSetValue(BusinessCacheConstants.CACHE_GUESTBOOK_CHILD_LIST_KEY + guestbookDto.getRootId(), guestbook, timestamp);
-        redisCache.setCacheZSetValue(BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_KEY + guestbookDto.getRootId(), guestbook, timestamp);
-        //总评论数加一
-        redisCache.incrementIfPresent(BusinessCacheConstants.CACHE_GUESTBOOK_LIST_COUNT_KEY);
-        redisCache.incrementIfPresent(BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_LIST_COUNT_KEY);
-        //子评论加一
-        redisCache.hashIncrementIfPresent(BusinessCacheConstants.CACHE_GUESTBOOK_CHILD_LIST_COUNT_KEY, guestbookDto.getRootId().toString());
-        redisCache.hashIncrementIfPresent(BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_COUNT_KEY, guestbookDto.getRootId().toString());
-        return 1;
+        guestbookMapper.addMessage(guestbook);
+        //更新redis数据 先加索引 在加hash类型的数据
+        String frontChildIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_INDEX_KEY + guestbook.getRootId();
+        String frontChildListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_KEY;
+        String guestbookIdToString = guestbook.getGuestbookId().toString();
+        //根据父评论id查询hash结构的redis中是否有该评论的信息,如果有则获取昵称并set到guestbook对象中
+        Guestbook parentGuestbook = redisCache.getCacheMapValue(frontChildListCacheKey, guestbook.getParentId().toString());
+        if (StringUtils.isNotNull(parentGuestbook)){
+            guestbook.setParentNickname(parentGuestbook.getNickname());
+        }
+        //按照时间戳排序子评论的索引,索引过期时间设置为一天
+        redisCache.setCacheZSetValue(frontChildIndexCacheKey, guestbookIdToString, guestbook.getTimestamp(), BusinessCacheConstants.CACHE_EXPIRE_TIME_ONE, TimeUnit.DAYS);
+        //添加子评论数据,数据过期的时间设置为两天
+        redisCache.setCacheMapValue(frontChildListCacheKey, guestbookIdToString, guestbook);
+        redisCache.expire(frontChildListCacheKey, BusinessCacheConstants.CACHE_EXPIRE_TIME_TWO, TimeUnit.DAYS);
+        //不是根留言则获取rootId 0 为根留言 和 回复留言id 0 为直接回复根留言
+        //根据rootId更新根评论的回复数量
+        guestbookMapper.updateReplyCount(rootId);
+        //更新缓存的根评论的回复数量 和 更新总的评论数量
+        String frontChildCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_COUNT_KEY;
+        redisCache.hashIncrement(frontChildCacheKey, rootId.toString());
+        redisCache.expire(frontChildCacheKey, Constants.CACHE_EXPIRE_ONE_DAY, TimeUnit.DAYS);
+        String frontListCountCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_LIST_COUNT_KEY;
+        redisCache.incrementIfPresent(frontListCountCacheKey);
+        redisCache.expire(frontListCountCacheKey, Constants.CACHE_EXPIRE_ONE_DAY, TimeUnit.DAYS);
+        //根据rootId获取根评论的信息进行更新根评论的热度
+        Guestbook rootGuestbook = guestbookMapper.getGuestbookMessageById(rootId);
+        //更新根评论的热度
+        double score = HotScoreUtils.calculateHotScore(rootGuestbook.getCreateTime(), rootGuestbook.getReplyCount());
+        //按照热度排序根评论的索引
+        redisCache.setCacheZSetValue(BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_INDEX_KEY + GuestbookConstants.ROOT_ID, rootId.toString(), score, Constants.CACHE_EXPIRE_ONE_DAY, TimeUnit.DAYS);
+        return guestbook;
     }
 
     @Override
@@ -170,7 +195,6 @@ public class GuestbookServiceImpl implements GuestbookService {
         //查询留言信息以及子留言信息
         Guestbook guestbook = guestbookMapper.getGuestbookMessageById(id);
         List<Guestbook> guestbookList = new ArrayList<>();
-        Long rootId = guestbook.getRootId();
         //如果是根留言,将一起把子留言也删除
         if (GuestbookConstants.IS_ROOT.equals(guestbook.getIsRoot())) {
             //将根留言id和子留言id存储到数组中
@@ -179,15 +203,17 @@ public class GuestbookServiceImpl implements GuestbookService {
             int i = guestbookMapper.deleteGuestbookMessageByIds(guestbookList);
             if (i > 0) {
                 //异步操作redis
-                AsyncManager.me().execute(GuestbookAsyncFactory.deleteGuestbookMessage(guestbookList, rootId.toString()));
+                AsyncManager.me().execute(GuestbookAsyncFactory.deleteGuestbookMessage(guestbookList));
             }
             return i;
         }
         guestbookList.add(guestbook);
         int i = guestbookMapper.deleteGuestbookMessage(id);
+        //减少根评论的回复数量
+        guestbookMapper.decreaseReplyCount(guestbook.getRootId());
         if (i > 0) {
             //异步操作redis
-            AsyncManager.me().execute(GuestbookAsyncFactory.deleteGuestbookMessage(guestbookList, rootId.toString()));
+            AsyncManager.me().execute(GuestbookAsyncFactory.deleteGuestbookMessage(guestbookList));
         }
         return i;
     }
@@ -389,84 +415,13 @@ public class GuestbookServiceImpl implements GuestbookService {
     }
 
     @Override
-    public TableDataInfo getRootGuestbookList(GuestbookListDto guestbookListDto) {
-        PageDomain pageDomain = TableSupport.buildPageRequest();
-        Integer pageNum = pageDomain.getPageNum();
-        Integer pageSize = pageDomain.getPageSize();
-        String baseCacheKey = BusinessCacheConstants.CACHE_GUESTBOOK_ROOT_LIST_KEY;
-        String countCacheKey = BusinessCacheConstants.CACHE_GUESTBOOK_LIST_COUNT_KEY;
-        //从redis中获取缓存数据
-        Set<Object> allCacheValues = redisCache.getCacheZSetReverseValue(baseCacheKey);
-        if (StringUtils.isNotNull(allCacheValues)) {
-            //根据时间范围筛选数据
-            List<GuestbookListVo> filteredList = filterByTimeRange(allCacheValues, guestbookListDto);
-            if (filteredList != null && !filteredList.isEmpty()) {
-                // 分页处理
-                int fromIndex = (pageNum - 1) * pageSize;
-                int toIndex = Math.min(pageNum * pageSize, filteredList.size());
-                if (fromIndex < filteredList.size()) {
-                    List<GuestbookListVo> pagedResult = filteredList.subList(fromIndex, toIndex);
-                    Object object = redisCache.getCacheObject(countCacheKey);
-                    long total = object != null ? Long.parseLong(object.toString()) : 0;
-                    // 将Set转换为List并过滤类型
-                    TableDataInfo rspData = new TableDataInfo();
-                    rspData.setCode(HttpStatus.SUCCESS);
-                    rspData.setMsg("查询成功");
-                    rspData.setRows(pagedResult);
-                    rspData.setTotal(total);
-                    return rspData;
-                }
-            }
-        }
-        PageUtils.startPage();
-        List<GuestbookListVo> rootGuestbookList = guestbookMapper.getRootGuestbookList(guestbookListDto);
-        long total = new PageInfo<>(rootGuestbookList).getTotal();
-        //异步操作,装填根留言和全部子留言到到Redis中
-        AsyncManager.me().execute(GuestbookAsyncFactory.saveGuestbookListToRedis(rootGuestbookList, total, baseCacheKey, countCacheKey));
-        TableDataInfo rspData = new TableDataInfo();
-        rspData.setCode(HttpStatus.SUCCESS);
-        rspData.setMsg("查询成功");
-        rspData.setRows(rootGuestbookList);
-        rspData.setTotal(total);
-        return rspData;
+    public List<GuestbookListVo> getRootGuestbookList(GuestbookListDto guestbookListDto) {
+        return guestbookMapper.getRootGuestbookList(guestbookListDto);
     }
 
     @Override
-    public TableDataInfo getChildGuestbookList(GuestbookListDto guestbookListDto) {
-        PageDomain pageDomain = TableSupport.buildPageRequest();
-        Integer pageNum = pageDomain.getPageNum();
-        Integer pageSize = pageDomain.getPageSize();
-        int offset = (pageNum - 1) * pageSize;
-        int limit = pageNum * pageSize - 1;
-        Long guestbookId = guestbookListDto.getGuestbookId();
-        String cacheKey = BusinessCacheConstants.CACHE_GUESTBOOK_CHILD_LIST_KEY + guestbookId;
-        //从redis中获取缓存数据
-        Set<Object> cacheZSetValues = redisCache.getCacheZSetValue(cacheKey, offset, limit);
-        if (cacheZSetValues != null && !cacheZSetValues.isEmpty()) {
-            redisCache.expire(cacheKey, Constants.CACHE_EXPIRE_ONE_DAY, TimeUnit.DAYS);
-            // 将Set转换为List并过滤类型
-            List<GuestbookListVo> cachedList = new ArrayList<>();
-            for (Object obj : cacheZSetValues) {
-                if (obj instanceof GuestbookListVo) {
-                    cachedList.add((GuestbookListVo) obj);
-                }
-            }
-            TableDataInfo rspData = new TableDataInfo();
-            rspData.setCode(HttpStatus.SUCCESS);
-            rspData.setMsg("查询成功");
-            rspData.setRows(cachedList);
-            return rspData;
-        }
-        PageUtils.startPage();
-        List<GuestbookListVo> childGuestbookList = guestbookMapper.getChildGuestbookList(guestbookListDto);
-        long total = -1;
-        //异步操作,装填根留言和全部子留言到到Redis中
-        AsyncManager.me().execute(GuestbookAsyncFactory.saveGuestbookListToRedis(childGuestbookList, total, cacheKey, null));
-        TableDataInfo rspData = new TableDataInfo();
-        rspData.setCode(HttpStatus.SUCCESS);
-        rspData.setMsg("查询成功");
-        rspData.setRows(childGuestbookList);
-        return rspData;
+    public List<GuestbookListVo> getChildGuestbookList(GuestbookListDto guestbookListDto) {
+        return guestbookMapper.getChildGuestbookList(guestbookListDto);
     }
 
     @Override

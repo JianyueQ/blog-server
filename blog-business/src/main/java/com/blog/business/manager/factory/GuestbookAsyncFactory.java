@@ -13,7 +13,6 @@ import com.blog.business.utils.HotScoreUtils;
 import com.blog.common.constant.Constants;
 import com.blog.common.core.redis.RedisCache;
 import com.blog.common.utils.DateUtils;
-import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.spring.SpringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,39 +35,48 @@ public class GuestbookAsyncFactory {
      * 删除单个根留言及子留言
      *
      * @param guestbookList 留言列表
-     * @param rootId        根留言ID
      * @return
      */
-    public static TimerTask deleteGuestbookMessage(final List<Guestbook> guestbookList, final String rootId) {
+    public static TimerTask deleteGuestbookMessage(final List<Guestbook> guestbookList) {
         return new TimerTask() {
             @Override
             public void run() {
                 try {
                     RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
-                    if (StringUtils.isNotEmpty(rootId)) {
-                        //筛选出根留言
-                        Guestbook guestbook = guestbookList.stream()
-                                .filter(item -> GuestbookConstants.IS_ROOT.equals(item.getIsRoot()))
-                                .findFirst()
-                                .orElse(null);
-                        long timestamp;
-                        if (StringUtils.isNotNull(guestbook)) {
-                            timestamp = guestbook.getCreateTime().getTime();
-                            //删除缓存中的根留言
-                            redisCache.deleteZSetByScore(BusinessCacheConstants.CACHE_GUESTBOOK_ROOT_LIST_KEY, timestamp);
-                            redisCache.deleteZSetByScore(BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_LIST_KEY, timestamp);
-                            //删除数组中的根留言
-                            guestbookList.stream().filter(item -> GuestbookConstants.IS_ROOT.equals(item.getIsRoot())).forEach(guestbookList::remove);
+                    String frontCountCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_LIST_COUNT_KEY;
+                    //删除缓存中的根留言
+                    String frontRootIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_INDEX_KEY + GuestbookConstants.ROOT_ID;
+                    String frontRootListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_LIST_KEY;
+                    String frontRootCountCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_LIST_COUNT_KEY;
+                    //删除缓存中的子留言
+                    String frontChildListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_KEY;
+                    String frontChildCountCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_COUNT_KEY;
+                    // frontCount计数器
+                    long frontCount = 0;
+                    for (Guestbook guestbook : guestbookList) {
+                        if (guestbook.getIsRoot().equals(GuestbookConstants.IS_ROOT)) {
+                            //删除根留言索引
+                            redisCache.deleteCacheZSetValue(frontRootIndexCacheKey, guestbook.getGuestbookId().toString());
+                            //删除根留言数据
+                            redisCache.deleteCacheMapValue(frontRootListCacheKey, guestbook.getGuestbookId().toString());
+                            //减少根留言总数
+                            redisCache.decrement(frontRootCountCacheKey);
+                            //删除根留言的子留言的总数
+                            redisCache.deleteCacheMapValue(frontChildCountCacheKey, guestbook.getGuestbookId().toString());
+                        } else {
+                            String frontChildIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_INDEX_KEY + guestbook.getRootId();
+                            //删除子留言索引
+                            redisCache.deleteCacheZSetValue(frontChildIndexCacheKey, guestbook.getGuestbookId().toString());
+                            //删除子留言数据
+                            redisCache.deleteCacheMapValue(frontChildListCacheKey, guestbook.getGuestbookId().toString());
+                            //减少根留言的子留言总数
+                            redisCache.hashDecrementIfPresent(frontChildCountCacheKey, guestbook.getRootId().toString());
                         }
-                        String cacheKey = BusinessCacheConstants.CACHE_GUESTBOOK_ROOT_LIST_KEY + rootId;
-                        String frontCacheKey = BusinessCacheConstants.CACHE_GUESTBOOK_CHILD_LIST_KEY + rootId;
-                        for (Guestbook childGuestbook : guestbookList) {
-                            timestamp = childGuestbook.getCreateTime().getTime();
-                            //删除缓存中的子留言
-                            redisCache.deleteZSetByScore(cacheKey, timestamp);
-                            redisCache.deleteZSetByScore(frontCacheKey, timestamp);
-                        }
+                        //计数器++
+                        frontCount++;
                     }
+                    //更新留言总数
+                    redisCache.decrement(frontCountCacheKey, frontCount);
                 } catch (BeansException e) {
                     sys_user_logger.error("删除单个根留言及子留言出错:{}", e.getMessage());
                 }
@@ -234,18 +242,67 @@ public class GuestbookAsyncFactory {
                 Long guestbookId = guestbookStatusDto.getGuestbookId();
                 RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
                 Guestbook guestbook = SpringUtils.getBean(GuestbookMapper.class).getGuestbookMessageById(guestbookId);
-                String cacheGuestbookRootListKey = BusinessCacheConstants.CACHE_GUESTBOOK_ROOT_LIST_KEY;
-                String frontCacheGuestbookRootListKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_LIST_KEY;
-                long timestamp = guestbook.getCreateTime().getTime();
-                // 如果是根留言则直接替换修改后的根留言
+                Long rootId = guestbook.getRootId();
+                Integer status = guestbook.getStatus();
+                String frontCountCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_LIST_COUNT_KEY;
+                // 如果是根留言
                 if (GuestbookConstants.IS_ROOT.equals(guestbook.getIsRoot())) {
-                    redisCache.setCacheZSetValue(cacheGuestbookRootListKey, guestbook, timestamp);
-                    redisCache.setCacheZSetValue(frontCacheGuestbookRootListKey, guestbook, timestamp);
+                    String frontRootIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_INDEX_KEY + rootId;
+                    String frontRootListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_LIST_KEY;
+                    String frontRootCountCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_LIST_COUNT_KEY;
+                    //判断状态
+                    if (GuestbookConstants.STATUS_SHOW.equals(status)) {
+                        double hotScore = HotScoreUtils.calculateHotScore(guestbook.getCreateTime(), guestbook.getReplyCount());
+                        //显示状态,则插入根留言索引
+                        redisCache.setCacheZSetValue(frontRootIndexCacheKey, guestbookId.toString(), hotScore);
+                        //增加留言总数量
+                        redisCache.increment(frontCountCacheKey);
+                        //增加根留言总数量
+                        redisCache.increment(frontRootCountCacheKey);
+                    } else if (GuestbookConstants.STATUS_AUDITING.equals(status)) {
+                        //审核状态,则删除根留言索引
+                        redisCache.deleteCacheZSetValue(frontRootIndexCacheKey, guestbookId.toString());
+                        //减少留言总数量
+                        redisCache.decrement(frontCountCacheKey);
+                        //减少根留言总数量
+                        redisCache.decrement(frontRootCountCacheKey);
+                    } else if (GuestbookConstants.STATUS_HIDDEN.equals(status)) {
+                        //隐藏状态,则删除根留言索引
+                        redisCache.deleteCacheZSetValue(frontRootIndexCacheKey, guestbookId.toString());
+                        //减少留言总数量
+                        redisCache.decrement(frontCountCacheKey);
+                        //减少根留言总数量
+                        redisCache.decrement(frontRootCountCacheKey);
+                    }
+                } else {
+                    String frontChildIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_INDEX_KEY + rootId;
+                    String frontCacheGuestbookChildListKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_KEY;
+                    String frontChildCountCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_COUNT_KEY;
+                    //判断状态
+                    if (GuestbookConstants.STATUS_SHOW.equals(status)) {
+                        double hotScore = HotScoreUtils.calculateHotScore(guestbook.getCreateTime(), guestbook.getReplyCount());
+                        //显示状态,则插入子留言索引
+                        redisCache.setCacheZSetValue(frontChildIndexCacheKey, guestbookId.toString(), hotScore);
+                        //增加留言总数量
+                        redisCache.increment(frontCountCacheKey);
+                        //增加根留言的子留言总数量
+                        redisCache.hashIncrement(frontChildCountCacheKey, rootId.toString());
+                    } else if (GuestbookConstants.STATUS_AUDITING.equals(status)) {
+                        //审核状态,则删除子留言索引
+                        redisCache.deleteCacheZSetValue(frontChildIndexCacheKey, guestbookId.toString());
+                        //减少留言总数量
+                        redisCache.decrement(frontCountCacheKey);
+                        //减少子留言总数量
+                        redisCache.hashDecrement(frontChildCountCacheKey, rootId.toString());
+                    } else if (GuestbookConstants.STATUS_HIDDEN.equals(status)) {
+                        //隐藏状态,则删除子留言索引
+                        redisCache.deleteCacheZSetValue(frontChildIndexCacheKey, guestbookId.toString());
+                        //减少留言总数量
+                        redisCache.decrement(frontCountCacheKey);
+                        //减少子留言总数量
+                        redisCache.hashDecrement(frontChildCountCacheKey, rootId.toString());
+                    }
                 }
-                String cacheKey = BusinessCacheConstants.CACHE_GUESTBOOK_CHILD_LIST_KEY + guestbookId;
-                String frontCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_KEY + guestbookId;
-                redisCache.setCacheZSetValue(cacheKey, guestbook, timestamp);
-                redisCache.setCacheZSetValue(frontCacheKey, guestbook, timestamp);
             }
         };
     }

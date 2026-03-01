@@ -498,4 +498,83 @@ public class RedisCache {
     public Long hashIncrementIfPresent(final String key, final String hashKey) {
         return hashIncrementIfPresent(key, hashKey, 1);
     }
+
+    /**
+     * 递减字符串数字值
+     * @param key Redis键
+     * @param delta 递减幅度
+     * @return 递减后的值
+     */
+    public Long decrement(final String key, final long delta) {
+        return redisTemplate.opsForValue().decrement(key, delta);
+    }
+    /**
+     * 递减字符串数字值（默认递减1）
+     * @param key Redis键
+     * @return 递减后的值
+     */
+    public Long decrement(final String key) {
+        return decrement(key, 1);
+    }
+
+    /**
+     * 递减Hash字段的数值
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @param delta 递减幅度
+     * @return 递减后的值
+     */
+    public Long hashDecrement(final String key, final String hashKey, final long delta) {
+        return redisTemplate.opsForHash().increment(key, hashKey, -delta);
+    }
+    /**
+     * 递减Hash字段的数值（默认递减1）
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @return 递减后的值
+     */
+    public Long hashDecrement(final String key, final String hashKey) {
+        return hashDecrement(key, hashKey, 1);
+    }
+
+    /**
+     * 递减Hash字段的数值（带过期时间）
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @param delta 递减幅度
+     * @param timeout 过期时间
+     * @param timeUnit 时间单位
+     * @return 递减后的值
+     */
+    public Long hashDecrement(final String key, final String hashKey, final long delta, final long timeout, final TimeUnit timeUnit) {
+        Long result = hashDecrement(key, hashKey, delta);
+        if (result != null) {
+            expire(key, timeout, timeUnit);
+        }
+        return result;
+    }
+
+    /**
+     * 当Hash字段存在时递减数值
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @param delta 递减幅度
+     * @return 递减后的值，如果Hash字段不存在则返回null
+     */
+    public Long hashDecrementIfPresent(final String key, final String hashKey, final long delta) {
+        if (!redisTemplate.opsForHash().hasKey(key, hashKey)) {
+            return null;
+        }
+        return hashDecrement(key, hashKey, delta);
+    }
+
+    /**
+     * 当Hash字段存在时递减数值（默认递减1）
+     * @param key Redis键
+     * @param hashKey Hash字段键
+     * @return 递减后的值，如果Hash字段不存在则返回null
+     */
+    public Long hashDecrementIfPresent(final String key, final String hashKey) {
+        return hashDecrementIfPresent(key, hashKey, 1);
+    }
 }

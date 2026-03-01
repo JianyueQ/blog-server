@@ -86,4 +86,12 @@ public class MessageRecordController extends BaseController {
         return AjaxResult.success();
     }
 
+    /**
+     * 全部已读
+     */
+    @PostMapping("/allRead")
+    public AjaxResult allRead() {
+        return toAjax(messageRecordService.allMessageRead());
+    }
+
 }

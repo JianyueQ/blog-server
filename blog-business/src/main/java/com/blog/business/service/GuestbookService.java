@@ -4,6 +4,7 @@ import com.blog.business.domain.dto.FrontGuestbookListDto;
 import com.blog.business.domain.dto.GuestbookDto;
 import com.blog.business.domain.dto.GuestbookListDto;
 import com.blog.business.domain.dto.GuestbookStatusDto;
+import com.blog.business.domain.entity.Guestbook;
 import com.blog.business.domain.vo.FrontGuestbookListVo;
 import com.blog.business.domain.vo.GuestbookListVo;
 import com.blog.common.core.page.TableDataInfo;
@@ -16,9 +17,9 @@ import java.util.List;
  */
 public interface GuestbookService {
 
-    int addMessage(GuestbookDto guestbookDto);
+    Guestbook addMessage(GuestbookDto guestbookDto);
 
-    int adminReplyMessage(GuestbookDto guestbookDto);
+    Guestbook adminReplyMessage(GuestbookDto guestbookDto);
 
     int updateGuestbookMessageStatus(GuestbookStatusDto guestbookStatusDto);
 
@@ -38,7 +39,7 @@ public interface GuestbookService {
 
     AjaxResult getFrontRootGuestbookList(FrontGuestbookListDto frontGuestbookListDto);
 
-    TableDataInfo getRootGuestbookList(GuestbookListDto guestbookListDto);
+    List<GuestbookListVo> getRootGuestbookList(GuestbookListDto guestbookListDto);
 
-    TableDataInfo getChildGuestbookList(GuestbookListDto guestbookListDto);
+    List<GuestbookListVo> getChildGuestbookList(GuestbookListDto guestbookListDto);
 }

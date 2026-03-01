@@ -14,9 +14,8 @@
         <result property="isRoot" column="is_root"/>
         <result property="status" column="status"/>
         <result property="messageTime" column="create_time"/>
-        <result property="replyCount" column="replyCount"/>
+        <result property="replyCount" column="reply_count"/>
 <!--        <result property="timestamp" column="timestamp"/>-->
-
     </resultMap>
 
     <resultMap id="FrontGuestbookListVoResult" type="com.blog.business.domain.entity.Guestbook">
@@ -92,13 +91,17 @@
         <!-- 给根评论增加回复数 -->
         update guestbook set reply_count = reply_count + 1 where guestbook_id = #{rootId} and is_deleted = 0;
     </update>
+    <update id="decreaseReplyCount">
+        <!-- 减少根评论的回复数 -->
+        update guestbook set reply_count = reply_count - 1 where guestbook_id = #{rootId} and is_deleted = 0;
+    </update>
 
     <select id="getGuestbookMessageById" resultType="com.blog.business.domain.entity.Guestbook">
-        select guestbook_id,is_root,root_id,create_time,reply_count from guestbook where is_deleted = 0 and guestbook_id = #{guestbookId}
+        select guestbook_id,is_root,root_id,create_time,reply_count,status,timestamp from guestbook where is_deleted = 0 and guestbook_id = #{guestbookId}
     </select>
 
     <select id="getChildGuestbookMessageIdsById" resultType="com.blog.business.domain.entity.Guestbook">
-        select guestbook_id,create_time,is_root from guestbook where is_root = 0 and root_id = #{guestbookId}
+        select guestbook_id,is_root,root_id,create_time,reply_count,status,timestamp from guestbook where is_root = 0 and root_id = #{guestbookId}
     </select>
 
     <select id="getFrontRootGuestbookList" resultMap="FrontGuestbookListVoResult">
@@ -115,30 +118,13 @@
 
 
     <select id="getRootGuestbookList" resultMap="GuestbookListVoResult">
-        select
-            g.guestbook_id,
-            g.nickname,
-            g.email,
-            g.content,
-            g.avatar,
-            g.location,
-            g.root_id,
-            g.parent_id,
-            g.is_root,
-            g.status,
-            g.create_time,
-            count(c.guestbook_id) as replyCount
-        from guestbook g
-                 left join guestbook c on c.root_id = g.guestbook_id and c.is_root = 0
+        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id,is_root,status,create_time,reply_count
+        from guestbook
         <where>
-            <if test="startTime != null">and g.create_time &gt;= #{startTime}</if>
-            <if test="endTime != null">and g.create_time &lt;= #{endTime}</if>
-           and g.is_root = 1 and g.is_deleted = 0
+            <if test="startTime != null">and create_time &gt;= #{startTime}</if>
+            <if test="endTime != null">and create_time &lt;= #{endTime}</if>
+            and is_root = 1 and is_deleted = 0
         </where>
-        group by
-            g.guestbook_id, g.nickname, g.email, g.content,
-            g.avatar, g.location, g.root_id, g.parent_id,
-            g.is_root, g.status, g.create_time
     </select>
 
     <select id="getChildGuestbookList" resultMap="GuestbookListVoResult">

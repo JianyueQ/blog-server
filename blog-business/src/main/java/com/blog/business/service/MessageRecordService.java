@@ -25,4 +25,6 @@ public interface MessageRecordService {
 
     void cleanMessageRecord();
 
+    int allMessageRead();
+
 }
