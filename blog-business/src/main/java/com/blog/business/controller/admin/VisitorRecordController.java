@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author 31373
  */
-@RestController
+@RestController("adminVisitorRecordController")
 @RequestMapping("/system/visitor/record")
 public class VisitorRecordController extends BaseController {
 

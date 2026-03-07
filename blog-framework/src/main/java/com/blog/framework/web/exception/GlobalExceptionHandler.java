@@ -13,6 +13,7 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
 
 /**
  * @author 31373
@@ -95,6 +96,14 @@ public class GlobalExceptionHandler {
         return AjaxResult.error(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), e.getRequiredType().getName(), value));
     }
 
-
+    /**
+     * 拦截上传文件异常
+     */
+    @ExceptionHandler(MultipartException.class)
+    public AjaxResult handleMultipartException(MultipartException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',上传文件异常.", requestURI, e);
+        return AjaxResult.error("上传文件异常，请检查文件大小和格式,以及网络连接");
+    }
 
 }

@@ -105,9 +105,19 @@ public class SystemUptimeUtils {
     @PostConstruct
     public void init() {
         //从redis中获取存储的累计运行时长
-        Long savedUptime = redisCache.getCacheObject(TOTAL_UPTIME_KEY);
-        if (StringUtils.isNotNull(savedUptime)) {
-            totalUptime = savedUptime;
+        Object savedUptime = redisCache.getCacheObject(TOTAL_UPTIME_KEY);
+        if (savedUptime != null) {
+            // 安全地转换为Long类型
+            if (savedUptime instanceof String) {
+                totalUptime = Long.parseLong((String) savedUptime);
+            } else if (savedUptime instanceof Long) {
+                totalUptime = (Long) savedUptime;
+            } else if (savedUptime instanceof Integer) {
+                totalUptime = ((Integer) savedUptime).longValue();
+            } else {
+                totalUptime = 0L;
+                log.warn("Redis中存储的累计运行时长类型不匹配: {}", savedUptime.getClass().getName());
+            }
             log.debug("从Redis恢复历史累计运行时长: {}毫秒", totalUptime);
         } else {
             totalUptime = 0L;

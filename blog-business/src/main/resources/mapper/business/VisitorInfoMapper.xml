@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.business.mapper.VisitorInfoMapper">
+    <update id="cleanVisitorInfo">
+        truncate table visitor_info
+    </update>
+    <select id="getVisitorInfoVoById" resultType="com.blog.business.domain.vo.VisitorInfoVo">
+        select visitor_info_id, nickname, email, avatar from visitor_info where visitor_info_id = #{visitorInfoId} and is_deleted = 0
+    </select>
+</mapper>

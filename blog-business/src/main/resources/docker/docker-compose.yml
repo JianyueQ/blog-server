@@ -15,6 +15,7 @@ services:
       - TZ=Asia/Shanghai
     volumes:
       - /etc/localtime:/etc/localtime:ro
+      - /root/blog-v0.0.1/logs:/home/blog/logs
     depends_on:
       mysql:
         condition: service_healthy

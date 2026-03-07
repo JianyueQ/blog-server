@@ -26,4 +26,8 @@ public interface VisitorRecordService {
     void loadVisitorRecordBlacklistCache();
 
     int updateBlacklist(VisitorRecordDto visitorRecordDto);
+
+    VisitorRecord getVisitorRecordByFingerprint(String fingerprint);
+
+    void updateVisitorRecord(VisitorRecord visitorRecordInDB);
 }

@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * RabbitMQ配置类
+ *
  * @author 31373
  */
 @Configuration
@@ -38,13 +39,6 @@ public class RabbitMqConfig {
         rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
         // 开启消息确认回调
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
-            if (ack) {
-                // 消息发送成功
-                log.info("消息发送成功");
-            } else {
-                // 消息发送失败
-                log.error("消息发送失败: {}", cause);
-            }
         });
         // 开启失败回调
         rabbitTemplate.setReturnsCallback(returned -> {

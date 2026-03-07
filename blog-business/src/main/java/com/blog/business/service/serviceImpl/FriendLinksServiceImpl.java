@@ -13,6 +13,8 @@ import com.blog.common.constant.UserConstants;
 import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,21 +31,25 @@ public class FriendLinksServiceImpl implements FriendLinksService {
     private RabbitManager rabbitManager;
 
     @Override
+    @Cacheable(cacheNames = "friendLinks", key = "'friendLinksList'")
     public List<FriendLinksListVo> getFriendLinksList() {
         return friendLinksMapper.getFriendLinksList();
     }
 
     @Override
+    @Cacheable(cacheNames = "friendLinks", key = "'friendLinksDetail_' + #friendLinksId")
     public FriendLinksDetailVo getFriendLinksDetail(Long friendLinksId) {
         return friendLinksMapper.getFriendLinksDetail(friendLinksId);
     }
 
     @Override
+    @Cacheable(cacheNames = "friendLinks", key = "'approvedFriendLinksList'")
     public List<FriendLinksListVo> getApprovedFriendLinksList() {
         return friendLinksMapper.getApprovedFriendLinksList();
     }
 
     @Override
+    @CacheEvict(cacheNames = "friendLinks", allEntries = true)
     public int addFriendLinks(FriendLinksDto friendLinksDto) {
         FriendLinks friendLinks = new FriendLinks();
         friendLinks.setName(friendLinksDto.getName());
@@ -60,6 +66,7 @@ public class FriendLinksServiceImpl implements FriendLinksService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "friendLinks", allEntries = true)
     public int updateFriendLinks(FriendLinksDto friendLinksDto) {
         FriendLinks friendLinks = new FriendLinks();
         friendLinks.setFriendLinksId(friendLinksDto.getFriendLinksId());
@@ -74,26 +81,31 @@ public class FriendLinksServiceImpl implements FriendLinksService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "friendLinks", allEntries = true)
     public int updateFriendLinksStatus(Long friendLinksId, Integer status) {
         return friendLinksMapper.updateFriendLinksStatus(friendLinksId, status);
     }
 
     @Override
+    @CacheEvict(cacheNames = "friendLinks", allEntries = true)
     public int deleteFriendLinks(Long friendLinksId) {
         return friendLinksMapper.deleteFriendLinks(friendLinksId);
     }
 
     @Override
+    @Cacheable(cacheNames = "friendLinks", key = "'displayedFriendLinksList'")
     public List<DisplayedFriendLinksListVo> getDisplayedFriendLinksList() {
         return friendLinksMapper.getDisplayedFriendLinksList();
     }
 
     @Override
+    @CacheEvict(cacheNames = "friendLinks", allEntries = true)
     public int requestToAddFriendLinks(FriendLinksDto friendLinksDto) {
         return rabbitManager.sendFriendLinksRequest(friendLinksDto);
     }
 
     @Override
+    @CacheEvict(cacheNames = "friendLinks", allEntries = true)
     public void insertFriendLinksRequest(FriendLinks friendLinks) {
         friendLinks.setCreateTime(DateUtils.getNowDate());
         friendLinks.setJoinTime(DateUtils.getTime());

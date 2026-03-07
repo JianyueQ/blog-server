@@ -23,6 +23,11 @@ public class VisitorRecordVo {
     private String location;
 
     /**
+     * 访问次数
+     */
+    private Integer totalViews;
+
+    /**
      * 访问时间
      */
     private String visitTime;
@@ -59,12 +64,21 @@ public class VisitorRecordVo {
         this.visitTime = visitTime;
     }
 
+    public Integer getTotalViews() {
+        return totalViews;
+    }
+
+    public void setTotalViews(Integer totalViews) {
+        this.totalViews = totalViews;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(ToStringStyle.MULTI_LINE_STYLE)
                 .append("visitorRecordId", getVisitorRecordId())
                 .append("ipaddr", getIpaddr())
                 .append("location", getLocation())
+                .append("totalViews", getTotalViews())
                 .append("visitTime", getVisitTime())
                 .toString();
     }

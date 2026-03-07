@@ -12,6 +12,14 @@ public class VisitorRecord extends BaseEntity {
      */
     private Long visitorRecordId;
     /**
+     *    访客指纹,用于唯一标识访客
+     */
+    private String fingerprint;
+    /**
+     * 访客信息id
+     */
+    private Long visitorInfoId ;
+    /**
      * ip地址
      */
     private String ipaddr;
@@ -37,19 +45,27 @@ public class VisitorRecord extends BaseEntity {
     private String visitTime;
 
     /**
+     * 访问次数
+     */
+    private Integer totalViews;
+
+    /**
+     * 是否为黑名单（Y是 N否）
+     */
+    private String blacklist;
+
+    /**
+     * 加入黑名单的原因
+     */
+    private String reason;
+    /**
+     * 客户端数据
+     */
+    private String clientData;
+    /**
      * 用户代理字符串
      */
     private String userAgent;
-
-    /**
-     * 是否为异常访问(0:正常 1:异常)
-     */
-    private Integer abnormalFlag;
-
-    /**
-     * 异常类型(SCRIPT:脚本访问, SPAM:垃圾请求, RATE_LIMIT:频率超限等)
-     */
-    private String abnormalType;
 
     public Long getVisitorRecordId() {
         return visitorRecordId;
@@ -107,19 +123,51 @@ public class VisitorRecord extends BaseEntity {
         this.userAgent = userAgent;
     }
 
-    public Integer getAbnormalFlag() {
-        return abnormalFlag;
+    public String getFingerprint() {
+        return fingerprint;
     }
 
-    public void setAbnormalFlag(Integer abnormalFlag) {
-        this.abnormalFlag = abnormalFlag;
+    public void setFingerprint(String fingerprint) {
+        this.fingerprint = fingerprint;
     }
 
-    public String getAbnormalType() {
-        return abnormalType;
+    public Long getVisitorInfoId() {
+        return visitorInfoId;
     }
 
-    public void setAbnormalType(String abnormalType) {
-        this.abnormalType = abnormalType;
+    public void setVisitorInfoId(Long visitorInfoId) {
+        this.visitorInfoId = visitorInfoId;
+    }
+
+    public Integer getTotalViews() {
+        return totalViews;
+    }
+
+    public void setTotalViews(Integer totalViews) {
+        this.totalViews = totalViews;
+    }
+
+    public String getBlacklist() {
+        return blacklist;
+    }
+
+    public void setBlacklist(String blacklist) {
+        this.blacklist = blacklist;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public String getClientData() {
+        return clientData;
+    }
+
+    public void setClientData(String clientData) {
+        this.clientData = clientData;
     }
 }

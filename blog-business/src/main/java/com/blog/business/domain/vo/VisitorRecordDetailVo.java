@@ -14,6 +14,15 @@ public class VisitorRecordDetailVo {
      */
     private Long visitorRecordId;
     /**
+     * 访客信息id
+     */
+    private String visitorInfoId;
+    /**
+     * 访客指纹
+     */
+    private String fingerprint;
+
+    /**
      * ip地址
      */
     private String ipaddr;
@@ -44,20 +53,18 @@ public class VisitorRecordDetailVo {
     private String userAgent;
 
     /**
-     * 是否为异常访问(0:正常 1:异常)
-     */
-    private Integer abnormalFlag;
-
-    /**
-     * 异常类型
-     */
-    private String abnormalType;
-
-    /**
-     * blacklist
+     * 是否为黑名单（Y是 N否）
      */
     private String blacklist;
 
+    /**
+     * 访问次数
+     */
+    private Integer totalViews;
+    /**
+     *
+     */
+    private VisitorInfoVo visitorInfoVo;
     /**
      * reason
      */
@@ -119,22 +126,6 @@ public class VisitorRecordDetailVo {
         this.userAgent = userAgent;
     }
 
-    public Integer getAbnormalFlag() {
-        return abnormalFlag;
-    }
-
-    public void setAbnormalFlag(Integer abnormalFlag) {
-        this.abnormalFlag = abnormalFlag;
-    }
-
-    public String getAbnormalType() {
-        return abnormalType;
-    }
-
-    public void setAbnormalType(String abnormalType) {
-        this.abnormalType = abnormalType;
-    }
-
     public String getBlacklist() {
         return blacklist;
     }
@@ -151,19 +142,53 @@ public class VisitorRecordDetailVo {
         this.reason = reason;
     }
 
+    public String getFingerprint() {
+        return fingerprint;
+    }
+
+    public void setFingerprint(String fingerprint) {
+        this.fingerprint = fingerprint;
+    }
+
+    public Integer getTotalViews() {
+        return totalViews;
+    }
+
+    public void setTotalViews(Integer totalViews) {
+        this.totalViews = totalViews;
+    }
+
+    public String getVisitorInfoId() {
+        return visitorInfoId;
+    }
+
+    public void setVisitorInfoId(String visitorInfoId) {
+        this.visitorInfoId = visitorInfoId;
+    }
+
+    public VisitorInfoVo getVisitorInfoVo() {
+        return visitorInfoVo;
+    }
+
+    public void setVisitorInfoVo(VisitorInfoVo visitorInfoVo) {
+        this.visitorInfoVo = visitorInfoVo;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(ToStringStyle.MULTI_LINE_STYLE)
                 .append("visitorRecordId", getVisitorRecordId())
+                .append("visitorInfoId", getVisitorInfoId())
+                .append("fingerprint", getFingerprint())
                 .append("ipaddr", getIpaddr())
                 .append("location", getLocation())
                 .append("browser", getBrowser())
                 .append("os", getOs())
                 .append("visitTime", getVisitTime())
                 .append("userAgent", getUserAgent())
-                .append("abnormalFlag", getAbnormalFlag())
-                .append("abnormalType", getAbnormalType())
                 .append("blacklist", getBlacklist())
+                .append("totalViews", getTotalViews())
+                .append("visitorInfoVo", getVisitorInfoVo())
                 .append("reason", getReason())
                 .toString();
     }

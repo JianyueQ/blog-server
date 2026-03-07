@@ -3,31 +3,59 @@
 <mapper namespace="com.blog.business.mapper.VisitorRecordMapper">
 
     <insert id="insertVisitorRecord" parameterType="visitorRecord">
-        insert into visitor_record(
-        <if test="ipaddr != null">ipaddr,</if>
-        <if test="location != null">location,</if>
-        <if test="browser != null">browser,</if>
-        <if test="os != null">os,</if>
-        <if test="visitTime != null">visit_time,</if>
-        <if test="userAgent != null">user_agent,</if>
-        <if test="abnormalFlag != null">abnormal_flag,</if>
-        <if test="abnormalType != null">abnormal_type,</if>
-        <if test="createBy != null">create_by,</if>
-        is_deleted,
-        create_time
-        )values (
-        <if test="ipaddr != null">#{ipaddr},</if>
-        <if test="location != null">#{location},</if>
-        <if test="browser != null">#{browser},</if>
-        <if test="os != null">#{os},</if>
-        <if test="visitTime != null">#{visitTime},</if>
-        <if test="userAgent != null">#{userAgent},</if>
-        <if test="abnormalFlag != null">#{abnormalFlag},</if>
-        <if test="abnormalType != null">#{abnormalType},</if>
-        <if test="createBy != null">#{createBy},</if>
-        0,
-        sysdate()
-        )
+        insert into visitor_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="visitorRecordId != null">visitor_record_id,</if>
+            <if test="fingerprint != null">fingerprint,</if>
+            <if test=" visitorInfoId != null">visitor_info_id ,</if>
+            <if test="ipaddr != null">ipaddr,</if>
+            <if test="location != null">location,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="visitTime != null">visit_time,</if>
+            <if test="userAgent != null">user_agent,</if>
+            <if test="totalViews != null">total_views,</if>
+            <if test="blacklist != null">blacklist,</if>
+            <if test="reason != null">reason,</if>
+            <if test="createTime != null">create_time,</if>
+            is_deleted,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="visitorRecordId != null">#{visitorRecordId},</if>
+            <if test="fingerprint != null">#{fingerprint},</if>
+            <if test="visitorInfoId != null">#{visitorInfoId},</if>
+            <if test="ipaddr != null">#{ipaddr},</if>
+            <if test="location != null">#{location},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="visitTime != null">#{visitTime},</if>
+            <if test="userAgent != null">#{userAgent},</if>
+            <if test="totalViews != null">#{totalViews},</if>
+            <if test="blacklist != null">#{blacklist},</if>
+            <if test="reason != null">#{reason},</if>
+            <if test="createTime != null">#{createTime},</if>
+            0,
+        </trim>
+    </insert>
+
+    <insert id="insertVisitorInfo" keyProperty="visitorInfoId" useGeneratedKeys="true">
+        insert into visitor_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="nickname != null">nickname,</if>
+            <if test="email != null">email,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null">create_by,</if>
+            is_deleted,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="nickname != null">#{nickname},</if>
+            <if test="email != null">#{email},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            0,
+        </trim>
     </insert>
 
     <update id="cleanVisitorRecord">
@@ -44,34 +72,45 @@
         and is_deleted = 0
     </update>
 
+    <update id="updateVisitorRecord">
+        update visitor_record set total_views = total_views + 1 where visitor_record_id = #{visitorRecordId} and fingerprint = #{fingerprint} and is_deleted = 0
+    </update>
+
+    <update id="updateVisitorInfo">
+        update visitor_info
+        <set>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where visitor_info_id = #{visitorInfoId} and is_deleted = 0
+    </update>
+
     <select id="getVisitorRecordList" resultType="com.blog.business.domain.vo.VisitorRecordVo" parameterType="visitorRecordDto">
         select visitor_record_id,
         ipaddr,
         location,
-        visit_time
+        visit_time,
+        total_views
         from visitor_record
         <where>
-            <if test="startTime != null">and visit_time &gt;= #{startTime}</if>
-            <if test="endTime != null">and visit_time &lt;= #{endTime}</if>
-            <if test="ipaddr != null">and ipaddr like concat('%', #{ipaddr}, '%')</if>
-            <if test="location != null">and location like concat('%', #{location}, '%')</if>
+            <if test="startTime != null and startTime != ''">and visit_time &gt;= #{startTime}</if>
+            <if test="endTime != null and endTime != ''">and visit_time &lt;= #{endTime}</if>
+            <if test="ipaddr != null and ipaddr != ''">and ipaddr like concat('%', #{ipaddr}, '%')</if>
+            <if test="location != null and location != ''">and location like concat('%', #{location}, '%')</if>
             and blacklist = #{blacklist}
             and is_deleted = 0
         </where>
     </select>
 
     <select id="getVisitorRecordDetail" resultType="com.blog.business.domain.vo.VisitorRecordDetailVo">
-        select visitor_record_id,
-               ipaddr,
-               location,
-               browser,
-               os,
-               visit_time,
-               user_agent,
-               abnormal_flag,
-               abnormal_type,
-               reason
+        select visitor_record_id, fingerprint, visitor_info_id, ipaddr, location, browser, os, visit_time, user_agent, total_views, blacklist, reason
         from visitor_record where visitor_record_id = #{visitorRecordId} and is_deleted = 0
+    </select>
+
+    <select id="getVisitorRecordByFingerprint" resultType="com.blog.business.domain.entity.VisitorRecord">
+        select visitor_record_id,visitor_info_id from visitor_record where fingerprint = #{fingerprint} and is_deleted = 0
     </select>
 
 

@@ -27,11 +27,9 @@ public class UserProfileServiceImpl implements UserProfileService {
     public static final Integer CACHE_BLOG_OWNER_PROFILE_EXPIRE = 1;
 
     private final UserProfileMapper userProfileMapper;
-    private final RedisCache redisCache;
 
-    public UserProfileServiceImpl(UserProfileMapper userProfileMapper, RedisCache redisCache) {
+    public UserProfileServiceImpl(UserProfileMapper userProfileMapper) {
         this.userProfileMapper = userProfileMapper;
-        this.redisCache = redisCache;
     }
 
     @Cacheable(cacheNames = CacheConstants.CACHE_BLOG_OWNER_PROFILE, key = "'front_user_profile'")

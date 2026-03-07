@@ -7,6 +7,8 @@ import com.blog.business.mapper.AnnouncementMapper;
 import com.blog.business.service.AnnouncementService;
 import com.blog.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,6 +21,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private AnnouncementMapper announcementMapper;
 
     @Override
+    @CacheEvict(cacheNames = "announcement", key = "'announcement'")
     public int updateAnnouncement(AnnouncementDto announcementDto) {
         Announcement announcement = new Announcement();
         announcement.setContent(announcementDto.getContent());
@@ -27,6 +30,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
+    @Cacheable(cacheNames = "announcement", key = "'announcement'")
     public AnnouncementVo getAnnouncement() {
         return announcementMapper.getAnnouncement();
     }

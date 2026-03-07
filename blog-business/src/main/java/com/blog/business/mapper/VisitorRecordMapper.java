@@ -2,6 +2,7 @@ package com.blog.business.mapper;
 
 import com.blog.business.domain.dto.VisitorRecordDto;
 import com.blog.business.domain.dto.VisitorRecordListDto;
+import com.blog.business.domain.entity.VisitorInfo;
 import com.blog.business.domain.entity.VisitorRecord;
 import com.blog.business.domain.vo.VisitorRecordDetailVo;
 import com.blog.business.domain.vo.VisitorRecordVo;
@@ -26,4 +27,12 @@ public interface VisitorRecordMapper {
     void cleanVisitorRecord();
 
     int updateBlacklist(VisitorRecordDto visitorRecordDto);
+
+    VisitorRecord getVisitorRecordByFingerprint(@Param("fingerprint") String fingerprint);
+
+    void updateVisitorRecord(VisitorRecord visitorRecordInDB);
+
+    void updateVisitorInfo(VisitorInfo visitorInfo);
+
+    void insertVisitorInfo(VisitorInfo visitorInfo);
 }

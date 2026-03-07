@@ -54,6 +54,12 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!-- google的核心 Java 库-->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <!-- 系统模块-->
         <dependency>
             <groupId>com.blog</groupId>
