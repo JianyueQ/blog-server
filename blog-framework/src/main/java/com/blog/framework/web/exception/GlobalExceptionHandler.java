@@ -8,6 +8,7 @@ import com.blog.common.utils.html.EscapeUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,9 +32,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ServiceException.class)
     public AjaxResult handleServiceException(ServiceException e, HttpServletRequest request) {
-        log.error(e.getMessage(),e);
+        log.error(e.getMessage(), e);
         Integer code = e.getCode();
-        if (StringUtils.isNotNull(code)){
+        if (StringUtils.isNotNull(code)) {
             return AjaxResult.error(code, e.getMessage());
         }
         return AjaxResult.error(e.getMessage());
@@ -45,7 +46,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public AjaxResult handleRuntimeException(RuntimeException e, HttpServletRequest request) {
         String uri = request.getRequestURI();
-        log.error("请求地址'{}',发生未知异常.", uri,e);
+        log.error("请求地址'{}',发生未知异常.", uri, e);
         return AjaxResult.error(e.getMessage());
     }
 
@@ -55,7 +56,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public AjaxResult handleException(Exception e, HttpServletRequest request) {
         String uri = request.getRequestURI();
-        log.error("请求地址'{}',发生系统异常.", uri,e);
+        log.error("请求地址'{}',发生系统异常.", uri, e);
         return AjaxResult.error(e.getMessage());
     }
 
@@ -64,8 +65,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public AjaxResult handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e,
-                                                          HttpServletRequest request)
-    {
+                                                          HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',不支持'{}'请求", requestURI, e.getMethod());
         return AjaxResult.error(e.getMessage());
@@ -75,8 +75,7 @@ public class GlobalExceptionHandler {
      * 请求路径中缺少必需的路径变量
      */
     @ExceptionHandler(MissingPathVariableException.class)
-    public AjaxResult handleMissingPathVariableException(MissingPathVariableException e, HttpServletRequest request)
-    {
+    public AjaxResult handleMissingPathVariableException(MissingPathVariableException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求路径中缺少必需的路径变量'{}',发生系统异常.", requestURI, e);
         return AjaxResult.error(String.format("请求路径中缺少必需的路径变量[%s]", e.getVariableName()));
@@ -104,6 +103,33 @@ public class GlobalExceptionHandler {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',上传文件异常.", requestURI, e);
         return AjaxResult.error("上传文件异常，请检查文件大小和格式,以及网络连接");
+    }
+
+    /**
+     * 拦截数据库唯一性异常
+     */
+    @ExceptionHandler(DuplicateKeyException.class)
+    public AjaxResult handleDuplicateKeyException(DuplicateKeyException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生数据库唯一性异常:{}", requestURI, e.getMessage());
+
+        String message = e.getMessage();
+        if (message != null && message.contains("Duplicate entry")) {
+            // 提取 Duplicate entry '123123' for key 'articles.slug' 中的关键信息
+            String[] parts = message.split("for key");
+            if (parts.length > 0) {
+                // 提取重复的值
+                String valuePart = parts[0];
+                int startIndex = valuePart.indexOf("'");
+                int endIndex = valuePart.lastIndexOf("'");
+                if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+                    String duplicateValue = valuePart.substring(startIndex + 1, endIndex);
+                    // 根据字段名返回友好的错误消息
+                    return AjaxResult.error("'" + duplicateValue + "' 已存在");
+                }
+            }
+        }
+        return AjaxResult.error("数据违反唯一性约束：" + message);
     }
 
 }

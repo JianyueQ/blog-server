@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.business.mapper.ArticleCategoriesMapper">
+
+    <insert id="addArticleCategories" parameterType="articleCategories" useGeneratedKeys="true" keyProperty="articleCategoriesId">
+        insert into article_categories
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleCategoriesId != null">article_categories_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="slug != null and slug != ''">slug,</if>
+            <if test="description != null">description,</if>
+            <if test="sort != null">sort,</if>
+            article_count,
+            create_time,
+            is_deleted,
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="articleCategoriesId != null">#{articleCategoriesId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="slug != null and slug != ''">#{slug},</if>
+            <if test="description != null">#{description},</if>
+            <if test="sort != null">#{sort},</if>
+            0,
+            now(),
+            0,
+        </trim>
+    </insert>
+
+    <update id="updateArticleCategories">
+        update article_categories
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="slug != null and slug != ''">slug = #{slug},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            update_time = now()
+        </set>
+        where article_categories_id = #{articleCategoriesId} and is_deleted = 0
+    </update>
+
+    <update id="addArticleCount">
+        update article_categories
+        set article_count = article_count + 1
+        where article_categories_id = #{articleCategoriesId}
+          and is_deleted = 0
+    </update>
+
+    <update id="subtractArticleCount">
+        update article_categories
+        set article_count = article_count - 1
+        where article_categories_id = #{articleCategoriesId}
+          and is_deleted = 0
+    </update>
+
+    <delete id="deleteArticleCategories">
+        delete from article_categories
+        where article_categories_id in
+        <foreach item="id" collection="ids" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and is_deleted = 0
+    </delete>
+
+
+    <select id="getArticleCategoriesList" resultType="com.blog.business.domain.entity.ArticleCategories">
+        select article_categories_id,
+               name,
+               slug,
+               description,
+               sort,
+               article_count
+        from article_categories
+        where is_deleted = 0
+    </select>
+
+    <select id="getArticleCategoriesDetailById" resultType="com.blog.business.domain.entity.ArticleCategories">
+        select article_categories_id, name, slug, description, sort from article_categories where article_categories_id = #{articleCategoriesId} and is_deleted = 0
+    </select>
+
+    <select id="getArticleCountByArticleCategoriesId" resultType="java.lang.Long">
+        select article_count from article_categories where article_categories_id = #{articleCategoriesId} and is_deleted = 0
+    </select>
+</mapper>

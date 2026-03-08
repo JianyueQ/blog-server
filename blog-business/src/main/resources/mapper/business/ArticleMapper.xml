@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.business.mapper.ArticleMapper">
+
+    <insert id="addArticle" keyProperty="articlesId" useGeneratedKeys="true">
+        insert into articles
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleCategoriesId != null">article_categories_id,</if>
+            <if test="categoryName != null and categoryName  != ''">category_name,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="slug != null and slug != ''">slug,</if>
+            <if test="summary != null and summary != ''">summary,</if>
+            <if test="coverImage != null and coverImage != ''">cover_image,</if>
+            <if test="contentMarkdown != null and contentMarkdown != ''">content_markdown,</if>
+            <if test="contentHtml != null and contentHtml != ''">content_html,</if>
+            <if test="viewCount != null">view_count,</if>
+            <if test="likeCount != null">like_count,</if>
+            <if test="commentCount != null">comment_count,</if>
+            <if test="wordCount != null">word_count,</if>
+            <if test="readingTime != null">reading_time,</if>
+            <if test="isPublished != null">is_published,</if>
+            <if test="isTop != null">is_top,</if>
+            <if test="publishTime != null">publish_time,</if>
+            create_time,
+            is_deleted,
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="articleCategoriesId != null">#{articleCategoriesId},</if>
+            <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="slug != null and slug != ''">#{slug},</if>
+            <if test="summary != null and summary != ''">#{summary},</if>
+            <if test="coverImage != null and coverImage != ''">#{coverImage},</if>
+            <if test="contentMarkdown != null and contentMarkdown != ''">#{contentMarkdown},</if>
+            <if test="contentHtml != null and contentHtml != ''">#{contentHtml},</if>
+            <if test="viewCount != null">#{viewCount},</if>
+            <if test="likeCount != null">#{likeCount},</if>
+            <if test="commentCount != null">#{commentCount},</if>
+            <if test="wordCount != null">#{wordCount},</if>
+            <if test="readingTime != null">#{readingTime},</if>
+            <if test="isPublished != null">#{isPublished},</if>
+            <if test="isTop != null">#{isTop},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+            now(),
+            0,
+        </trim>
+    </insert>
+
+    <update id="editArticle">
+        update articles
+        <set>
+            <if test="articleCategoriesId != null">article_categories_id = #{articleCategoriesId},</if>
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="slug != null and slug != ''">slug = #{slug},</if>
+            <if test="summary != null and summary != ''">summary = #{summary},</if>
+            <if test="coverImage != null and coverImage != ''">cover_image = #{coverImage},</if>
+            <if test="contentMarkdown != null and contentMarkdown != ''">content_markdown = #{contentMarkdown},</if>
+            <if test="contentHtml != null and contentHtml != ''">content_html = #{contentHtml},</if>
+            <if test="viewCount != null">view_count = #{viewCount},</if>
+            <if test="likeCount != null">like_count = #{likeCount},</if>
+            <if test="commentCount != null">comment_count = #{commentCount},</if>
+            <if test="wordCount != null">word_count = #{wordCount},</if>
+            <if test="readingTime != null">reading_time = #{readingTime},</if>
+            <if test="isPublished != null">is_published = #{isPublished},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+        </set>
+        where articles_id = #{articlesId} and is_deleted = 0
+    </update>
+
+    <update id="changePublishStatus">
+        update articles
+        <set>
+            <if test="isPublished != null">is_published = #{isPublished},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+        </set>
+        where articles_id = #{articlesId} and is_deleted = 0
+    </update>
+
+    <delete id="deleteArticles">
+        delete from articles where articles_id in
+        <foreach item="articlesId" index="index" collection="articlesIds" open="(" separator="," close=")">
+            #{articlesId}
+        </foreach>
+    </delete>
+
+    <select id="getArticleList" resultType="com.blog.business.domain.entity.Articles">
+        select articles_id, article_categories_id,category_name, title,cover_image,is_published, is_top from articles
+        <where>
+            <if test="title != null and title != ''">title like concat('%', #{title}, '%')</if>
+            <if test="articleCategoriesId != null">article_categories_id = #{articleCategoriesId}</if>
+            <if test="isPublished != null">is_published = #{isPublished}</if>
+            <if test="isTop != null">is_top = #{isTop}</if>
+            and is_deleted = 0
+        </where>
+    </select>
+
+    <select id="getArticleDetail" resultType="com.blog.business.domain.entity.Articles">
+        select articles_id,
+               article_categories_id,
+               category_name,
+               title,
+               slug,
+               summary,
+               cover_image,
+               content_markdown,
+               content_html,
+               view_count,
+               like_count,
+               comment_count,
+               word_count,
+               reading_time,
+               is_published,
+               is_top,
+               publish_time,
+               publish_year,
+               publish_month,
+               publish_day,
+               publish_date
+        from articles where articles_id = #{articlesId} and is_deleted = 0
+    </select>
+
+    <select id="getArticleCategoriesIdByArticlesId" resultType="java.lang.Long">
+        select article_categories_id from articles where articles_id = #{articlesId} and is_deleted = 0
+    </select>
+
+    <select id="getArticlesListByArticleCategoriesIds" resultType="com.blog.business.domain.entity.Articles">
+        select articles_id,category_name from articles where article_categories_id in
+        <foreach item="articleCategoriesId" index="index" collection="articleCategoriesIds" open="(" separator="," close=")">
+            #{articleCategoriesId}
+        </foreach>
+    </select>
+
+    <select id="getArticlesListByIds" resultType="com.blog.business.domain.entity.Articles">
+        select articles_id,article_categories_id,category_name from articles where articles_id in
+        <foreach item="articlesId" index="index" collection="articlesIds" open="(" separator="," close=")">
+            #{articlesId}
+        </foreach>
+        and is_deleted = 0
+    </select>
+
+
+</mapper>

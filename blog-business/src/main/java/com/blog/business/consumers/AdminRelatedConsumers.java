@@ -2,6 +2,7 @@ package com.blog.business.consumers;
 
 import com.alibaba.fastjson2.JSON;
 import com.blog.business.annotation.SendMessage;
+import com.blog.business.constant.BusinessCacheConstants;
 import com.blog.business.constant.BusinessRabbitMqConstant;
 import com.blog.business.domain.entity.FriendLinks;
 import com.blog.business.domain.entity.VisitorInfo;
@@ -12,6 +13,7 @@ import com.blog.business.mapper.VisitorRecordMapper;
 import com.blog.business.service.FriendLinksService;
 import com.blog.business.utils.FingerprintUtils;
 import com.blog.common.constant.RabbitMqConstants;
+import com.blog.common.core.redis.RedisCache;
 import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.StringUtils;
 import com.blog.common.utils.spring.SpringUtils;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 管理员相关消费者
@@ -50,6 +53,7 @@ public class AdminRelatedConsumers {
     public void visitorRecord(String str) {
         VisitorRecord visitorRecord = JSON.parseObject(str, VisitorRecord.class);
         VisitorRecordMapper visitorRecordMapper = SpringUtils.getBean(VisitorRecordMapper.class);
+        RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
         String decrypt = FingerprintUtils.decrypt(visitorRecord.getClientData());
         VisitorRecordParameters visitorRecordParameters = JSON.parseObject(decrypt, VisitorRecordParameters.class);
         VisitorInfo visitorInfo = new VisitorInfo();
@@ -71,12 +75,15 @@ public class AdminRelatedConsumers {
             visitorInfo.setVisitorInfoId(visitorRecordInDB.getVisitorInfoId());
             visitorInfo.setUpdateTime(DateUtils.getNowDate());
             visitorRecordMapper.updateVisitorInfo(visitorInfo);
+            //根据ip,将访客信息存储在redis中
+            redisCache.setCacheObject(BusinessCacheConstants.REDIS_KEY_VISITOR_INFO + visitorRecord.getIpaddr(), visitorInfo, BusinessCacheConstants.CACHE_EXPIRE_TIME_ONE, TimeUnit.HOURS);
         } else {
             visitorInfo.setCreateTime(DateUtils.getNowDate());
             visitorInfo.setCreateBy(visitorRecord.getIpaddr());
             visitorRecordMapper.insertVisitorInfo(visitorInfo);
             visitorRecord.setVisitorInfoId(visitorInfo.getVisitorInfoId());
             visitorRecordMapper.insertVisitorRecord(visitorRecord);
+            redisCache.setCacheObject(BusinessCacheConstants.REDIS_KEY_VISITOR_INFO + visitorRecord.getIpaddr(), visitorInfo, BusinessCacheConstants.CACHE_EXPIRE_TIME_ONE, TimeUnit.HOURS);
         }
     }
 

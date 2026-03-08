@@ -1,0 +1,24 @@
+package com.blog.business.service;
+
+import com.blog.business.domain.entity.Articles;
+
+import java.util.List;
+
+/**
+ * 文章管理
+ * @author 31373
+ */
+public interface ArticleService {
+    List<Articles> getArticleList(Articles articles);
+
+
+    Articles getArticleDetail(Long articlesId);
+
+    int addArticle(Articles articles);
+
+    int editArticle(Articles articles);
+
+    int deleteArticles(Long[] articlesId);
+
+    int changePublishStatus(Long articlesId, Integer isPublished, Integer isTop);
+}

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.blog.business.mapper.ArticleTagsMapper">
+
+    <insert id="addArticleTags">
+        insert into article_tags(article_tags_id, name, slug,create_time,is_deleted)
+        values (#{articleTagsId}, #{name}, #{slug},now(),0)
+    </insert>
+
+    <insert id="addArticleTagsRelationsByList">
+        insert into article_tag_relations(article_id,article_tags_id,name,slug,is_deleted)
+        values
+        <foreach item="item" index="index" collection="articleTagRelationsList" separator=",">
+            (#{item.articleId}, #{item.tagId}, #{item.name}, #{item.slug},0)
+        </foreach>
+    </insert>
+
+    <update id="editArticleTags">
+        update article_tags
+        set name = #{name}, slug = #{slug}, update_time = now()
+        where article_tags_id = #{articleTagsId} and is_deleted = 0
+    </update>
+
+    <update id="batchUpdateArticleTagsUsageFrequency">
+        update article_tags
+        set usage_frequency = usage_frequency + 1
+        where article_tags_id in
+        <foreach item="item" index="index" collection="articleTagRelations" open="(" separator="," close=")">
+            #{item.tagId}
+        </foreach>
+    </update>
+
+    <delete id="deleteArticleTags" parameterType="articleTagRelations">
+        delete from article_tags
+        where article_tags_id in
+        <foreach item="id" index="index" collection="articleTagsId" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteArticleTagsRelationsByArticleId">
+        delete from article_tag_relations
+        where article_id = #{articleId} and is_deleted = 0
+    </delete>
+
+    <delete id="deleteArticleTagsRelationsByArticleIds">
+        delete from article_tag_relations
+        where article_id in
+        <foreach item="item" index="index" collection="articlesIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_deleted = 0
+    </delete>
+
+    <select id="getArticleTagsList" resultType="com.blog.business.domain.entity.ArticleTags">
+        select article_tags_id, name, slug, usage_frequency
+        from article_tags
+        where is_deleted = 0
+    </select>
+
+    <select id="getArticleTagsDetail" resultType="com.blog.business.domain.entity.ArticleTags">
+        select article_tags_id, name, slug
+        from article_tags
+        where is_deleted = 0
+          and article_tags_id = #{articleTagsId}
+    </select>
+
+    <select id="getArticleTagsListByArticlesId" resultType="com.blog.business.domain.entity.ArticleTagRelations">
+        select article_tag_relations_id, article_id, article_tags_id as tagId, name, slug
+        from article_tag_relations
+        where is_deleted = 0
+          and article_id = #{articlesId}
+    </select>
+
+    <select id="getTagFrequencyByTagId" resultType="java.lang.Long">
+        select usage_frequency
+        from article_tags
+        where is_deleted = 0
+          and article_tags_id = #{tagId}
+    </select>
+    <select id="getArticleTagsRelationsByArticleId"
+            resultType="com.blog.business.domain.entity.ArticleTagRelations">
+        select article_tags_id as tagId from article_tag_relations where is_deleted = 0 and article_id = #{articlesId}
+    </select>
+
+    <select id="getArticleTagsRelationsByArticleIds"
+            resultType="com.blog.business.domain.entity.ArticleTagRelations">
+        select article_tags_id as tagId from article_tag_relations where is_deleted = 0 and article_id in
+        <foreach item="item" index="index" collection="articlesIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="getArticleTagsRelationsByArticleTagsId"
+            resultType="com.blog.business.domain.entity.ArticleTagRelations">
+        select article_tags_id as tagId,name from article_tag_relations where is_deleted = 0 and article_tags_id in
+        <foreach item="item" index="index" collection="articleTagsId" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+</mapper>

@@ -16,6 +16,7 @@ public class BusinessCacheConstants {
      */
     public static final int CACHE_EXPIRE_TIME_TWO = 2;
 
+
     /**
      * 消息记录列表缓存
      */
@@ -28,6 +29,7 @@ public class BusinessCacheConstants {
      * 消息记录列表已读缓存
      */
     public static final String MESSAGE_RECORD_LIST_READ_CACHE = "message_record_list_cache:read";
+
 
     /**
      * 后台根留言表根缓存
@@ -45,6 +47,7 @@ public class BusinessCacheConstants {
      * 后台子留言总数缓存
      */
     public static final String CACHE_GUESTBOOK_CHILD_LIST_COUNT_KEY = "guestbook_list_cache:child_count";
+
 
     /**
      * 前台根留言索引缓存 guestbook:index:front_root: + rootId
@@ -75,4 +78,20 @@ public class BusinessCacheConstants {
      */
     public static final String FRONT_CACHE_GUESTBOOK_ROOT_LIST_COUNT_KEY = "guestbook:count:front_root_total";
 
+
+    /**
+     * 访客信息缓存
+     */
+    public static final String REDIS_KEY_VISITOR_INFO = "visitor_info:";
+
+
+    /**
+     * 该文章分类下的文章数量缓存键
+     */
+    public static final String ARTICLE_CATEGORIES_ARTICLE_COUNT = "article:categories_count:";
+
+    /**
+     * 标签频率缓存键
+     */
+    public static final String TAG_FREQUENCY = "article:tag_frequency:";
 }
