@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * @author 31373
  */
-//@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @SpringBootApplication
 public class BlogAdminApplication {
 

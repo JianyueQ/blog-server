@@ -14,7 +14,7 @@ import java.util.List;
  * 文章管理
  * @author 31373
  */
-@RestController
+@RestController("adminArticlesController")
 @RequestMapping("/system/articles")
 public class ArticlesController extends BaseController {
 

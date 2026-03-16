@@ -1,6 +1,10 @@
 package com.blog.business.service;
 
+import com.blog.business.domain.dto.ArticleListDto;
 import com.blog.business.domain.entity.Articles;
+import com.blog.business.domain.vo.FrontArticlesArchivesVo;
+import com.blog.business.domain.vo.FrontArticlesDetailVo;
+import com.blog.business.domain.vo.FrontArticlesPageVo;
 
 import java.util.List;
 
@@ -21,4 +25,11 @@ public interface ArticleService {
     int deleteArticles(Long[] articlesId);
 
     int changePublishStatus(Long articlesId, Integer isPublished, Integer isTop);
+
+    List<FrontArticlesPageVo> frontGetArticleList(ArticleListDto articleListDto);
+
+    FrontArticlesDetailVo frontGetArticleDetail(String slug);
+
+    List<FrontArticlesArchivesVo> frontGetArticleArchives();
+
 }

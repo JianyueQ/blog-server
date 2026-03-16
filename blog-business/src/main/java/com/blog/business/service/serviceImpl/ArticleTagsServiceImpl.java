@@ -4,6 +4,7 @@ import com.blog.business.constant.BusinessCacheConstants;
 import com.blog.business.domain.entity.ArticleTagRelations;
 import com.blog.business.domain.entity.ArticleTags;
 import com.blog.business.domain.entity.Articles;
+import com.blog.business.domain.vo.FrontArticlesPageVo;
 import com.blog.business.exception.artices.ArticleCategoriesException;
 import com.blog.business.mapper.ArticleTagsMapper;
 import com.blog.business.service.ArticleTagsService;
@@ -68,6 +69,15 @@ public class ArticleTagsServiceImpl implements ArticleTagsService {
         return articleTagsMapper.deleteArticleTags(articleTagsId);
     }
 
+    @Override
+    public List<ArticleTags> frontGetArticleTagsList() {
+        return articleTagsMapper.frontGetArticleTagsList();
+    }
+
+    @Override
+    public List<FrontArticlesPageVo> frontGetArticleListByTag(String slug) {
+        return articleTagsMapper.frontGetArticleListByTag(slug);
+    }
 
 
 }

@@ -3,6 +3,7 @@ package com.blog.business.service.serviceImpl;
 import com.blog.business.constant.BusinessCacheConstants;
 import com.blog.business.domain.entity.ArticleCategories;
 import com.blog.business.domain.entity.Articles;
+import com.blog.business.domain.vo.FrontArticlesPageVo;
 import com.blog.business.exception.artices.ArticleCategoriesException;
 import com.blog.business.mapper.ArticleCategoriesMapper;
 import com.blog.business.mapper.ArticleMapper;
@@ -71,4 +72,16 @@ public class ArticleCategoriesServiceImpl implements ArticleCategoriesService {
         }
         return articleCategoriesMapper.deleteArticleCategories(ids);
     }
+
+    @Override
+    public List<ArticleCategories> frontGetArticleCategoriesList() {
+        return articleCategoriesMapper.frontGetArticleCategoriesList();
+    }
+
+
+    @Override
+    public List<FrontArticlesPageVo> frontGetArticleListByArticleCategoriesId(Long articleCategoriesId) {
+        return articleCategoriesMapper.frontGetArticleListByArticleCategoriesId(articleCategoriesId);
+    }
+
 }

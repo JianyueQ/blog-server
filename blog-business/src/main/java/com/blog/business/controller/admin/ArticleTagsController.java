@@ -15,7 +15,7 @@ import java.util.List;
  * 文章标签管理
  * @author 31373
  */
-@RestController
+@RestController("adminArticleTagsController")
 @RequestMapping("/system/articleTags")
 public class ArticleTagsController extends BaseController {
 

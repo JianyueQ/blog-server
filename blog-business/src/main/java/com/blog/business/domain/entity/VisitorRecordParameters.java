@@ -41,11 +41,15 @@ public class VisitorRecordParameters {
      * visitor
      */
     private VisitorInfo visitor;
-
     /**
      * CPU核心数
      */
     private Integer hardwareConcurrency;
+
+    /**
+     * 时间戳
+     */
+    private Long timestamp;
 
     public String getReferer() {
         return referer;

@@ -42,6 +42,11 @@ public class AdminRelatedConsumers {
     private static final Logger log = LoggerFactory.getLogger(AdminRelatedConsumers.class);
 
     /**
+     * 时间戳差值 ()
+     */
+    private static final Long TIMESTAMP_DIFF = 5000L;
+
+    /**
      * 访客记录信息
      */
     @SendMessage(messageTitle = "访客记录", messageContent = "有访客来访!", messageType = MessageRecordType.VISITORS)
@@ -56,6 +61,7 @@ public class AdminRelatedConsumers {
         RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
         String decrypt = FingerprintUtils.decrypt(visitorRecord.getClientData());
         VisitorRecordParameters visitorRecordParameters = JSON.parseObject(decrypt, VisitorRecordParameters.class);
+        //计算时间戳
         VisitorInfo visitorInfo = new VisitorInfo();
         if (StringUtils.isNotNull(visitorRecordParameters)) {
             visitorInfo.setAvatar(visitorRecordParameters.getVisitor().getAvatar());

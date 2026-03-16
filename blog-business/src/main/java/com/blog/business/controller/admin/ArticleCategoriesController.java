@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author 31373
  */
-@RestController
+@RestController("adminArticleCategoriesController")
 @RequestMapping("/system/articleCategories")
 public class ArticleCategoriesController extends BaseController {
 

@@ -2,6 +2,7 @@ package com.blog.business.mapper;
 
 import com.blog.business.domain.entity.ArticleTagRelations;
 import com.blog.business.domain.entity.ArticleTags;
+import com.blog.business.domain.vo.FrontArticlesPageVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -40,4 +41,10 @@ public interface ArticleTagsMapper {
     void deleteArticleTagsRelationsByArticleIds(@Param("articlesIds") Long[] articlesIds);
 
     List<ArticleTagRelations> getArticleTagsRelationsByArticleTagsId(@Param("articleTagsId") Long[] articleTagsId);
+
+    List<ArticleTags> frontGetArticleTagsList();
+
+    void updateTagFrequency(@Param("articleTagsList") List<ArticleTags> articleTagsList);
+
+    List<FrontArticlesPageVo> frontGetArticleListByTag(@Param("slug") String slug);
 }

@@ -1,6 +1,10 @@
 package com.blog.business.mapper;
 
 import com.blog.business.domain.entity.Articles;
+import com.blog.business.domain.vo.FrontArticlesArchivesVo;
+import com.blog.business.domain.vo.FrontArticlesDetailVo;
+import com.blog.business.domain.vo.FrontArticlesPageVo;
+import com.blog.business.domain.vo.FrontArticlesVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,4 +33,11 @@ public interface ArticleMapper {
     List<Articles> getArticlesListByArticleCategoriesIds(@Param("articleCategoriesIds") Long[] ids);
 
     List<Articles> getArticlesListByIds(@Param("articlesIds") Long[] articlesIds);
+
+    List<FrontArticlesPageVo> frontGetArticleList();
+
+    FrontArticlesDetailVo frontGetArticleDetail(@Param("slug") String slug);
+
+    List<Articles> frontGetArticleArchives();
+
 }

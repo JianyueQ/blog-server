@@ -1,6 +1,7 @@
 package com.blog.business.service;
 
 import com.blog.business.domain.entity.ArticleCategories;
+import com.blog.business.domain.vo.FrontArticlesPageVo;
 
 import java.util.List;
 
@@ -18,4 +19,9 @@ public interface ArticleCategoriesService {
     int updateArticleCategories(ArticleCategories articleCategories);
 
     int deleteArticleCategories(Long[] ids);
+
+    List<ArticleCategories> frontGetArticleCategoriesList();
+
+    List<FrontArticlesPageVo> frontGetArticleListByArticleCategoriesId(Long articleCategoriesId);
+
 }

@@ -30,6 +30,8 @@ import com.blog.common.utils.ip.IpUtils;
 import com.blog.common.utils.page.PageUtils;
 import com.blog.common.utils.spring.SpringUtils;
 import com.blog.framework.manager.AsyncManager;
+import com.blog.system.service.ConfigService;
+import com.blog.system.service.SysConfigService;
 import com.github.pagehelper.PageInfo;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -48,12 +50,16 @@ public class GuestbookServiceImpl implements GuestbookService {
 
     private static final Logger log = LoggerFactory.getLogger(GuestbookServiceImpl.class);
 
+    private static final String CONFIG_KEY = "sys.comment.enabled";
+
     @Autowired
     private GuestbookMapper guestbookMapper;
     @Autowired
     private RabbitManager rabbitManager;
     @Autowired
     private RedisCache redisCache;
+    @Autowired
+    private ConfigService configService;
 
     @Override
     public Guestbook addMessage(GuestbookDto guestbookDto) {
@@ -83,46 +89,52 @@ public class GuestbookServiceImpl implements GuestbookService {
         guestbook.setMessageTime(DateUtils.getTime());
         guestbook.setCreateBy(ipAddr);
         guestbook.setLocation(AddressUtils.getRealAddressByIP(ipAddr));
-        rabbitManager.sendAddGuestbookMessageRequest(guestbook);
-        //更新redis数据 先加索引 在加hash类型的数据
-        if (guestbook.getIsRoot().equals(GuestbookConstants.IS_ROOT)) {
-            String frontRootIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_INDEX_KEY + GuestbookConstants.ROOT_ID;
-            String frontRootListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_LIST_KEY;
-            String guestbookIdToString = guestbook.getGuestbookId().toString();
-            //计算分数
-            double score = HotScoreUtils.calculateHotScore(guestbook.getCreateTime(), 0);
-            //判断索引是否存在
-            if (!redisCache.hasKey(frontRootIndexCacheKey)) {
-                //如果索引不存在,则查询数据库并添加到索引中
-                selectFrontRootGuestbookList(new FrontGuestbookListDto(), false);
+        //获取系统设置中,是否需要审核
+        String keyValue = configService.selectConfigByKey(CONFIG_KEY);
+        if (GuestbookConstants.COMMENT_SWITCH_OPEN.equals(keyValue)){
+            guestbook.setStatus(GuestbookConstants.STATUS_AUDITING);
+        } else if (GuestbookConstants.COMMENT_SWITCH_CLOSE.equals(keyValue)) {
+            //更新redis数据 先加索引 在加hash类型的数据
+            if (guestbook.getIsRoot().equals(GuestbookConstants.IS_ROOT)) {
+                String frontRootIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_INDEX_KEY + GuestbookConstants.ROOT_ID;
+                String frontRootListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_ROOT_LIST_KEY;
+                String guestbookIdToString = guestbook.getGuestbookId().toString();
+                //计算分数
+                double score = HotScoreUtils.calculateHotScore(guestbook.getCreateTime(), 0);
+                //判断索引是否存在
+                if (!redisCache.hasKey(frontRootIndexCacheKey)) {
+                    //如果索引不存在,则查询数据库并添加到索引中
+                    selectFrontRootGuestbookList(new FrontGuestbookListDto(), false);
+                }
+                //按照热度排序根评论的索引,索引过期时间设置为一天
+                redisCache.setCacheZSetValue(frontRootIndexCacheKey, guestbookIdToString, score, BusinessCacheConstants.CACHE_EXPIRE_TIME_ONE, TimeUnit.DAYS);
+                //添加根评论数据,数据过期的时间设置为两天
+                redisCache.setCacheMapValue(frontRootListCacheKey, guestbookIdToString, guestbook);
+                redisCache.expire(frontRootListCacheKey, BusinessCacheConstants.CACHE_EXPIRE_TIME_TWO, TimeUnit.DAYS);
+            } else {
+                String frontChildIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_INDEX_KEY + guestbook.getRootId();
+                String frontChildListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_KEY;
+                String guestbookIdToString = guestbook.getGuestbookId().toString();
+                //判断索引是否存在
+                if (!redisCache.hasKey(frontChildIndexCacheKey)) {
+                    FrontGuestbookListDto frontGuestbookListDto = new FrontGuestbookListDto();
+                    frontGuestbookListDto.setGuestbookId(rootId);
+                    //如果索引不存在,则查询数据库并添加到索引中
+                    selectFrontChildGuestbookList(frontGuestbookListDto, false);
+                }
+                //根据父评论id查询hash结构的redis中是否有该评论的信息,如果有则获取昵称并set到guestbook对象中
+                Guestbook parentGuestbook = redisCache.getCacheMapValue(frontChildListCacheKey, guestbook.getParentId().toString());
+                if (StringUtils.isNotNull(parentGuestbook)){
+                    guestbook.setParentNickname(parentGuestbook.getNickname());
+                }
+                //按照时间戳排序子评论的索引,索引过期时间设置为一天
+                redisCache.setCacheZSetValue(frontChildIndexCacheKey, guestbookIdToString, guestbook.getTimestamp(), BusinessCacheConstants.CACHE_EXPIRE_TIME_ONE, TimeUnit.DAYS);
+                //添加子评论数据,数据过期的时间设置为两天
+                redisCache.setCacheMapValue(frontChildListCacheKey, guestbookIdToString, guestbook);
+                redisCache.expire(frontChildListCacheKey, BusinessCacheConstants.CACHE_EXPIRE_TIME_TWO, TimeUnit.DAYS);
             }
-            //按照热度排序根评论的索引,索引过期时间设置为一天
-            redisCache.setCacheZSetValue(frontRootIndexCacheKey, guestbookIdToString, score, BusinessCacheConstants.CACHE_EXPIRE_TIME_ONE, TimeUnit.DAYS);
-            //添加根评论数据,数据过期的时间设置为两天
-            redisCache.setCacheMapValue(frontRootListCacheKey, guestbookIdToString, guestbook);
-            redisCache.expire(frontRootListCacheKey, BusinessCacheConstants.CACHE_EXPIRE_TIME_TWO, TimeUnit.DAYS);
-        } else {
-            String frontChildIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_INDEX_KEY + guestbook.getRootId();
-            String frontChildListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_KEY;
-            String guestbookIdToString = guestbook.getGuestbookId().toString();
-            //判断索引是否存在
-            if (!redisCache.hasKey(frontChildIndexCacheKey)) {
-                FrontGuestbookListDto frontGuestbookListDto = new FrontGuestbookListDto();
-                frontGuestbookListDto.setGuestbookId(rootId);
-                //如果索引不存在,则查询数据库并添加到索引中
-                selectFrontChildGuestbookList(frontGuestbookListDto, false);
-            }
-            //根据父评论id查询hash结构的redis中是否有该评论的信息,如果有则获取昵称并set到guestbook对象中
-            Guestbook parentGuestbook = redisCache.getCacheMapValue(frontChildListCacheKey, guestbook.getParentId().toString());
-            if (StringUtils.isNotNull(parentGuestbook)){
-                guestbook.setParentNickname(parentGuestbook.getNickname());
-            }
-            //按照时间戳排序子评论的索引,索引过期时间设置为一天
-            redisCache.setCacheZSetValue(frontChildIndexCacheKey, guestbookIdToString, guestbook.getTimestamp(), BusinessCacheConstants.CACHE_EXPIRE_TIME_ONE, TimeUnit.DAYS);
-            //添加子评论数据,数据过期的时间设置为两天
-            redisCache.setCacheMapValue(frontChildListCacheKey, guestbookIdToString, guestbook);
-            redisCache.expire(frontChildListCacheKey, BusinessCacheConstants.CACHE_EXPIRE_TIME_TWO, TimeUnit.DAYS);
         }
+        rabbitManager.sendAddGuestbookMessageRequest(guestbook);
         return guestbook;
     }
 

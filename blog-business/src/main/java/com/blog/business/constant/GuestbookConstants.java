@@ -29,4 +29,13 @@ public class GuestbookConstants {
     public static final Integer STATUS_SHOW = 1;
     public static final Integer STATUS_HIDDEN = 0;
     public static final Integer STATUS_AUDITING = 2;
+
+    /**
+     * 评论开关状态 true 开启
+     */
+    public static final String COMMENT_SWITCH_OPEN = "true";
+    /**
+     * 评论开关状态 false 关闭
+     */
+    public static final String COMMENT_SWITCH_CLOSE = "false";
 }

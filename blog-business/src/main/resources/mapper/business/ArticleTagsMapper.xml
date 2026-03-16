@@ -30,6 +30,22 @@
         </foreach>
     </update>
 
+    <update id="updateTagFrequency">
+        update article_tags
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="usage_frequency = case" suffix="end,">
+                <foreach collection="articleTagsList" item="item">
+                    when article_tags_id = #{item.articleTagsId} then #{item.usageFrequency}
+                </foreach>
+            </trim>
+        </trim>
+        where article_tags_id in
+        <foreach item="item" collection="articleTagsList" separator="," open="(" close=")">
+            #{item.articleTagsId}
+        </foreach>
+        and is_deleted = 0
+    </update>
+
     <delete id="deleteArticleTags" parameterType="articleTagRelations">
         delete from article_tags
         where article_tags_id in
@@ -96,6 +112,33 @@
         <foreach item="item" index="index" collection="articleTagsId" open="(" separator="," close=")">
             #{item}
         </foreach>
+    </select>
+
+    <select id="frontGetArticleTagsList" resultType="com.blog.business.domain.entity.ArticleTags">
+        select article_tags_id, name, slug from article_tags
+    </select>
+
+    <select id="frontGetArticleListByTag" resultType="FrontArticlesPageVo">
+        select articles_id,
+               article_categories_id,
+               category_name,
+               title,
+               slug,
+               summary,
+               cover_image,
+               view_count,
+               like_count,
+               comment_count,
+               word_count,
+               reading_time,
+               is_top,
+               publish_time
+        from articles
+        where is_published = 1
+          and articles_id in (select article_id
+                              from article_tag_relations
+                              where is_deleted = 0 and article_tag_relations.slug = #{slug})
+          and is_deleted = 0
     </select>
 
 

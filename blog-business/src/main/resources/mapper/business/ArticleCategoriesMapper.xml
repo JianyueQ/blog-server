@@ -52,6 +52,22 @@
           and is_deleted = 0
     </update>
 
+    <update id="updateArticleCount">
+        update article_categories
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="article_count = case" suffix="end,">
+                <foreach collection="articleCategoriesList" item="item">
+                    when article_categories_id = #{item.articleCategoriesId} then #{item.articleCount}
+                </foreach>
+            </trim>
+        </trim>
+        where article_categories_id in
+        <foreach item="item" collection="articleCategoriesList" separator="," open="(" close=")">
+            #{item.articleCategoriesId}
+        </foreach>
+        and is_deleted = 0
+    </update>
+
     <delete id="deleteArticleCategories">
         delete from article_categories
         where article_categories_id in
@@ -80,4 +96,30 @@
     <select id="getArticleCountByArticleCategoriesId" resultType="java.lang.Long">
         select article_count from article_categories where article_categories_id = #{articleCategoriesId} and is_deleted = 0
     </select>
+
+    <select id="frontGetArticleCategoriesList" resultType="com.blog.business.domain.entity.ArticleCategories">
+        select name,slug,description,sort from article_categories where is_deleted = 0
+    </select>
+
+    <select id="frontGetArticleListByArticleCategoriesId"
+            resultType="com.blog.business.domain.vo.FrontArticlesPageVo">
+        select articles_id,
+               article_categories_id,
+               category_name,
+               title,
+               slug,
+               summary,
+               cover_image,
+               view_count,
+               like_count,
+               comment_count,
+               word_count,
+               reading_time,
+               is_top,
+               publish_time
+        from articles
+        where is_published = 1 and article_categories_id = #{articleCategoriesId} and is_deleted = 0
+    </select>
+
+
 </mapper>

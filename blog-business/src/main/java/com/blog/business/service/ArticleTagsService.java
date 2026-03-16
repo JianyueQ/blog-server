@@ -2,6 +2,7 @@ package com.blog.business.service;
 
 import com.blog.business.domain.entity.ArticleTagRelations;
 import com.blog.business.domain.entity.ArticleTags;
+import com.blog.business.domain.vo.FrontArticlesPageVo;
 
 import java.util.List;
 
@@ -20,4 +21,7 @@ public interface ArticleTagsService {
 
     int deleteArticleTags(Long[] articleTagsId);
 
+    List<ArticleTags> frontGetArticleTagsList();
+
+    List<FrontArticlesPageVo> frontGetArticleListByTag(String slug);
 }

@@ -86,7 +86,8 @@
     </delete>
 
     <select id="getArticleList" resultType="com.blog.business.domain.entity.Articles">
-        select articles_id, article_categories_id,category_name, title,cover_image,is_published, is_top from articles
+        select articles_id,slug ,article_categories_id,category_name, title,cover_image,is_published, is_top from
+        articles
         <where>
             <if test="title != null and title != ''">title like concat('%', #{title}, '%')</if>
             <if test="articleCategoriesId != null">article_categories_id = #{articleCategoriesId}</if>
@@ -138,6 +139,52 @@
             #{articlesId}
         </foreach>
         and is_deleted = 0
+    </select>
+
+    <select id="frontGetArticleList" resultType="com.blog.business.domain.vo.FrontArticlesPageVo">
+        select articles_id,
+               article_categories_id,
+               category_name,
+               title,
+               slug,
+               summary,
+               cover_image,
+               view_count,
+               like_count,
+               comment_count,
+               word_count,
+               reading_time,
+               is_top,
+               publish_time
+        from articles
+        where is_published = 1 and is_deleted = 0
+    </select>
+
+    <select id="frontGetArticleDetail" resultType="com.blog.business.domain.vo.FrontArticlesDetailVo">
+        select articles_id,
+               article_categories_id,
+               category_name,
+               title,
+               slug,
+               summary,
+               cover_image,
+               content_markdown,
+               content_html,
+               view_count,
+               like_count,
+               comment_count,
+               word_count,
+               reading_time,
+               is_top,
+               publish_time
+        from articles where slug = #{slug} and is_deleted = 0 and is_published = 1
+    </select>
+
+    <select id="frontGetArticleArchives" resultType="com.blog.business.domain.entity.Articles">
+        select title, slug, publish_time, publish_year, publish_month, publish_day, publish_date
+        from articles
+        where is_published = 1
+          and is_deleted = 0
     </select>
 
 
