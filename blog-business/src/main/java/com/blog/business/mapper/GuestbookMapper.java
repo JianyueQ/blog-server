@@ -46,4 +46,7 @@ public interface GuestbookMapper {
     void updateReplyCount(@Param("rootId") Long rootId);
 
     void decreaseReplyCount(@Param("rootId") Long rootId);
+
+    List<GuestbookListVo> getPendingAuditGuestbookList(GuestbookListDto guestbookListDto);
+
 }

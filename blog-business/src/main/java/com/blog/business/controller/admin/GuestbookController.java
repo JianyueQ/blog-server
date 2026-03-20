@@ -53,6 +53,16 @@ public class GuestbookController extends BaseController {
     }
 
     /**
+     * 获取待审核留言列表
+     */
+    @GetMapping("/list/pendingAudit")
+    public TableDataInfo getPendingAuditGuestbookList(GuestbookListDto guestbookListDto) {
+        startPage();
+        List<GuestbookListVo> guestbookList = guestbookService.getPendingAuditGuestbookList(guestbookListDto);
+        return getDataTable(guestbookList);
+    }
+
+    /**
      * 后台用户回复留言
      */
     @Log(title = "后台用户回复留言", businessType = BusinessType.UPDATE)

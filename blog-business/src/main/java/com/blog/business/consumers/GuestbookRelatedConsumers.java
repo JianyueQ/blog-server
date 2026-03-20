@@ -12,6 +12,8 @@ import com.blog.business.utils.HotScoreUtils;
 import com.blog.common.constant.Constants;
 import com.blog.common.core.redis.RedisCache;
 import com.blog.common.utils.spring.SpringUtils;
+import com.blog.framework.config.properties.EmailProperties;
+import com.blog.framework.mail.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -24,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 留言相关消费者
+ *
  * @author 31373
  */
 @Component
@@ -45,8 +48,22 @@ public class GuestbookRelatedConsumers {
     public void addGuestbookMessageRequest(String str) {
         try {
             RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
+            EmailService emailService = SpringUtils.getBean(EmailService.class);
             Guestbook guestbook = JSON.parseObject(str, Guestbook.class);
             SpringUtils.getBean(GuestbookMapper.class).addMessage(guestbook);
+            try {
+                EmailProperties emailProperties = emailService.emailProperties;
+                emailService.sendReplyNotification(
+                        emailProperties.getEmail(),
+                        emailProperties.getNickname(),
+                        "收到新的留言",
+                        guestbook.getNickname(),
+                        guestbook.getContent(),
+                        EmailService.GUESTBOOK_TYPE_TEXT
+                );
+            } catch (Exception e) {
+                log.error("发送留言回复通知邮件发生了错误:", e);
+            }
             if (!guestbook.getIsRoot().equals(GuestbookConstants.IS_ROOT)) {
                 //不是根留言则获取rootId 0 为根留言 和 回复留言id 0 为直接回复根留言
                 Long rootId = guestbook.getRootId();

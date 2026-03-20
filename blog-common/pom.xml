@@ -168,7 +168,6 @@
             <artifactId>jsoup</artifactId>
         </dependency>
 
-
         <!-- 邮件服务 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

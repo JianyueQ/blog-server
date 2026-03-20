@@ -97,7 +97,7 @@
     </update>
 
     <select id="getGuestbookMessageById" resultType="com.blog.business.domain.entity.Guestbook">
-        select guestbook_id,is_root,root_id,create_time,reply_count,status,timestamp from guestbook where is_deleted = 0 and guestbook_id = #{guestbookId}
+        select guestbook_id,is_root,root_id,create_time,reply_count,status,timestamp,content,email,nickname from guestbook where is_deleted = 0 and guestbook_id = #{guestbookId}
     </select>
 
     <select id="getChildGuestbookMessageIdsById" resultType="com.blog.business.domain.entity.Guestbook">
@@ -123,12 +123,12 @@
         <where>
             <if test="startTime != null">and create_time &gt;= #{startTime}</if>
             <if test="endTime != null">and create_time &lt;= #{endTime}</if>
-            and is_root = 1 and is_deleted = 0
+            and is_root = 1 and is_deleted = 0 and status != 2
         </where>
     </select>
 
     <select id="getChildGuestbookList" resultMap="GuestbookListVoResult">
-        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id, is_root,status,create_time from guestbook where  is_root = 0 and root_id = #{guestbookId} and is_deleted = 0
+        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id, is_root,status,create_time from guestbook where  is_root = 0 and root_id = #{guestbookId} and is_deleted = 0 and status != 2
     </select>
 
     <!-- 批量获取根留言的回复数量 -->
@@ -145,6 +145,16 @@
             and is_root = 0 and is_deleted = 0
         </where>
         group by root_id
+    </select>
+
+    <select id="getPendingAuditGuestbookList" resultType="com.blog.business.domain.vo.GuestbookListVo">
+        select guestbook_id, nickname, email, content, avatar, location, root_id, parent_id, is_root, status, create_time, reply_count
+        from guestbook
+        <where>
+            <if test="startTime != null">and create_time &gt;= #{startTime}</if>
+            <if test="endTime != null">and create_time &lt;= #{endTime}</if>
+            and is_deleted = 0 and status = 2
+        </where>
     </select>
 
 

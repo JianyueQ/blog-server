@@ -42,4 +42,6 @@ public interface GuestbookService {
     List<GuestbookListVo> getRootGuestbookList(GuestbookListDto guestbookListDto);
 
     List<GuestbookListVo> getChildGuestbookList(GuestbookListDto guestbookListDto);
+
+    List<GuestbookListVo> getPendingAuditGuestbookList(GuestbookListDto guestbookListDto);
 }

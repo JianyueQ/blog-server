@@ -29,6 +29,8 @@ import com.blog.common.utils.ip.AddressUtils;
 import com.blog.common.utils.ip.IpUtils;
 import com.blog.common.utils.page.PageUtils;
 import com.blog.common.utils.spring.SpringUtils;
+import com.blog.framework.config.properties.EmailProperties;
+import com.blog.framework.mail.EmailService;
 import com.blog.framework.manager.AsyncManager;
 import com.blog.system.service.ConfigService;
 import com.blog.system.service.SysConfigService;
@@ -60,6 +62,8 @@ public class GuestbookServiceImpl implements GuestbookService {
     private RedisCache redisCache;
     @Autowired
     private ConfigService configService;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public Guestbook addMessage(GuestbookDto guestbookDto) {
@@ -159,6 +163,24 @@ public class GuestbookServiceImpl implements GuestbookService {
         guestbook.setCreateBy(String.valueOf(administrators.getAdminId()));
         guestbook.setLocation(AddressUtils.getRealAddressByIP(IpUtils.getIpAddr()));
         guestbookMapper.addMessage(guestbook);
+
+        try {
+            EmailProperties emailProperties = emailService.emailProperties;
+            //根据被回复的id获取被回复的留言信息
+            Guestbook replyGuestbook = guestbookMapper.getGuestbookMessageById(guestbookDto.getParentId());
+            if (StringUtils.isNotNull(replyGuestbook.getEmail())){
+                emailService.sendReplyNotification(
+                        replyGuestbook.getEmail(),
+                        replyGuestbook.getNickname(),
+                        replyGuestbook.getContent(),
+                        emailProperties.getNickname(),
+                        guestbook.getContent(),
+                        EmailService.GUESTBOOK_TYPE_TEXT
+                );
+            }
+        } catch (Exception e) {
+            log.error("发送回复通知邮件失败：", e);
+        }
         //更新redis数据 先加索引 在加hash类型的数据
         String frontChildIndexCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_INDEX_KEY + guestbook.getRootId();
         String frontChildListCacheKey = BusinessCacheConstants.FRONT_CACHE_GUESTBOOK_CHILD_LIST_KEY;
@@ -434,6 +456,11 @@ public class GuestbookServiceImpl implements GuestbookService {
     @Override
     public List<GuestbookListVo> getChildGuestbookList(GuestbookListDto guestbookListDto) {
         return guestbookMapper.getChildGuestbookList(guestbookListDto);
+    }
+
+    @Override
+    public List<GuestbookListVo> getPendingAuditGuestbookList(GuestbookListDto guestbookListDto) {
+        return guestbookMapper.getPendingAuditGuestbookList(guestbookListDto);
     }
 
     @Override

@@ -217,6 +217,71 @@ POST /system/guestbook/delete/{id}
 
 ---
 
+## 6. 获取待审核留言列表
+
+### URL
+```
+GET /system/guestbook/list/pendingAudit
+```
+
+### 请求参数
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| startTime | String | 否 | 开始时间，格式：yyyy-MM-dd HH:mm:ss |
+| endTime | String | 否 | 结束时间，格式：yyyy-MM-dd HH:mm:ss |
+| pageNum | Integer | 否 | 页码，默认 1 |
+| pageSize | Integer | 否 | 每页条数，默认 10 |
+| orderByColumn | String | 否 | 排序列，如：create_time |
+| isAsc | String | 否 | 排序方向，asc-升序，desc-降序，默认 asc |
+| reasonable | Boolean | 否 | 分页参数合理化，true-合理化处理，false-不进行合理化处理，默认 true |
+
+### 响应参数
+```json
+{
+  "code": 200,
+  "msg": "查询成功",
+  "total": 1,
+  "rows": [
+    {
+      "guestbookId": "263",
+      "nickname": "test_user",
+      "email": "test@example.com",
+      "content": "这是一条待审核的留言",
+      "avatar": "",
+      "location": "内网 IP",
+      "rootId": "0",
+      "parentId": "0",
+      "isRoot": 1,
+      "status": 2,
+      "replyCount": 0,
+      "messageTime": "2026-03-20 10:00:00"
+    }
+  ]
+}
+```
+
+### 响应字段说明
+| 字段名 | 类型 | 说明 |
+|--------|------|------|
+| code | Integer | 状态码，200 表示成功 |
+| msg | String | 响应消息 |
+| total | Long | 总记录数 |
+| rows | Array | 留言列表 |
+| guestbookId | Long | 留言 ID |
+| nickname | String | 昵称 |
+| email | String | 邮箱 |
+| content | String | 留言内容 |
+| avatar | String | 头像地址 |
+| location | String | IP 所在地区 |
+| rootId | Long | 根留言 ID，0 表示根留言 |
+| parentId | Long | 回复留言 ID，0 表示直接回复根留言 |
+| isRoot | Integer | 是否为根留言：0-否，1-是 |
+| status | Integer | 状态：0-隐藏，1-显示，2-审核中 |
+| messageTime | String | 留言时间 |
+| replyCount | Integer | 回复数量（仅根留言有该字段） |
+
+---
+
 # 二、前台接口
 
 ## 基础路径
