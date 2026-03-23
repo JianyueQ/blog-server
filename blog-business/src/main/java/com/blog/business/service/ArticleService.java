@@ -5,6 +5,7 @@ import com.blog.business.domain.entity.Articles;
 import com.blog.business.domain.vo.FrontArticlesArchivesVo;
 import com.blog.business.domain.vo.FrontArticlesDetailVo;
 import com.blog.business.domain.vo.FrontArticlesPageVo;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -32,4 +33,5 @@ public interface ArticleService {
 
     List<FrontArticlesArchivesVo> frontGetArticleArchives();
 
+    void addArticleBrowseNum(String slug, HttpServletRequest request);
 }

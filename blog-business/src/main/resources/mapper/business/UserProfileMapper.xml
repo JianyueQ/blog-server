@@ -25,7 +25,7 @@
     </select>
 
     <select id="getBlogOwnerAboutMe" resultType="com.blog.business.domain.vo.BlogAboutMeVo">
-        select content as aboutMeContent from about_me where about_me_id = 1 and is_deleted = 0 limit 1
+        select content as aboutMeContent from about_me where about_me_id = 1 and is_deleted = 0
     </select>
 
 </mapper>

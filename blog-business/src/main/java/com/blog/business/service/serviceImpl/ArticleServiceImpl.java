@@ -12,20 +12,25 @@ import com.blog.business.manager.factory.ArticlesAsyncFactory;
 import com.blog.business.mapper.ArticleMapper;
 import com.blog.business.mapper.ArticleTagsMapper;
 import com.blog.business.service.ArticleService;
+import com.blog.business.utils.FingerprintUtils;
 import com.blog.business.utils.MarkdownUtil;
+import com.blog.common.core.redis.RedisCache;
 import com.blog.common.utils.DateUtils;
 import com.blog.common.utils.StringUtils;
+import com.blog.common.utils.ip.AddressUtils;
+import com.blog.common.utils.ip.IpUtils;
 import com.blog.framework.manager.AsyncManager;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 文章管理
@@ -39,6 +44,8 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleMapper articleMapper;
     @Autowired
     private ArticleTagsMapper articleTagsMapper;
+    @Autowired
+    private RedisCache redisCache;
 
 
     @Override
@@ -197,5 +204,13 @@ public class ArticleServiceImpl implements ArticleService {
         return result;
     }
 
-
+    @Override
+    public void addArticleBrowseNum(String slug, HttpServletRequest request) {
+        String cacheKey = ArticlesConstant.ARTICLES_BROWSE_NUM_KEY + slug;
+        long one = ArticlesConstant.ONE;
+        String ipAddr = IpUtils.getIpAddr(request);
+        if (redisCache.setCacheUniqueValue(cacheKey + ipAddr, ipAddr,one, TimeUnit.DAYS)){
+            redisCache.increment(cacheKey,one, TimeUnit.DAYS);
+        }
+    }
 }

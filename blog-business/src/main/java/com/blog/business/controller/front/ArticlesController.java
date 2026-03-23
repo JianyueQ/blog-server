@@ -9,6 +9,7 @@ import com.blog.common.annotation.Anonymous;
 import com.blog.common.core.controller.BaseController;
 import com.blog.common.core.page.TableDataInfo;
 import com.blog.common.domain.AjaxResult;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,7 +56,14 @@ public class ArticlesController extends BaseController {
         return AjaxResult.success(list);
     }
 
-
+    /**
+     * 添加文章浏览数量
+     */
+    @PostMapping("/addArticleBrowseNum/{slug}")
+    public AjaxResult addArticleBrowseNum(@PathVariable("slug") String slug, HttpServletRequest request) {
+        articleService.addArticleBrowseNum(slug,request);
+        return AjaxResult.success();
+    }
 
 
 }

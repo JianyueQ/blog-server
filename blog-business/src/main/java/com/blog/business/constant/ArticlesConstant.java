@@ -23,4 +23,12 @@ public class ArticlesConstant {
      * 是否置顶0-否
      */
     public static final int IS_NOT_TOP = 0;
+
+    /**
+     * 文章浏览量key
+     */
+    public static final String ARTICLES_BROWSE_NUM_KEY = "articles_browse_num:";
+
+
+    public static final long ONE = 1;
 }
