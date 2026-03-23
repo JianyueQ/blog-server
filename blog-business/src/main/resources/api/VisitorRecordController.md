@@ -153,3 +153,32 @@ POST /system/visitor/record/clean
 |--------|------|------|
 | code | Integer | 状态码，200表示成功 |
 | msg | String | 响应消息 |
+
+# 前台接口
+
+## 基础路径
+```
+/blog/visitor/record
+```
+---
+
+## 1. 访客获取唯一的哈希指纹
+
+### URL
+```
+GET /blog/visitor/record
+```
+
+### 请求参数
+| 参数名 | 类型 | 必填 | 说明 |
+|--------|------|------|------|
+| clientData | String | 是 | 客户端数据，用于生成唯一标识 |
+
+### 响应参数
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "data": "abc123def456ghi789"
+}
+```

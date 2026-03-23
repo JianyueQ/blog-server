@@ -30,4 +30,7 @@ public interface VisitorRecordService {
     VisitorRecord getVisitorRecordByFingerprint(String fingerprint);
 
     void updateVisitorRecord(VisitorRecord visitorRecordInDB);
+
+    String getPermissions(String clientData);
+
 }

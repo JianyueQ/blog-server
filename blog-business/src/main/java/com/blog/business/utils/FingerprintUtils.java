@@ -2,10 +2,11 @@ package com.blog.business.utils;
 
 import com.alibaba.fastjson2.JSON;
 import com.blog.business.domain.entity.VisitorRecordParameters;
+import com.blog.common.utils.ServletUtils;
 import com.blog.common.utils.StringUtils;
+import com.blog.common.utils.http.UserAgentUtils;
+import com.blog.common.utils.ip.IpUtils;
 import com.blog.common.utils.uuid.UUID;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,6 +21,7 @@ import java.util.Base64;
 
 /**
  * 浏览器指纹工具类
+ *
  * @author 31373
  */
 public class FingerprintUtils {
@@ -66,36 +68,18 @@ public class FingerprintUtils {
 
     /**
      * 生成唯一的哈希指纹,根据用户代理和客户端数据生成
-     */
-    public static String generateFingerprint(HttpServletRequest request) {
-        String userAgent = request.getHeader("User-Agent");
-        String clientData = request.getHeader("Client-Data");
-        String decrypt = decrypt(clientData);
-        return generateFingerprint(userAgent, JSON.parseObject(decrypt, VisitorRecordParameters.class));
-    }
-
-
-    /**
-     * 生成唯一的哈希指纹,根据用户代理和客户端数据生成
      *
-     * @param userAgent 用户代理
      * @param clientData 客户端数据
      * @return 哈希指纹
      */
-    public static String generateFingerprint(String userAgent, VisitorRecordParameters clientData) {
+    public static String generateFingerprint(VisitorRecordParameters clientData) {
         try {
             // 收集用于生成指纹的信息
             StringBuilder fingerprintBuilder = new StringBuilder();
-            if (StringUtils.isNotNull(clientData)) {
-                //删除实体中的昵称,头像,邮箱
-                clientData.setVisitor(null);
-                String jsonString = JSON.toJSONString(clientData);
-                fingerprintBuilder.append(jsonString);
-            }
-            // 用户代理字符串（浏览器特征）
-            if (StringUtils.isNotEmpty(userAgent)) {
-                fingerprintBuilder.append(userAgent);
-            }
+            //删除实体中的昵称,头像,邮箱,时间戳
+            clientData.setVisitor(null);
+            String jsonString = JSON.toJSONString(clientData);
+            fingerprintBuilder.append(jsonString);
             // 生成MD5哈希作为指纹
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(fingerprintBuilder.toString().getBytes(StandardCharsets.UTF_8));

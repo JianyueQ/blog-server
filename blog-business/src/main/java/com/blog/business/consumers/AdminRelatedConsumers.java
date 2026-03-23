@@ -59,19 +59,9 @@ public class AdminRelatedConsumers {
         VisitorRecord visitorRecord = JSON.parseObject(str, VisitorRecord.class);
         VisitorRecordMapper visitorRecordMapper = SpringUtils.getBean(VisitorRecordMapper.class);
         RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
-        String decrypt = FingerprintUtils.decrypt(visitorRecord.getClientData());
-        VisitorRecordParameters visitorRecordParameters = JSON.parseObject(decrypt, VisitorRecordParameters.class);
-        //计算时间戳
-        VisitorInfo visitorInfo = new VisitorInfo();
-        if (StringUtils.isNotNull(visitorRecordParameters)) {
-            visitorInfo.setAvatar(visitorRecordParameters.getVisitor().getAvatar());
-            visitorInfo.setEmail(visitorRecordParameters.getVisitor().getEmail());
-            visitorInfo.setNickname(visitorRecordParameters.getVisitor().getNickname());
-        }
-        //构造访客指纹,用于唯一标识访客
-        String fingerprint = generateVisitorFingerprint(visitorRecord.getUserAgent(), visitorRecordParameters);
-        visitorRecord.setFingerprint(fingerprint);
+        VisitorInfo visitorInfo = visitorRecord.getVisitor();
         //根据构造出的访客指纹查询数据库中是否存在该访客
+        String fingerprint = visitorRecord.getFingerprint();
         VisitorRecord visitorRecordInDB = visitorRecordMapper.getVisitorRecordByFingerprint(fingerprint);
         if (StringUtils.isNotNull(visitorRecordInDB)) {
             visitorRecordInDB.setFingerprint(fingerprint);

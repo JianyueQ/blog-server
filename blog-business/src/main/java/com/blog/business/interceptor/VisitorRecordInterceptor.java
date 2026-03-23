@@ -63,12 +63,12 @@ public class VisitorRecordInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         try {
             //获取请求头中的x-client-data
-            String clientData = request.getHeader("x-client-data");
-            if (StringUtils.isEmpty(clientData)){
-                AjaxResult result = AjaxResult.error(HttpStatus.WARN, "你已被加入黑名单,请联系管理员");
-                ServletUtils.renderString(response, JSON.toJSONString(result));
-                return false;
-            }
+//            String clientData = request.getHeader("x-client-data");
+//            if (StringUtils.isEmpty(clientData)){
+//                AjaxResult result = AjaxResult.error(HttpStatus.WARN, "你已被加入黑名单,请联系管理员");
+//                ServletUtils.renderString(response, JSON.toJSONString(result));
+//                return false;
+//            }
             if (blackListCheck(request)) {
                 AjaxResult result = AjaxResult.error(HttpStatus.WARN, "你已被加入黑名单,请联系管理员");
                 ServletUtils.renderString(response, JSON.toJSONString(result));
@@ -85,10 +85,10 @@ public class VisitorRecordInterceptor implements HandlerInterceptor {
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        String ip = IpUtils.getIpAddr(request);
-        if (shouldRecordVisitor(ip)){
-            recordVisitor(request,ip);
-        }
+//        String ip = IpUtils.getIpAddr(request);
+//        if (shouldRecordVisitor(ip)){
+//            recordVisitor(request,ip);
+//        }
     }
 
     /**
@@ -97,24 +97,24 @@ public class VisitorRecordInterceptor implements HandlerInterceptor {
      * @param request 请求
      */
     private void recordVisitor(HttpServletRequest request,String ip) {
-        try {
-            VisitorRecord visitorRecord = new VisitorRecord();
-            visitorRecord.setIpaddr(ip);
-            visitorRecord.setLocation(AddressUtils.getRealAddressByIP(ip));
-            String userAgent = request.getHeader("User-Agent");
-            visitorRecord.setUserAgent(userAgent);
-            String clientData = request.getHeader("x-client-data");
-            visitorRecord.setClientData(clientData);
-            visitorRecord.setBrowser(UserAgentUtils.getBrowser(userAgent));
-            visitorRecord.setOs(UserAgentUtils.getOperatingSystem(userAgent));
-            visitorRecord.setVisitTime(DateUtils.getTime());
-            visitorRecord.setCreateTime(DateUtils.getNowDate());
-            // 异步保存访客记录
-            rabbitManager.sendVisitorRecord(visitorRecord);
-            log.debug("记录访客信息: IP={}, Location={}, Browser={}", ip, visitorRecord.getLocation(), visitorRecord.getBrowser());
-        } catch (Exception e) {
-            log.error("记录访客信息失败:", e);
-        }
+//        try {
+//            VisitorRecord visitorRecord = new VisitorRecord();
+//            visitorRecord.setIpaddr(ip);
+//            visitorRecord.setLocation(AddressUtils.getRealAddressByIP(ip));
+//            String userAgent = request.getHeader("User-Agent");
+//            visitorRecord.setUserAgent(userAgent);
+//            String clientData = request.getHeader("x-client-data");
+//            visitorRecord.setClientData(clientData);
+//            visitorRecord.setBrowser(UserAgentUtils.getBrowser(userAgent));
+//            visitorRecord.setOs(UserAgentUtils.getOperatingSystem(userAgent));
+//            visitorRecord.setVisitTime(DateUtils.getTime());
+//            visitorRecord.setCreateTime(DateUtils.getNowDate());
+//            // 异步保存访客记录
+//            rabbitManager.sendVisitorRecord(visitorRecord);
+//            log.debug("记录访客信息: IP={}, Location={}, Browser={}", ip, visitorRecord.getLocation(), visitorRecord.getBrowser());
+//        } catch (Exception e) {
+//            log.error("记录访客信息失败:", e);
+//        }
     }
 
     /**

@@ -10,10 +10,6 @@ import jakarta.validation.constraints.Size;
 public class VisitorRecordParameters {
     // 前端收集浏览器信息,用于制作访客指纹
     /**
-     * 来源页面
-     */
-    private String referer;
-    /**
      * 屏幕分辨率 "1920x1080"
      */
     private String screen;
@@ -25,10 +21,6 @@ public class VisitorRecordParameters {
      *  语言 "zh-CN"
      */
     private String language;
-    /**
-     * 平台 "Win32"
-     */
-    private String platform;
     /**
      * 是否支持Cookie
      */
@@ -47,16 +39,30 @@ public class VisitorRecordParameters {
     private Integer hardwareConcurrency;
 
     /**
-     * 时间戳
+     * 浏览器类型
      */
-    private Long timestamp;
+    private String browser;
 
-    public String getReferer() {
-        return referer;
+    /**
+     * 操作系统
+     */
+    private String os;
+
+
+    public String getBrowser() {
+        return browser;
     }
 
-    public void setReferer(String referer) {
-        this.referer = referer;
+    public void setBrowser(String browser) {
+        this.browser = browser;
+    }
+
+    public String getOs() {
+        return os;
+    }
+
+    public void setOs(String os) {
+        this.os = os;
     }
 
     public String getScreen() {
@@ -81,14 +87,6 @@ public class VisitorRecordParameters {
 
     public void setLanguage(String language) {
         this.language = language;
-    }
-
-    public String getPlatform() {
-        return platform;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
     }
 
     public Boolean getCookiesEnabled() {

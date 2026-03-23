@@ -58,10 +58,12 @@ public class VisitorRecord extends BaseEntity {
      * 加入黑名单的原因
      */
     private String reason;
+
     /**
-     * 客户端数据
+     * 访客信息
      */
-    private String clientData;
+    private VisitorInfo visitor;
+
     /**
      * 用户代理字符串
      */
@@ -163,11 +165,11 @@ public class VisitorRecord extends BaseEntity {
         this.reason = reason;
     }
 
-    public String getClientData() {
-        return clientData;
+    public VisitorInfo getVisitor() {
+        return visitor;
     }
 
-    public void setClientData(String clientData) {
-        this.clientData = clientData;
+    public void setVisitor(VisitorInfo visitor) {
+        this.visitor = visitor;
     }
 }
