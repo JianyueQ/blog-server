@@ -115,7 +115,8 @@
     </select>
 
     <select id="frontGetArticleTagsList" resultType="com.blog.business.domain.entity.ArticleTags">
-        select article_tags_id, name, slug from article_tags
+        select article_tags_id, name, slug, usage_frequency from article_tags
+        where is_deleted = 0
     </select>
 
     <select id="frontGetArticleListByTag" resultType="FrontArticlesPageVo">

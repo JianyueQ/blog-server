@@ -12,12 +12,12 @@ import com.blog.business.manager.factory.ArticlesAsyncFactory;
 import com.blog.business.mapper.ArticleMapper;
 import com.blog.business.mapper.ArticleTagsMapper;
 import com.blog.business.service.ArticleService;
-import com.blog.business.utils.FingerprintUtils;
+import com.blog.business.utils.ArticleHotScoreUtils;
 import com.blog.business.utils.MarkdownUtil;
 import com.blog.common.core.redis.RedisCache;
 import com.blog.common.utils.DateUtils;
+import com.blog.common.utils.ServletUtils;
 import com.blog.common.utils.StringUtils;
-import com.blog.common.utils.ip.AddressUtils;
 import com.blog.common.utils.ip.IpUtils;
 import com.blog.framework.manager.AsyncManager;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,10 +26,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -157,7 +154,23 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Cacheable(cacheNames = "frontArticles", keyGenerator = "CacheKeyGenerator")
     public List<FrontArticlesPageVo> frontGetArticleList(ArticleListDto articleListDto) {
-        return articleMapper.frontGetArticleList();
+        List<FrontArticlesPageVo> frontArticlesPageVos = articleMapper.frontGetArticleList();
+        if (articleListDto.getHotSort()) {
+            //计算每个文章的热度,并根据热度进行排序
+            for (FrontArticlesPageVo frontArticlesPageVo : frontArticlesPageVos) {
+                double hotScore = ArticleHotScoreUtils.calculateHotScore(frontArticlesPageVo.getViewCount(), frontArticlesPageVo.getLikeCount(),
+                        frontArticlesPageVo.getCommentCount(), frontArticlesPageVo.getPublishTime());
+                frontArticlesPageVo.setHotScore(hotScore);
+            }
+            frontArticlesPageVos.sort((o1, o2) -> Double.compare(o2.getHotScore(), o1.getHotScore()));
+            return frontArticlesPageVos;
+        } else if (articleListDto.getTimeSort()) {
+            //根据发布时间进行排序,时间约早越在前面
+            frontArticlesPageVos.sort(Comparator.comparing(FrontArticlesPageVo::getPublishTime));
+            return frontArticlesPageVos;
+        } else {
+            return frontArticlesPageVos;
+        }
     }
 
     @Override
@@ -205,12 +218,23 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public void addArticleBrowseNum(String slug, HttpServletRequest request) {
+    public Long addArticleBrowseNum(String slug) {
         String cacheKey = ArticlesConstant.ARTICLES_BROWSE_NUM_KEY + slug;
         long one = ArticlesConstant.ONE;
+        HttpServletRequest request = ServletUtils.getRequest();
         String ipAddr = IpUtils.getIpAddr(request);
-        if (redisCache.setCacheUniqueValue(cacheKey + ipAddr, ipAddr,one, TimeUnit.DAYS)){
-            redisCache.increment(cacheKey,one, TimeUnit.DAYS);
+        Long viewCount;
+        if (redisCache.setCacheUniqueValue(cacheKey + ipAddr, ipAddr, one, TimeUnit.DAYS)) {
+            viewCount = redisCache.increment(cacheKey, one, TimeUnit.DAYS);
+        }else {
+            //获取浏览数量
+            viewCount = redisCache.getCacheObject(cacheKey);
         }
+        return viewCount;
+    }
+
+    @Override
+    public Long addArticleLikeNum(String slug) {
+        return 0L;
     }
 }

@@ -75,6 +75,12 @@ public class FrontArticlesPageVo implements Serializable {
      * 是否置顶,0-否，1-是
      */
     private Integer isTop;
+
+    /**
+     * 文章热度
+     */
+    @JsonIgnore
+    private double hotScore;
     /**
      * 发布时间
      */
@@ -192,6 +198,14 @@ public class FrontArticlesPageVo implements Serializable {
         this.categoryName = categoryName;
     }
 
+    public double getHotScore() {
+        return hotScore;
+    }
+
+    public void setHotScore(double hotScore) {
+        this.hotScore = hotScore;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(ToStringStyle.MULTI_LINE_STYLE)
@@ -208,6 +222,7 @@ public class FrontArticlesPageVo implements Serializable {
                 .append("wordCount", getWordCount())
                 .append("readingTime", getReadingTime())
                 .append("isTop", getIsTop())
+                .append("hotScore", getHotScore())
                 .append("publishTime", getPublishTime())
                 .toString();
     }

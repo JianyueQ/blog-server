@@ -2,6 +2,7 @@ package com.blog.business.domain.dto;
 
 /**
  * 文章列表查询条件
+ *
  * @author 31373
  */
 public class ArticleListDto {

@@ -33,5 +33,7 @@ public interface ArticleService {
 
     List<FrontArticlesArchivesVo> frontGetArticleArchives();
 
-    void addArticleBrowseNum(String slug, HttpServletRequest request);
+    Long addArticleBrowseNum(String slug);
+
+    Long addArticleLikeNum(String slug);
 }

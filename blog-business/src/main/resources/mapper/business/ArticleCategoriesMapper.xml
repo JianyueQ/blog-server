@@ -98,7 +98,7 @@
     </select>
 
     <select id="frontGetArticleCategoriesList" resultType="com.blog.business.domain.entity.ArticleCategories">
-        select name,slug,description,sort from article_categories where is_deleted = 0
+        select article_categories_id,name,slug,description,sort,article_count from article_categories where is_deleted = 0
     </select>
 
     <select id="frontGetArticleListByArticleCategoriesId"

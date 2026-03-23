@@ -43,7 +43,6 @@ public class FrontArticlesDetailVo implements Serializable {
     /**
      * markdown内容
      */
-    @JsonIgnore
     private String contentMarkdown;
     /**
      * 转换后的html内容

@@ -571,3 +571,35 @@ GET /blog/articles/getArticleArchives
 | slug         | String  | url标识       |
 | publishDay   | Integer | 发布日期        |
 | publishTime  | String  | 发布时间        |
+
+## 4. 添加文章浏览数量
+
+### URL
+
+```
+POST /blog/articles/addArticleBrowseNum/{slug}
+```
+
+### 请求参数
+
+| 参数名 | 类型     | 必填 | 说明          |
+|------|--------|----|-------------|
+| slug | String | 是  | 文章URL标识（路径参数） |
+
+### 响应参数
+
+```json
+{
+  "code": 200,
+  "msg": "操作成功",
+  "data": 150
+}
+```
+
+### 响应字段说明
+
+| 字段名  | 类型      | 说明          |
+|------|---------|-------------|
+| code | Integer | 状态码，200表示成功 |
+| msg  | String  | 响应消息        |
+| data | Long    | 文章最新浏览次数    |
